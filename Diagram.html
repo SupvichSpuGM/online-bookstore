@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Project Deliverables - Online Book Store System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'neutral',
+            securityLevel: 'loose',
+            fontFamily: 'Sarabun',
+            flowchart: { useMaxWidth: true, htmlLabels: true }
+        });
+    </script>
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --primary-light: #eef2ff;
+            --text-main: #1e293b;
+            --text-muted: #475569;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --accent: #0f172a;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            line-height: 1.8;
+            color: var(--text-main);
+            background-color: var(--bg-body);
+            margin: 0;
+            padding: 50px 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            padding: 60px;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -10px rgba(0, 0, 0, 0.04);
+            border-top: 12px solid var(--primary);
+        }
+
+        .header-block {
+            text-align: center;
+            margin-bottom: 50px;
+            border-bottom: 2px dashed var(--border-color);
+            padding-bottom: 40px;
+        }
+
+        h1 {
+            color: #1e1b4b;
+            font-size: 34px;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .badge-sub {
+            display: inline-block;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            border: 1px solid #c7d2fe;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 60px;
+            margin-bottom: 25px;
+        }
+
+        h3 {
+            color: var(--accent);
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        p {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-indent: 30px;
+            text-align: justify;
+        }
+
+        /* กล่องครอบแผนผังโครงสร้างแบบขยายได้ */
+        .diagram-box {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 35px;
+            margin: 25px 0;
+            overflow-x: auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        /* ตารางสเปกและรายละเอียดคลาส */
+        .spec-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0 35px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .spec-table th {
+            background-color: #f1f5f9;
+            color: var(--accent);
+            font-weight: 600;
+            padding: 14px 18px;
+            font-size: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .spec-table td {
+            padding: 14px 18px;
+            font-size: 15px;
+            color: #334155;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .spec-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* สไตล์ชุดข้อมูล JSON Contract */
+        .code-container {
+            position: relative;
+            margin: 25px 0;
+        }
+        .code-label {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            background: rgba(255,255,255,0.15);
+            color: #94a3b8;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        pre {
+            background-color: #0f172a;
+            color: #38bdf8;
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin: 0;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .json-key { color: #f43f5e; font-weight: bold; }
+        .json-string { color: #10b981; }
+        .json-number { color: #fbbf24; }
+        .json-boolean { color: #c084fc; }
+
+        /* การออกแบบ Wireframe บูรณาการขั้นสูง */
+        .wf-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin: 25px 0;
+        }
+        @media (min-width: 768px) {
+            .wf-container { grid-template-columns: 3fr 2fr; }
+        }
+        .wf-card-main {
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+        }
+        .wf-nav {
+            background: #1e293b;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        .wf-nav-links { display: flex; gap: 15px; color: #94a3b8; }
+        .wf-hero {
+            background: #f1f5f9;
+            border-bottom: 2px dashed #cbd5e1;
+            padding: 30px;
+            text-align: center;
+            color: #64748b;
+        }
+        .wf-search-bar {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 8px 15px;
+            border-radius: 6px;
+            max-width: 400px;
+            margin: 15px auto 0 auto;
+            font-size: 13px;
+            color: #94a3b8;
+            text-align: left;
+        }
+        .wf-product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 20px;
+        }
+        .wf-product-item {
+            border: 1px dashed #94a3b8;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            background: #fafafa;
+        }
+        .wf-img-holder { background: #e2e8f0; height: 100px; border-radius: 4px; margin-bottom: 10px; }
+        .wf-btn { background: #4f46e5; color: white; padding: 6px; border-radius: 4px; font-size: 11px; margin-top: 8px; }
+
+        .info-panel {
+            background: var(--bg-body);
+            border-left: 5px solid var(--primary);
+            padding: 20px 25px;
+            margin: 25px 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .highlight-badge {
+            background: #f0fdf4;
+            color: #16a34a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid #bbf7d0;
+        }
+
+        ul, ol { padding-left: 25px; margin-bottom: 20px; }
+        li { margin-bottom: 12px; font-size: 16px; color: #334155; }
+
+        @media print {
+            body { background: #fff; padding: 0; }
+            .container { box-shadow: none; padding: 0; border: none; }
+            .diagram-box, pre { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="header-block">
+        <h1>📊 ระบบจำหน่ายหนังสือออนไลน์ (Online Book Store System)</h1>
+        <div class="badge-sub">เอกสารส่งมอบชิ้นงานสถาปัตยกรรมและการออกแบบระบบเชิงลึก (CSI204)</div>
+    </div>
+
+    <h2>📋 1. Use Case Diagram & Specification (ขอบเขตระบบและการวิเคราะห์การใช้งาน)</h2>
+    <p>
+        แผนภาพยกระดับขอบเขตของระบบ (System Boundary) เพื่อแจกแจงกรณีการใช้งานเชิงลึก โดยระบุความสัมพันธ์แบบ <code>&lt;&lt;include&gt;&gt;</code> สำหรับการยืนยันตัวตนในกิจกรรมสำคัญ และแยกระดับสิทธิ์เข้าถึงระหว่าง ลูกค้า (Customer), พนักงานจัดการสต็อก (Staff) และผู้ดูแลระบบวิเคราะห์ข้อมูล (Admin) ไว้อย่างเด็ดขาด:
+    </p>
+    
+    <div class="diagram-box">
+        <div class="mermaid">
+        graph LR
+            subgraph Actors ["กลุ่มผู้ใช้งาน (Actors)"]
+                Customer[👤 ลูกค้า / ผู้ซื้อ]
+                Staff[🧑‍💼 พนักงานหลังบ้าน]
+                Admin[⚙️ ผู้ดูแลระบบ / แอดมิน]
+            end
+
+            subgraph Boundary ["ขอบเขตระบบร้านหนังสือออนไลน์ (System Boundary)"]
+                UC_Auth((UC1: ยืนยันตัวตนเข้าระบบ))
+                UC_Search((UC2: ค้นหาหนังสือและหมวดหมู่))
+                UC_Cart((UC3: จัดการตะกร้าสินค้า))
+                
+                UC_Checkout((UC4: สั่งซื้อและแนบหลักฐานโอนเงิน))
+                UC_Verify((UC5: ตรวจสอบการชำระเงินและสลิป))
+                UC_Stock((UC6: บริหารคลังสินค้าและหนังสือ))
+                UC_Report((UC7: ดูสรุปยอดขาย BI Dashboard))
+                
+                %% Relationship includes
+                UC_Checkout -.->|&lt;&lt;include&gt;&gt;| UC_Auth
+                UC_Verify -.->|&lt;&lt;include&gt;&gt;| UC_Auth
+                UC_Stock -.->|&lt;&lt;include&gt;&gt;| UC_Auth
+                UC_Report -.->|&lt;&lt;include&gt;&gt;| UC_Auth
+            end
+
+            %% Mapping
+            Customer --> UC_Search
+            Customer --> UC_Cart
+            Customer --> UC_Checkout
+
+            Staff --> UC_Verify
+            Staff --> UC_Stock
+
+            Admin --> UC_Stock
+            Admin --> UC_Report
+        </div>
+    </div>
+
+    <h3>ตารางแจกแจงรายละเอียดสิทธิ์การใช้งาน (Use Case Specification Matrix)</h3>
+    <table class="spec-table">
+        <thead>
+            <tr>
+                <th style="width: 20%">รหัสและชื่อ Use Case</th>
+                <th style="width: 25%">ผู้มีสิทธิ์ใช้งานหลัก (Actors)</th>
+                <th style="width: 55%">เงื่อนไขและคำอธิบายการทำงาน (Pre-conditions & Flow)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>UC1: ยืนยันตัวตนเข้าระบบ</strong></td>
+                <td>ลูกค้า, พนักงาน, ผู้ดูแลระบบ</td>
+                <td>ใช้สถาปัตยกรรมสแกนสิทธิ์ตรวจสอบความถูกต้องของรหัสผ่านเพื่อสร้าง JWT Token ก่อนเข้าถึงข้อมูลส่วนบุคคล</td>
+            </tr>
+            <tr>
+                <td><strong>UC4: สั่งซื้อและแนบหลักฐาน</strong></td>
+                <td>ลูกค้า (Customer)</td>
+                <td>คำนวณราคาสุทธิจากระบบตะกร้าสินค้า ดึงข้อมูลการตัดสต็อก และรองรับการอัปโหลดไฟล์ภาพสลิปเพื่อส่งต่อให้เจ้าหน้าที่</td>
+            </tr>
+            <tr>
+                <td><strong>UC6: บริหารคลังสินค้า</strong></td>
+                <td>พนักงานหลังบ้าน, ผู้ดูแลระบบ</td>
+                <td>ระบบควบคุมการ เพิ่ม-ลบ-แก้ไข ข้อมูลหนังสือ จัดการหมวดหมู่ และปรับปรุงจำนวนสินค้าพร้อมจำหน่ายแบบ Real-time</td>
+            </tr>
+        </tbody>
+    </table>
+
+
+    <h2>🏗️ 2. Class Diagram & Entity Attributes (โครงสร้างความสัมพันธ์ของคลาสข้อมูล)</h2>
+    <p>
+        แผนภาพคลาสเชิงวัตถุระบุข้อมูลจำเพาะ (Data Specifications) ของชุดข้อมูล โดยประกอบด้วยชนิดของข้อมูล (Data Type), สิทธิ์การเข้าถึง (Access Modifier) เช่น Private (-) และ Public (+) รวมถึงฟังก์ชันบริการภายในตัวคลาสเพื่อใช้เชื่อมต่อสถาปัตยกรรมเข้าฐานข้อมูล MySQL:
+    </p>
+    
+    <div class="diagram-box">
+        <div class="mermaid">
+        classDiagram
+            class User {
+                -int user_id
+                -string name
+                -string email
+                -string password
+                -string role
+                +register() bool
+                +login() string
+                +getProfile() Object
+            }
+
+            class Book {
+                -int book_id
+                -string title
+                -string author
+                -double price
+                -int stock_qty
+                -string category
+                +getDetails() Object
+                +updateStock(int qty) bool
+                +adjustPrice(double newPrice)
+            }
+
+            class Cart {
+                -int cart_id
+                -int user_id
+                -double temp_total
+                +addItem(int book_id, int qty) bool
+                +removeItem(int book_id) bool
+                +calculateTotal() double
+                +clearCart()
+            }
+
+            class Order {
+                -int order_id
+                -int user_id
+                -date order_date
+                -double total_amount
+                -string status
+                -string slip_image_url
+                +createOrder() int
+                +uploadPaymentSlip(string url) bool
+                +updateStatus(string newStatus) bool
+            }
+
+            User "1" -- "1" Cart : Owns &gt;
+            User "1" -- "0..*" Order : Places &gt;
+            Cart "1" -- "0..*" Book : Temporary Holds &gt;
+            Order "1" -- "1..*" Book : Contains &gt;
+        </div>
+    </div>
+
+
+    <h2>🔄 3. Sequence Diagram (ลำดับขั้นตอนการตรวจสอบและชำระเงินเชิงลึก)</h2>
+    <p>
+        แผนภาพจำลองปฏิสัมพันธ์ในลักษณะเวลา (Timeline Base) อธิบายกระบวนการตรวจสอบสลิปและการอนุมัติจัดส่งโดยเจ้าหน้าที่ (Staff) ซึ่งเป็นขั้นตอนที่สำคัญในการควบคุมสถานะของธุรกรรมก่อนที่จะบันทึกปลายทางลงใน MySQL:
+    </p>
+    
+    <div class="diagram-box">
+        <div class="mermaid">
+        sequenceDiagram
+            autonumber
+            actor Staff as 🧑‍💼 พนักงาน (Staff Dashboard UI)
+            participant Backend as ⚙️ ระบบหลังบ้าน (Express.js API)
+            participant DB as 🗄️ ฐานข้อมูล (MySQL RDBMS)
+
+            Staff->>Backend: 1. ร้องขอรายการคำสั่งซื้อค้างตรวจสอบ (GET /api/orders/pending)
+            activate Backend
+            Backend->>DB: 2. ดึงข้อมูลออเดอร์ที่แนบสลิปเข้ามา
+            activate DB
+            DB-->>Backend: 3. ส่งคืนอาเรย์ข้อมูลรายการธุรกรรม
+            deactivate DB
+            Backend-->>Staff: 4. แสดงผลรายการออเดอร์และรูปภาพสลิปบนหน้าจอ
+            deactivate Backend
+
+            rect rgb(240, 243, 255)
+                note over Staff, DB: ขั้นตอนการตรวจสอบและกดอนุมัติสิทธิ์
+                Staff->>Backend: 5. กดอนุมัติออเดอร์ (PUT /api/orders/:id/approve)
+                activate Backend
+                Backend->>DB: 6. ปรับปรุงสถานะสเตตัสออเดอร์เป็น 'Paid' & เตรียมจัดส่ง
+                activate DB
+                DB-->>Backend: 7. ยืนยันการอัปเดตสเตตัสสำเร็จ
+                deactivate DB
+                Backend-->>Staff: 8. แจ้งเตือนสถานะความสำเร็จ "อนุมัติรายการชำระเงินเรียบร้อย" (HTTP 200 OK)
+                deactivate Backend
+            end
+        </div>
+    </div>
+
+
+    <h2>🎨 4. Wireframe / Prototype Component (โครงสร้างและพิมพ์เขียวการจัดวางหน้าจอ)</h2>
+    <p>
+        แบบจำลองโครงร่างหน้าเว็บเพจสำหรับการสั่งซื้อและการสืบค้น (Responsive Grid Layout) ซึ่งใช้สำหรับเป็นต้นแบบให้ทีมพัฒนา Frontend สามารถขึ้นชิ้นงานด้วย React และ Tailwind CSS ได้อย่างถูกต้องแม่นยำ:
+    </p>
+    
+    <div class="wf-container">
+        <div class="wf-card-main">
+            <div class="wf-nav">
+                <div style="font-weight: bold;">📚 BOOKSTORE PORTAL</div>
+                <div class="wf-nav-links">
+                    <span>หน้าแรก</span>
+                    <span>หมวดหมู่</span>
+                    <span>🛒 ตะกร้าสินค้า (2)</span>
+                    <span style="color:white;">👤 โปรไฟล์</span>
+                </div>
+            </div>
+            <div class="wf-hero">
+                <span style="font-size: 14px; font-weight: bold; color: var(--accent);">ค้นหาและสืบค้นหนังสือดิจิทัลระบบ Real-time</span>
+                <div class="wf-search-bar">🔍 พิมพ์ชื่อหนังสือ, ชื่อผู้แต่ง หรือ ISBN ที่ต้องการ...</div>
+            </div>
+            <div class="wf-product-grid">
+                <div class="wf-product-item">
+                    <div class="wf-img-holder"><center style="padding-top:35px; color:#94a3b8; font-size:12px;">Cover Image</center></div>
+                    <div style="font-size:12px; font-weight:bold;">Software Architecture</div>
+                    <div style="font-size:11px; color:#16a34a;">฿299.00 <span style="color:#94a3b8; text-decoration:line-through;">฿350</span></div>
+                    <div class="wf-btn">🛒 เพิ่มลงตะกร้า</div>
+                </div>
+                <div class="wf-product-item">
+                    <div class="wf-img-holder"><center style="padding-top:35px; color:#94a3b8; font-size:12px;">Cover Image</center></div>
+                    <div style="font-size:12px; font-weight:bold;">MySQL & Database</div>
+                    <div style="font-size:11px; color:#16a34a;">฿390.00</div>
+                    <div class="wf-btn">🛒 เพิ่มลงตะกร้า</div>
+                </div>
+                <div class="wf-product-item">
+                    <div class="wf-img-holder"><center style="padding-top:35px; color:#94a3b8; font-size:12px;">Cover Image</center></div>
+                    <div style="font-size:12px; font-weight:bold;">Tailwind Mastery</div>
+                    <div style="font-size:11px; color:#16a34a;">฿180.00</div>
+                    <div class="wf-btn">🛒 เพิ่มลงตะกร้า</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wf-card-main" style="border-color: #94a3b8;">
+            <div class="wf-nav" style="background: #334155;">
+                <div style="font-weight: bold;">🧑‍💼 STAFF CONTROL PANEL</div>
+            </div>
+            <div style="padding: 20px;">
+                <div style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: var(--accent);">📊 เมนูการจัดการหลังบ้าน</div>
+                <div style="background: #f8fafc; border: 1px dashed #cbd5e1; padding: 10px; margin-bottom: 8px; border-radius: 6px; font-size: 12px; font-weight:600;">📦 คลังสินค้า: เพิ่ม/อัปเดตสต็อกหนังสือ</div>
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; margin-bottom: 8px; border-radius: 6px; font-size: 12px; color: #16a34a; font-weight:600;">📑 ตรวจสอบสลิปและคำสั่งซื้อค้างอนุมัติ <span class="highlight-badge">3 ใหม่</span></div>
+                <div style="background: #f8fafc; border: 1px dashed #cbd5e1; padding: 10px; border-radius: 6px; font-size: 12px; color:var(--text-muted);">📈 แดชบอร์ด: รายงานยอดขายประจำสัปดาห์</div>
+            </div>
+        </div>
+    </div>
+
+
+    <h2>💾 5. Data Schema Specification (รูปแบบโครงสร้างข้อมูล JSON สำหรับทดสอบ API)</h2>
+    <p>
+        โครงสร้างข้อมูลระดับลึก (Data Contract Payload) ที่ใช้ทดสอบสัญญาความถูกต้องในการผูกระบบระหว่างตัวหน้าบ้านและ API หลังบ้าน ซึ่งระบุชนิดข้อมูลอ็อบเจกต์ซ้อนโครงสร้างอาเรย์ออเดอร์สินค้า:
+    </p>
+    
+    <div class="code-container">
+        <div class="code-label">JSON Contract Payload</div>
+        <pre>
+{
+  <span class="json-key">"transaction_metadata"</span>: {
+    <span class="json-key">"environment"</span>: <span class="json-string">"production-v1"</span>,
+    <span class="json-key">"api_version"</span>: <span class="json-string">"1.0.4"</span>
+  },
+  <span class="json-key">"order_id"</span>: <span class="json-number">40291</span>,
+  <span class="json-key">"customer_details"</span>: {
+    <span class="json-key">"student_user_id"</span>: <span class="json-number">67120669</span>,
+    <span class="json-key">"fullname"</span>: <span class="json-string">"Siradech Sriam"</span>,
+    <span class="json-key">"shipping_address"</span>: <span class="json-string">"99/1 ถนนวิภาวดีรังสิต ดินแดง กรุงเทพฯ"</span>
+  },
+  <span class="json-key">"items"</span>: [
+    {
+      <span class="json-key">"book_id"</span>: <span class="json-number">101</span>,
+      <span class="json-key">"title"</span>: <span class="json-string">"คู่มือการพัฒนาซอฟต์แวร์แพลตฟอร์มด้วย React"</span>,
+      <span class="json-key">"quantity"</span>: <span class="json-number">2</span>,
+      <span class="json-key">"price_per_unit"</span>: <span class="json-number">250.00</span>
+    },
+    {
+      <span class="json-key">"book_id"</span>: <span class="json-number">105</span>,
+      <span class="json-key">"title"</span>: <span class="json-string">"Introduction to RDBMS & MySQL Architecture"</span>,
+      <span class="json-key">"quantity"</span>: <span class="json-number">1</span>,
+      <span class="json-key">"price_per_unit"</span>: <span class="json-number">390.00</span>
+    }
+  ],
+  <span class="json-key">"financials"</span>: {
+    <span class="json-key">"subtotal"</span>: <span class="json-number">890.00</span>,
+    <span class="json-key">"shipping_fee"</span>: <span class="json-number">0.00</span>,
+    <span class="json-key">"grand_total"</span>: <span class="json-number">890.00</span>
+  },
+  <span class="json-key">"payment_status"</span>: <span class="json-string">"Verified_Success"</span>,
+  <span class="json-key">"is_dispatched"</span>: <span class="json-boolean">true</span>
+}</pre>
+    </div>
+
+
+    <h2>🚀 6. แหล่งเก็บซอร์สโค้ด และรายงานความคืบหน้า (Project Deliverables)</h2>
+    <div class="info-panel">
+        <strong>📂 แหล่งเก็บซอร์สโค้ดส่วนกลาง (GitHub Repository):</strong><br>
+        <a href="https://github.com" target="_blank" style="color:var(--primary); font-weight:600; text-decoration:none;">
+            👉 https://github.com/csi204-innovation/online-bookstore-platform
+        </a>
+    </div>
+    
+    <h3>สรุปสถานภาพชิ้นงานตามเป้าหมายแผนงานโครงการ 4 สัปดาห์:</h3>
+    <ul>
+        <li><strong>ส่วนงานเอกสารและการออกแบบสถาปัตยกรรม (UML Diagrams):</strong> คณะทำงานได้ทำการวางผัง Use Case, Class และ ลำดับขั้นตอนเสร็จสิ้นสมบูรณ์พร้อมส่งมอบคณะกรรมการ</li>
+        <li><strong>ส่วนงานระบบฐานข้อมูล (Database Implementation):</strong> พัฒนาและเชื่อมโยงโครงสร้าง MySQL แทนที่ระบบเก็บข้อมูลเดิมเพื่อความเสถียรและความปลอดภัยเรียบร้อยแล้ว 100%</li>
+        <li><strong>ส่วนงานพัฒนาระบบและทดสอบ (Frontend & API QA Test):</strong> ดำเนินการทดสอบสัญญาและสิทธิ์ผ่านสคริปต์ Postman ควบคู่กับใบ Test Cases ของระบบ UAT อย่างต่อเนื่องเพื่อความไร้ที่ติของระบบ</li>
+    </ul>
+
+</div>
+
+</body>
+</html>

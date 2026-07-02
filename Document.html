@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis & Design - E-Commerce Platform for Online Bookstore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'neutral',
+            securityLevel: 'loose',
+            fontFamily: 'Sarabun'
+        });
+    </script>
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #eef2ff;
+            --text-main: #1e293b;
+            --text-muted: #475569;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+        }
+
+        body {
+            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.8;
+            color: var(--text-main);
+            background-color: var(--bg-body);
+            margin: 0;
+            padding: 50px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            padding: 50px 60px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+            border-top: 10px solid var(--primary);
+        }
+
+        h1 {
+            color: #1e1b4b;
+            font-size: 32px;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .subtitle-block {
+            margin: 0 0 40px 0;
+            padding: 16px 24px;
+            background-color: #f1f5f9;
+            border-left: 5px solid var(--primary);
+            color: var(--text-muted);
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 0 10px 10px 0;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 22px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 45px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        h3 {
+            color: #0f172a;
+            font-size: 17px;
+            font-weight: 600;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 16px;
+            margin-bottom: 16px;
+            text-align: justify;
+        }
+
+        ul, ol {
+            padding-left: 24px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #334155;
+        }
+
+        strong {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        /* โครงสร้างทีม (ทีมขนาด Lean) */
+        .member-box {
+            background-color: #fafafa;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin-bottom: 20px;
+        }
+        .member-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e1b4b;
+            margin-bottom: 8px;
+        }
+        .member-role {
+            display: inline-block;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        /* ตารางแบ่งแผนการดำเนินงาน */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 30px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        th, td {
+            padding: 16px;
+            font-size: 15px;
+            vertical-align: top;
+            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+        }
+
+        th:last-child, td:last-child {
+            border-right: none;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        /* ส่วนขอบเขตผู้ใช้งาน */
+        .actor-badge-group {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0 25px 0;
+        }
+
+        .actor-badge {
+            background-color: var(--success-light);
+            color: var(--success);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            border: 1px solid #bbf7d0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ส่วนแสดงรูป Mermaid */
+        .diagram-container {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px 20px;
+            margin: 25px 0;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+        }
+
+        /* ผลลัพธ์ที่คาดว่าจะได้รับ */
+        .outcome-card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--success);
+            margin-bottom: 15px;
+        }
+        .outcome-title {
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 16px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .outcome-desc {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin: 0;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border-color);
+            margin: 45px 0;
+        }
+
+        /* ปรับปรุงการ Print เอกสารส่งรายงาน */
+        @media print {
+            body {
+                background-color: #ffffff;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 0;
+                border-top: none;
+            }
+            tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📚 E-Commerce Platform for Online Bookstore</h1>
+    <div class="subtitle-block">
+        ระบบแพลตฟอร์มอีคอมเมิร์ซสำหรับร้านค้าหนังสือออนไลน์ — โครงงานกลุ่มวิชา CSI204 ดิจิทัลแพลตฟอร์มสำหรับพัฒนาซอฟต์แวร์ (ภาคการศึกษา 3/2568)
+    </div>
+
+    <h2>👥 1. โครงสร้างทีมและบทบาทหน้าที่ (Team Structure & Roles Allocation)</h2>
+    <p>โครงสร้างทีมในลักษณะ Lean Cross-Functional (สมาชิก 3 คน) ควบคุมและจัดการกระบวนการพัฒนาตลอดจนการทำ API Automation Testing:</p>
+    
+    <div class="member-box">
+        <div class="member-name">นายศิระเดช ศรีอ่ำ (รหัสนักศึกษา: 67120669)</div>
+        <div class="member-role">Project Manager / UI UX Designer / Frontend Developer</div>
+        <ul>
+            <li>บริหารจัดการ Sprint, ไทม์ไลน์ภาพรวมของโปรเจกต์ และติดตามสถานะความคืบหน้าของงาน (Project Management)</li>
+            <li>ออกแบบ User Journey, Wireframe และ High-Fidelity UI บน Figma</li>
+            <li>พัฒนาหน้าเว็บ Component และ Interface (Frontend) ฝั่งระบบหลังบ้านพนักงาน (Staff) และผู้ดูแลระบบ (Admin)</li>
+        </ul>
+    </div>
+
+    <div class="member-box">
+        <div class="member-name">นายกิตติวัฒน์ กุดั่น (รหัสนักศึกษา: 67107666)</div>
+        <div class="member-role">Frontend Developer / Quality Assurance (QA Browser Tester)</div>
+        <ul>
+            <li>พัฒนา UI Web Components ฝั่งลูกค้าร้านค้าออนไลน์ (Customer Storefront) ด้วย React และ Tailwind CSS</li>
+            <li>ทำ Frontend-Backend Integration ร่วมเชื่อมต่อระบบหน้าบ้านเข้ากับชุด RESTful API</li>
+            <li>จัดทำเอกสาร Test Cases เพื่อทำ Manual Testing และระบบประเมิน User Acceptance Testing (UAT) บนเบราว์เซอร์</li>
+        </ul>
+    </div>
+
+    <div class="member-box">
+        <div class="member-name">นายศุภวิชญ์ เชื้อสาทุม (รหัสนักศึกษา: 67125897)</div>
+        <div class="member-role">Backend Developer / Database Administrator / API Test Engineer</div>
+        <ul>
+            <li>ออกแบบและจัดทำสถาปัตยกรรมฐานข้อมูลเชิงสัมพันธ์ด้วย <strong>MySQL</strong> <em>(ยกระดับประสิทธิภาพความปลอดภัยข้อมูลทดแทนระบบ Local Storage เดิม)</em></li>
+            <li>พัฒนา Core RESTful API ด้วย <strong>Node.js & Express.js</strong> (ระบบ Authentication, Order logic และ Real-time Stock)</li>
+            <li>เขียนเทสสคริปต์และรับผิดชอบการทำ <strong>API Testing ผ่าน Postman</strong> เพื่อควบคุมคุณภาพซอฟต์แวร์ก่อนการผูกระบบ</li>
+        </ul>
+    </div>
+
+    <h2>📝 2. รายละเอียดโครงงาน (Project Information)</h2>
+    <ul>
+        <li><strong>ชื่อโครงงาน (ภาษาไทย):</strong> ระบบจำหน่ายหนังสือออนไลน์</li>
+        <li><strong>ชื่อโครงงาน (ภาษาอังกฤษ):</strong> Online Book Store System</li>
+        <li><strong>Domain:</strong> e-Commerce</li>
+    </ul>
+
+    <h2>💡 3. หลักการและเหตุผล (Rationale)</h2>
+    <p style="text-indent: 30px;">
+        ในปัจจุบัน พฤติกรรมการบริโภคสื่อและหนังสือของประชากรได้ปรับเปลี่ยนไปสู่รูปแบบออนไลน์มากขึ้นเนื่องจากความสะดวกสบาย รวดเร็ว และสามารถเข้าถึงได้ทุกที่ทุกเวลา อย่างไรก็ตาม ร้านหนังสืออิสระหรือผู้ประกอบการขนาดเล็กหลายแห่งยังขาดแพลตฟอร์มดิจิทัลที่มีประสิทธิภาพในการบริหารจัดการระบบร้านค้าออนไลน์ ทั้งในด้านการจัดการคลังสินค้า การประมวลผลคำสั่งซื้อ และการมอบประสบการณ์การใช้งานที่ดีให้แก่ลูกค้า
+    </p>
+    <p style="text-indent: 30px;">
+        คณะผู้พัฒนาจึงได้เล็งเห็นถึงความสำคัญนี้และนำเสนอโครงงาน "ระบบจำหน่ายหนังสือออนไลน์" เพื่อเป็นแนวทางในการพัฒนาแพลตฟอร์ม e-Commerce ที่ตอบโจทย์การใช้งานจริง โดยบูรณาการองค์ความรู้ตามกระบวนการพัฒนาซอฟต์แวร์อย่างเป็นระบบ เพื่อช่วยส่งเสริมช่องทางการจำหน่ายและอำนวยความสะดวกให้แก่ผู้ซื้อและผู้ขายอย่างยั่งยืน
+    </p>
+
+    <h2>🎯 4. วัตถุประสงค์ของโครงงาน (Objectives)</h2>
+    <ol>
+        <li>เพื่อออกแบบและพัฒนาระบบจำหน่ายหนังสือออนไลน์ที่มีฟังก์ชันการทำงานครบถ้วน มีสถาปัตยกรรมหลังบ้านที่มั่นคง และใช้งานง่ายสำหรับผู้ใช้ทุกกลุ่ม</li>
+        <li>เพื่อศึกษาและประยุกต์ใช้วงจรการพัฒนาซอฟต์แวร์ (SDLC) ในการบริหารจัดการโครงการแบบ Lean Team อย่างมีประสิทธิภาพ</li>
+        <li>เพื่อเพิ่มทักษะของสมาชิกในการพัฒนา Full-stack แอปพลิเคชัน และการทำ Automated API Testing เพื่อควบคุมคุณภาพของระบบก่อนนำไปใช้งานจริง</li>
+    </ol>
+
+    <h2>🔍 5. ขอบเขตของระบบ (System Scope)</h2>
+    <h3>ผู้ใช้งาน (Actors)</h3>
+    <div class="actor-badge-group">
+        <div class="actor-badge">✓ ลูกค้า (Customer)</div>
+        <div class="actor-badge">✓ พนักงาน (Staff)</div>
+        <div class="actor-badge">✓ ผู้ดูแลระบบ (Administrator)</div>
+    </div>
+
+    <h3>ความสามารถหลักของระบบ (Main Functions)</h3>
+    <ol>
+        <li><strong>ระบบจัดการสมาชิกและยืนยันตัวตน:</strong> การสมัครสมาชิก, การเข้าสู่ระบบ (Authentication) และการจัดการโปรไฟล์ส่วนตัว</li>
+        <li><strong>ระบบสืบค้นและแสดงหน้าร้าน:</strong> การค้นหาหนังสือตามหมวดหมู่ ชื่อผู้แต่ง หรือชื่อเรื่อง พร้อมแสดงรายละเอียด ราคา และข้อมูลคลังสินค้า</li>
+        <li><strong>ระบบตะกร้าสินค้าและการสั่งซื้อ:</strong> การเพิ่ม/ลดจำนวนหนังสือในตะกร้า, การคำนวณราคาสินค้า, และระบบการประมวลผลคำสั่งซื้อ (Order Logic)</li>
+        <li><strong>ระบบชำระเงินและติดตามสถานะ:</strong> การอัปโหลดหลักฐานการโอนเงิน และการจัดการสเตตัสการจัดส่งสินค้า (Fulfillment Workflow)</li>
+        <li><strong>ระบบจัดการหลังบ้าน (Back-office Management & Dashboard):</strong> ระบบสำหรับพนักงานและแอดมินในการ เพิ่ม ลบ แก้ไขข้อมูลหนังสือ ปรับปรุงสต็อกแบบ Real-time และสรุปรายงานยอดขายข้อมูลหลังบ้าน</li>
+    </ol>
+
+    <hr>
+
+    <h2>🏗️ 6. แผนผังแสดงสถาปัตยกรรมระบบ (System Architecture Diagram)</h2>
+    <p>ระบบทำงานภายใต้สถาปัตยกรรม Client-Server Model แยกส่วน Client และ Server ออกจากกันอย่างเด็ดขาด โดยมีการควบคุมสัญญาการรับส่งข้อมูลผ่านโครงสร้าง JSON และสแกนสิทธิด้วย Postman ก่อนบันทึกลง MySQL:</p>
+    
+    <div class="diagram-container">
+        <div class="mermaid">
+        graph TD
+            %% User Layer
+            subgraph Client_Layer ["Client / Frontend Layer (React.js + Tailwind)"]
+                Actor_Customer[Customer Storefront UI]
+                Actor_Staff[Staff Back-office UI]
+                Actor_Admin[Admin BI Dashboard]
+            end
+
+            %% API Gateway & Testing Layer
+            subgraph Integration_Layer ["API Gateway & Testing Contract"]
+                Postman_QA{Postman API Testing}
+                API_Routes[RESTful API Endpoints / Express.js]
+            end
+
+            %% Backend Service Layer
+            subgraph Backend_Layer ["Backend Logic Layer (Node.js)"]
+                Auth_Service[Authentication & OAuth Service]
+                Product_Service[Product & Catalog Service]
+                Cart_Service[Cart & Transaction Service]
+                Order_Service[Order & Fulfillment Workflow]
+            end
+
+            %% Data Layer
+            subgraph Storage_Layer ["Data Persistence Layer"]
+                DB_MySQL[(MySQL RDBMS)]
+            end
+
+            %% Data Flow Connections
+            Actor_Customer -->|HTTP Requests| Postman_QA
+            Actor_Staff -->|HTTP Requests| Postman_QA
+            Actor_Admin -->|HTTP Requests| Postman_QA
+            
+            Postman_QA -->|Verified Payloads| API_Routes
+            
+            API_Routes --> Auth_Service
+            API_Routes --> Product_Service
+            API_Routes --> Cart_Service
+            API_Routes --> Order_Service
+
+            Auth_Service -->|Queries / Mutations| DB_MySQL
+            Product_Service -->|Queries / Mutations| DB_MySQL
+            Cart_Service -->|Queries / Mutations| DB_MySQL
+            Order_Service -->|Queries / Mutations| DB_MySQL
+
+            %% Styling Elements
+            style Client_Layer fill:#f8fafc,stroke:#334155,stroke-width:2px;
+            style Integration_Layer fill:#eef2ff,stroke:#4f46e5,stroke-width:2px;
+            style Backend_Layer fill:#fafafa,stroke:#0f172a,stroke-width:2px;
+            style Storage_Layer fill:#ecfdf5,stroke:#059669,stroke-width:2px;
+            style Postman_QA fill:#fffbeb,stroke:#d97706,stroke-width:2px;
+        </div>
+    </div>
+
+    <hr>
+
+    <h2>🛠️ 7. เครื่องมือและเทคโนโลยีที่ใช้ (Tools & Technologies)</h2>
+    
+    <h3>💻 Frontend (Client-Side Layer)</h3>
+    <ul>
+        <li><strong>React.js (v18+)</strong> — ไลบรารีหลักสำหรับจัดการโครงสร้าง State และพัฒนา User Interface ในรูปแบบ Component-based ที่รองรับการทำงานซ้ำได้อย่างมีประสิทธิภาพ</li>
+        <li><strong>Tailwind CSS</strong> — ยูทิตี้เฟรมเวิร์กสำหรับการดีไซน์หน้าจอแบบ Utility-First ช่วยให้ระบบหน้าบ้านมีความเป็น Modern, Clean และรองรับการแสดงผลแบบ Responsive ในทุกขนาดหน้าจอ</li>
+        <li><strong>HTML5 / CSS3 / JavaScript (ES6+)</strong> — ภาษามาตรฐานและเทคโนโลยีแกนหลักในการขับเคลื่อนโครงสร้างและการทำงานของเว็บแอปพลิเคชัน</li>
+    </ul>
+
+    <h3>⚙️ Backend & Database (Server-Side Layer)</h3>
+    <ul>
+        <li><strong>Node.js & Express.js</strong> — สภาพแวดล้อมรันไทม์และมิดเดิลแวร์เฟรมเวิร์กประสิทธิภาพสูง ในการสร้างบริการฝั่ง Server รวมถึงการจัดการชุดเส้นทาง RESTful API Endpoints</li>
+        <li><strong>MySQL RDBMS</strong> — ระบบจัดการฐานข้อมูลเชิงสัมพันธ์ เพื่อเพิ่มความปลอดภัย ความเสถียร และรองรับข้อมูลที่มีความสัมพันธ์ซับซ้อน (ยกระดับขึ้นเพื่อทดแทนระบบ Local Storage แบบเดิม)</li>
+    </ul>
+
+    <h3>🎨 Design & Collaboration Tools</h3>
+    <ul>
+        <li><strong>Figma</strong> — เครื่องมือหลักที่ใช้จัดทำ User Journey, Wireframe ไปจนถึงการขึ้นแบบจำลองหน้าจอความละเอียดสูง (High-Fidelity UI) ของระบบหน้าบ้านและหลังบ้านทั้งหมด</li>
+        <li><strong>GitHub</strong> — แพลตฟอร์มหลักสำหรับการทำ Version Control ควบคุมการจัดการซอร์สโค้ดผ่าน Branching Strategy และขับเคลื่อนการทำงานร่วมกันภายในทีมแบบ Agile</li>
+    </ul>
+
+    <h2>🧪 8. แนวทางการทดสอบระบบ (Testing Approach)</h2>
+    <p>ระบบแบ่งกระบวนการควบคุมคุณภาพซอฟต์แวร์ (Quality Assurance) ออกเป็น 2 ส่วนหลัก เพื่อรับประกันทั้งในด้านความถูกต้องของ Logic และประสบการณ์การใช้งานจริง:</p>
+    
+    <h3>1️⃣ API Testing (Automation & Contract Verification)</h3>
+    <ul>
+        <li><strong>Objective:</strong> ตรวจสอบความสมบูรณ์ ความถูกต้อง และความปลอดภัยของชุดข้อมูลก่อนเริ่มกระบวนการผูกระบบ</li>
+        <li><strong>Methodology:</strong> ใช้เครื่องมือ <strong>Postman</strong> ในการเขียนสคริปต์ทำ Automation Test เพื่อตรวจจับโครงสร้าง JSON Payload, ตรวจสอบความถูกต้องของสิทธิ และประเมิน HTTP Status Codes ทุกเส้นทาง</li>
+        <li><strong>Responsible:</strong> Backend & API Test Engineer</li>
+    </ul>
+
+    <h3>2️⃣ User Acceptance Testing (UAT)</h3>
+    <ul>
+        <li><strong>Objective:</strong> ประเมินความลื่นไหล ความพึงพอใจ และความถูกต้องของฟังก์ชันการใช้งานจากมุมมองของผู้ใช้จริง</li>
+        <li><strong>Methodology:</strong> ดำเนินการทดสอบแบบ <strong>Manual Testing</strong> ผ่านเว็บเบราว์เซอร์ โดยอ้างอิงและบันทึกผลอย่างเป็นระบบตามเอกสารใบรายการทดสอบ (Test Cases) ที่ทีมดีไซน์และออกแบบไว้ล่วงหน้า</li>
+        <li><strong>Responsible:</strong> QA Browser Tester</li>
+    </ul>
+
+    <h2>📊 9. ผลลัพธ์ที่คาดว่าจะได้รับ (Expected Outcomes)</h2>
+    
+    <div class="outcome-card">
+        <div class="outcome-title">✓ Production-Ready Platform</div>
+        <p class="outcome-desc">ได้แพลตฟอร์มอีคอมเมิร์ซร้านจำหน่ายหนังสือออนไลน์ที่มีฟังก์ชันการทำงานสมบูรณ์ครบถ้วน พร้อมตอบโจทย์กลุ่มผู้ใช้งานทั้ง 3 กลุ่มหลัก (ลูกค้า, พนักงาน, และผู้ดูแลระบบ) ได้จริงตามขอบเขต</p>
+    </div>
+    
+    <div class="outcome-card">
+        <div class="outcome-title">✓ Secure & Scalable Database</div>
+        <p class="outcome-desc">สถาปัตยกรรมฐานข้อมูล MySQL สามารถจัดเก็บข้อมูลการยืนยันตัวตน, คลังสินค้า และประวัติคำสั่งซื้อได้อย่างมั่นคง ถูกต้องปลอดภัย ไม่สูญหายเหมือนการเก็บข้อมูลรูปแบบเดิม</p>
+    </div>
+    
+    <div class="outcome-card">
+        <div class="outcome-title">✓ High-Quality Softwares (Low Defect Rate)</div>
+        <p class="outcome-desc">ซอฟต์แวร์ผ่านกระบวนการคัดกรองบั๊กอย่างเข้มงวดทั้งในระดับ API Layer (Postman) และ UI Layer (Manual UI Test) ช่วยลดความเสี่ยงและการเกิดข้อผิดพลาดรุนแรงเมื่อนำไปใช้งานจริง</p>
+    </div>
+    
+    <div class="outcome-card">
+        <div class="outcome-title">✓ Lean Cross-Functional Engineering Skills</div>
+        <p class="outcome-desc">สมาชิกภายในทีมได้รับประสบการณ์จริงในการทำงานร่วมกันแบบ Lean Team พัฒนาทักษะ Full-stack Development และเข้าใจกระบวนการทดสอบตามวงจร SDLC อย่างเป็นระบบ</p>
+    </div>
+
+    <h2>📅 10. แผนการดำเนินงาน 4 สัปดาห์ (Work Plan: 4 Weeks)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 15%; text-align: center;">สัปดาห์ (Week)</th>
+                <th style="width: 25%;">กิจกรรมหลัก (Activities)</th>
+                <th style="width: 45%;">รายละเอียดของงานโดยย่อ (Brief Description)</th>
+                <th style="width: 15%;">ผู้รับผิดชอบหลัก</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="text-align: center;"><strong>สัปดาห์ที่ 1</strong></td>
+                <td><strong>วิเคราะห์และออกแบบระบบ</strong><br><em>(Analysis & Design)</em></td>
+                <td>
+                    <ul>
+                        <li>ประชุมรวบรวมข้อกำหนดและขอบเขตความต้องการระบบ (Requirements)</li>
+                        <li>จัดทำ User Journey และออกแบบ UI ความละเอียดสูงบน Figma</li>
+                        <li>ออกแบบสถาปัตยกรรมระบบ และโครงสร้างฐานข้อมูลเชิงสัมพันธ์ (MySQL ER-Diagram)</li>
+                    </ul>
+                </td>
+                <td><strong>ทุกคนในทีม</strong><br><em>(ประสานงานร่วมกัน)</em></td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><strong>สัปดาห์ที่ 2</strong></td>
+                <td><strong>พัฒนาฟังก์ชันระยะแรก</strong><br><em>(Development Sprint 1)</em></td>
+                <td>
+                    <ul>
+                        <li>พัฒนาหน้าจอฝั่งลูกค้าร้านค้าออนไลน์ (Customer Storefront Web UI)</li>
+                        <li>พัฒนา Core Backend API สเตจแรก (ระบบ Authentication ยืนยันตัวตน และ Product Catalog API)</li>
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        <li>นายศิระเดช</li>
+                        <li>นายกิตติวัฒน์</li>
+                        <li>นายศุภวิชญ์</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><strong>สัปดาห์ที่ 3</strong></td>
+                <td><strong>พัฒนาฟังก์ชันระยะสอง</strong><br><em>(Development Sprint 2)</em></td>
+                <td>
+                    <ul>
+                        <li>พัฒนาหน้าจอฝั่งระบบหลังบ้านพนักงาน (Staff UI) และหน้าต่างสรุปผล (Admin Dashboard)</li>
+                        <li>พัฒนา Backend API สเตจสอง (ระบบ Cart Logic, Order Workflow และ Real-time Stock)</li>
+                        <li>เริ่มต้นกระบวนการเชื่อมต่อหน้าบ้านและหลังบ้านเข้าด้วยกัน (Frontend-Backend Integration)</li>
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        <li>นายศิระเดช</li>
+                        <li>นายกิตติวัฒน์</li>
+                        <li>นายศุภวิชญ์</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;"><strong>สัปดาห์ที่ 4</strong></td>
+                <td><strong>ทดสอบระบบและนำเสนอ</strong><br><em>(Testing & Presentation)</em></td>
+                <td>
+                    <ul>
+                        <li>เขียนและรันสคริปต์ทำ API Automation Testing ผ่านเครื่องมือ Postman</li>
+                        <li>ดำเนินการทดสอบ Manual Browser Testing และประเมินผล UAT ตามใบ Test Cases</li>
+                        <li>สรุปรายงานข้อผิดพลาด เคลียร์บั๊ก จัดทำเอกสารเล่มรายงานฉบับสมบูรณ์ และนำเสนอโครงงาน</li>
+                    </ul>
+                </td>
+                <td><strong>ทุกคนในทีม</strong><br><em>(เน้นส่วนงาน QA และ PM)</em></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
