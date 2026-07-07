@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop #4 - Theoretical Assessment (CSI204)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'neutral',
+            securityLevel: 'loose',
+            fontFamily: 'Sarabun',
+            flowchart: { useMaxWidth: true, htmlLabels: true }
+        });
+    </script>
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --primary-light: #f5f3ff;
+            --primary-border: #ddd6fe;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --accent: #0f172a;
+            --success: #16a34a;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            line-height: 1.8;
+            color: var(--text-main);
+            background-color: var(--bg-body);
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            padding: 50px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 1px 3px 0 rgba(0, 0, 0, 0.01);
+            border: 1px solid var(--border-color);
+        }
+
+        .header-block {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            color: #1e1b4b;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .badge-sub {
+            display: inline-block;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            padding: 6px 18px;
+            border-radius: 99px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid var(--primary-border);
+        }
+
+        h2 {
+            color: #1e1b4b;
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 45px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        h3 {
+            color: var(--primary);
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        p {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        @media (min-width: 768px) {
+            .tool-grid { grid-template-columns: repeat(2, 1fr); }
+            .full-width { grid-column: span 2; }
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-title {
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-size: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-body-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .card-body-text strong {
+            color: var(--text-main);
+        }
+
+        .diagram-container {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 15px 0 30px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        /* Mockup Wireframe UI Style */
+        .wireframe-mockup {
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            background: #fff;
+            padding: 16px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .wf-header { background: #f1f5f9; border-radius: 6px; padding: 8px; text-align: center; margin-bottom: 12px; font-weight: bold; font-size: 13px; color: #475569; }
+        .wf-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 12px; font-size: 12px; color: #64748b; }
+        .wf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .wf-item { border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px; text-align: center; font-size: 12px; background: #fafafa; }
+        .wf-img { font-size: 20px; margin-bottom: 6px; }
+        .wf-price { color: var(--primary); font-weight: bold; margin: 4px 0; }
+        .wf-btn { border: none; background: var(--primary); color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; font-family: 'Sarabun'; }
+
+        ul, ol { padding-left: 20px; margin-bottom: 25px; }
+        li { margin-bottom: 12px; color: var(--text-muted); font-size: 14.5px; }
+        li strong { color: var(--text-main); }
+
+        .alert-box {
+            background-color: #fff7ed;
+            border-left: 4px solid var(--warning);
+            padding: 16px 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+            font-size: 14.5px;
+            color: #7c2d12;
+        }
+
+        @media print {
+            body { background: #fff; padding: 0; }
+            .container { box-shadow: none; padding: 0; border: none; }
+            .card, .diagram-container { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="header-block">
+        <h1>📝 Workshop #4: Theoretical Assessment (8 คะแนน)</h1>
+        <div class="badge-sub">วิชา CSI204 ดิจิทัลแพลตฟอร์มสำหรับพัฒนาซอฟต์แวร์ • โครงงานระบบร้านหนังสือออนไลน์</div>
+    </div>
+
+    <h2>คำถาม 1: การประยุกต์ใช้เครื่องมือในกระบวนการ SDLC (2 คะแนน)</h2>
+    <p>
+        ในการบริหารและดำเนินงานพัฒนาโครงการกลุ่ม "ระบบร้านหนังสือออนไลน์ (Online Book Store)" ภายใต้กรอบเวลาที่จำกัด 4 สัปดาห์ โดยคณะทำงานที่มีสมาชิกจำนวน 5 คน (Frontend 2, Backend 2, Tester 1) ได้มีการพิจารณาคัดเลือกและประยุกต์ใช้เครื่องมือซอฟต์แวร์เพื่อสนับสนุนการทำงานในแต่ละขั้นตอนของกระบวนการ SDLC ให้สอดคล้องตามตัวชิ้นงานจริงดังนี้
+    </p>
+
+    <div class="tool-grid">
+        <div class="card">
+            <div class="card-title">📌 1. Planning (การวางแผน)</div>
+            <div class="card-body-text">
+                <strong>เครื่องมือ:</strong> GitHub Projects<br>
+                <strong>เหตุผล:</strong> เพื่อให้ทำงานร่วมกับระบบเก็บ Source Code ได้ทันที ทีมงานใช้บอร์ดในรูปแบบ Kanban เพื่อแจกจ่ายตารางงานและติดตามสถานะชิ้นงานของสมาชิกฝั่ง Frontend และ Backend อย่างมีประสิทธิภาพ<br>
+                <strong>การใช้งานจริง:</strong> การสร้างการ์ดกิจกรรมงาน (Task Cards) เช่น "Implement ตะกร้าสินค้า", "ออกแบบโครงสร้าง Database หนังสือ" และระบุผู้รับผิดชอบพร้อมกำหนด Timeline ชัดเจน
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📐 2. Analysis & Design</div>
+            <div class="card-body-text">
+                <strong>เครื่องมือ:</strong> Mermaid.js / Figma<br>
+                <strong>เหตุผล:</strong> เพื่อให้นักพัฒนาในทีมสร้างเอกสารข้อกำหนดทางเทคนิค (Specification Documentation) และแบบแปลนระบบสถาปัตยกรรมชุดเดียวกันก่อนเริ่มลงมือเขียนโปรแกรมจริง<br>
+                <strong>การใช้งานจริง:</strong> ร่วมกันกำหนดขอบเขตฟังก์ชันของสิทธิ์ลูกค้าและแอดมินผ่าน Use Case Diagram และกำหนด Object-Oriented Schema เพื่อแปลงไปเป็น Database Model บนระบบจัดการฐานข้อมูลหลัก
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">💻 3. Development (การพัฒนา)</div>
+            <div class="card-body-text">
+                <strong>เครื่องมือ:</strong> Visual Studio Code & Git / GitHub<br>
+                <strong>เหตุผล:</strong> เป็นแพลตฟอร์มหลักที่ทีมคุ้นเคย และมี Git เป็นระบบควบคุมเวอร์ชัน (Version Control) เพื่อจัดการประวัติการแก้ไขและป้องกันซอร์สโค้ดของสมาชิกเขียนชนทับกัน<br>
+                <strong>การใช้งานจริง:</strong> ทุกคนดึงรหัสต้นฉบับจากคลังรหัสกลาง แตกกิ่งสายพัฒนา (Feature Branching) ออกไปทำงาน เช่น <code>feature/book-catalog</code> และส่ง Pull Request เพื่อทำ Code Review ร่วมกันก่อนรวมโค้ด
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">🧪 4. Testing (การทดสอบ)</div>
+            <div class="card-body-text">
+                <strong>เครื่องมือ:</strong> Postman<br>
+                <strong>เหตุผล:</strong> ชิ้นงานระบบร้านหนังสือมีการแลกเปลี่ยนข้อมูลผ่าน HTTP REST API การใช้ Postman ช่วยให้ Tester สามารถตรวจสอบความเสถียรและโครงสร้างความถูกต้องของการรับส่ง Data Payload ได้แม่นยำ<br>
+                <strong>การใช้งานจริง:</strong> ส่งคำขอจำลอง Request จริงตรวจสอบ API Endpoint เช่น <code>GET /api/books</code> เพื่อดูว่าเซิร์ฟเวอร์ส่งคืนชุดค่ารายละเอียดหนังสือ ราคา และจำนวนสต็อกถูกต้องตามสเปกหรือไม่
+            </div>
+        </div>
+
+        <div class="full-width card">
+            <div class="card-title">🚀 5. Deployment (การนำระบบขึ้นใช้งาน)</div>
+            <div class="card-body-text">
+                <strong>เครื่องมือ:</strong> Vercel และ Render (แพลตฟอร์มคลาวด์สำหรับเว็บแอปพลิเคชัน)<br>
+                <strong>เหตุผล:</strong> รองรับท่อส่งมอบงานอัตโนมัติ (Automated CI/CD Pipelines) เมื่อมีการบันทึกโค้ดขึ้นระบบคลาวด์ แพลตฟอร์มจะทำการ Build และทดสอบความเรียบร้อย แล้วเปิดบริการขึ้นอินเทอร์เน็ตให้ทันทีโดยอัตโนมัติ<br>
+                <strong>การใช้งานจริง:</strong> เมื่อซอร์สโค้ดผ่านกระบวนการตรวจสอบและรวมโค้ดเข้าสู่สายหลัก (Branch: main) ระบบจะแปลงสภาพชิ้นงานเวอร์ชันล่าสุดและเปิด URL ให้คณาจารย์และผู้ใช้อื่นเข้าทดสอบระบบได้ทันที
+            </div>
+        </div>
+    </div>
+
+    <h2>คำถาม 2: การวิเคราะห์และออกแบบระบบ (5 คะแนน)</h2>
+    <p>
+        สถาปัตยกรรมทางวิศวกรรมซอฟต์แวร์ของชิ้นงานระบบร้านหนังสือออนไลน์ ได้รับการสื่อสารผ่านแผนภาพและแบบจำลองโครงสร้างเพื่อเป็นตัวกลางในการพัฒนาระบบจริง ดังต่อไปนี้
+    </p>
+
+    <h3>💡 1. Use Case Diagram</h3>
+    <p>
+        <strong>หน้าที่และความสำคัญ:</strong> แผนภาพที่ใช้สรุปและระบุขอบเขตของระบบ (System Boundary) เพื่อระบุว่ามีผู้ใช้งานกลุ่มใดบ้าง (Actors) และพวกเขาสามารถทำฟังก์ชันงานใดบนแพลตฟอร์มดิจิทัลนี้ได้บ้าง
+    </p>
+    <div class="diagram-container">
+        <div class="mermaid">
+         graph LR
+            subgraph Actors ["กลุ่มผู้ใช้งาน (Actors)"]
+                Customer[👤 ลูกค้า / ผู้ซื้อ]
+                Staff[🧑‍💼 พนักงานหลังบ้าน]
+                Admin[⚙️ ผู้ดูแลระบบ / แอดมิน]
+            end
+
+            subgraph Boundary ["ขอบเขตระบบร้านหนังสือออนไลน์"]
+                UC_Auth((UC1: ยืนยันตัวตนเข้าระบบ))
+                UC_Search((UC2: ค้นหาหนังสือและหมวดหมู่))
+                UC_Cart((UC3: จัดการตะกร้าสินค้า))
+                
+                UC_Checkout((UC4: สั่งซื้อและแนบหลักฐานโอนเงิน))
+                UC_Verify((UC5: ตรวจสอบการชำระเงินและสลิป))
+                UC_Stock((UC6: บริหารคลังสินค้าและหนังสือ))
+                UC_Report((UC7: ดูสรุปยอดขาย BI Dashboard))
+                
+                %% Relationship includes
+                UC_Checkout -.->|&lt;&lt;include&gt;&gt;| UC_Auth
+                UC_Verify -.->|&lt;&lt;include&gt;&gt;| UC_Auth
+                UC_Stock -.->|&lt;&lt;include&gt;&gt;| UC_Auth
+                UC_Report -.->|&lt;&lt;include&gt;&gt;| UC_Auth
+            end
+
+            %% Mapping
+            Customer --> UC_Search
+            Customer --> UC_Cart
+            Customer --> UC_Checkout
+
+            Staff --> UC_Verify
+            Staff --> UC_Stock
+
+            Admin --> UC_Stock
+            Admin --> UC_Report
+        </div>
+    </div>
+
+    <h3>💡 2. Class Diagram</h3>
+    <p>
+        <strong>หน้าที่และความสำคัญ:</strong> แผนภาพโครงสร้างเชิงสถิต (Static Diagram) ที่ระบุคุณลักษณะคุณสมบัติ (Attributes) วิธีการทำงาน (Methods) รวมถึงตรรกะความสัมพันธ์เชื่อมโยงของข้อมูลวัตถุ (Entities Relationship)
+    </p>
+    <div class="diagram-container">
+        <div class="mermaid">
+        classDiagram
+            class User {
+                -int user_id
+                -string name
+                -string email
+                -string password
+                -string role
+                +register() bool
+                +login() string
+                +getProfile() Object
+            }
+
+            class Book {
+                -int book_id
+                -string title
+                -string author
+                -double price
+                -int stock_qty
+                -string category
+                +getDetails() Object
+                +updateStock(int qty) bool
+                +adjustPrice(double newPrice)
+            }
+
+            class Cart {
+                -int cart_id
+                -int user_id
+                -double temp_total
+                +addItem(int book_id, int qty) bool
+                +removeItem(int book_id) bool
+                +calculateTotal() double
+                +clearCart()
+            }
+
+            class Order {
+                -int order_id
+                -int user_id
+                -date order_date
+                -double total_amount
+                -string status
+                -string slip_image_url
+                +createOrder() int
+                +uploadPaymentSlip(string url) bool
+                +updateStatus(string newStatus) bool
+            }
+
+            User "1" -- "1" Cart : Owns &gt;
+            User "1" -- "0..*" Order : Places &gt;
+            Cart "1" -- "0..*" Book : Temporary Holds &gt;
+            Order "1" -- "1..*" Book : Contains &gt;
+        </div>
+    </div>
+
+    <h3>💡 3. Sequence Diagram</h3>
+    <p>
+        <strong>หน้าที่และความสำคัญ:</strong> แผนภาพจำลองตามลำดับกิจกรรมและทิศทางการส่งข้อมูลเมสเซจ (Messages Payload) ระหว่างวัตถุองค์ประกอบต่างๆ ของชิ้นงานตามลำดับเงื่อนไขของเวลา
+    </p>
+    <div class="diagram-container">
+        <div class="mermaid">
+        sequenceDiagram
+            autonumber
+            actor Staff as 🧑‍💼 พนักงาน (Staff Dashboard UI)
+            participant Backend as ⚙️ ระบบหลังบ้าน (Express.js API)
+            participant DB as 🗄️ ฐานข้อมูล (MySQL RDBMS)
+
+            Staff->>Backend: 1. ร้องขอรายการคำสั่งซื้อค้างตรวจสอบ (GET /api/orders/pending)
+            activate Backend
+            Backend->>DB: 2. ดึงข้อมูลออเดอร์ที่แนบสลิปเข้ามา
+            activate DB
+            DB-->>Backend: 3. ส่งคืนอาเรย์ข้อมูลรายการธุรกรรม
+            deactivate DB
+            Backend-->>Staff: 4. แสดงผลรายการออเดอร์และรูปภาพสลิปบนหน้าจอ
+            deactivate Backend
+
+            rect rgb(245, 243, 255)
+                note over Staff, DB: ขั้นตอนการตรวจสอบและกดอนุมัติสิทธิ์
+                Staff->>Backend: 5. กดอนุมัติออเดอร์ (PUT /api/orders/:id/approve)
+                activate Backend
+                Backend->>DB: 6. ปรับปรุงสถานะสเตตัสออเดอร์เป็น 'Paid' & เตรียมจัดส่ง
+                activate DB
+                DB-->>Backend: 7. ยืนยันการอัปเดตสเตตัสสำเร็จ
+                deactivate DB
+                Backend-->>Staff: 8. แจ้งเตือนสถานะความสำเร็จ "อนุมัติรายการชำระเงินเรียบร้อย" (HTTP 200 OK)
+                deactivate Backend
+            end
+        </div>
+    </div>
+
+    <h3>💡 4. Wireframe</h3>
+    <p>
+        <strong>หน้าที่และความสำคัญ:</strong> โครงร่างจัดวางองค์ประกอบหน้าต่างผู้ใช้ระดับต่ำ (Low-fidelity) เพื่อระบุตรรกะตำแหน่งการมองเห็นและโครงสร้างหน้าเว็บหน้าร้านค้าออนไลน์ก่อนเริ่มเขียน HTML/CSS
+    </p>
+    <div class="diagram-container">
+        <div class="wireframe-mockup">
+            <div class="wf-header">WIREFRAME: หน้าแรกระบบร้านหนังสือออนไลน์</div>
+            <div class="wf-nav">
+                <span style="font-weight: bold; color: var(--primary);">📚 BOOKSTORE</span>
+                <span>🔍 ค้นหาหนังสือ...</span>
+                <span>🛒 ตะกร้า (0) | Login</span>
+            </div>
+            <div class="wf-grid">
+                <div class="wf-item">
+                    <div class="wf-img">📘</div>
+                    <div style="font-weight:500;">หนังสือ A</div>
+                    <div class="wf-price">250 บาท</div>
+                    <button class="wf-btn">+ ใส่ตะกร้า</button>
+                </div>
+                <div class="wf-item">
+                    <div class="wf-img">📙</div>
+                    <div style="font-weight:500;">หนังสือ B</div>
+                    <div class="wf-price">320 บาท</div>
+                    <button class="wf-btn">+ ใส่ตะกร้า</button>
+                </div>
+                <div class="wf-item">
+                    <div class="wf-img">📗</div>
+                    <div style="font-weight:500;">หนังสือ C</div>
+                    <div class="wf-price">190 บาท</div>
+                    <button class="wf-btn">+ ใส่ตะกร้า</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3>💡 5. Prototype</h3>
+    <p>
+        <strong>หน้าที่และความสำคัญ:</strong> แบบจำลองหน้าต่างแอปพลิเคชันที่มีความเสมือนจริงสูง (High-fidelity) มีสีสัน กราฟิก และตอบสนองต่อการทดลองคลิกสลับหน้าจอ (Clickable Flow) เพื่อทำแบบทดสอบสภาวะความพึงพอใจและการใช้งานของ User (UX Testing) ก่อนสร้างเป็นชิ้นงานสมบูรณ์
+    </p>
+
+
+    <h2>คำถาม 3: การวิเคราะห์ปัญหาและการทดสอบระบบ (1 คะแนน)</h2>
+    <div class="alert-box">
+        <strong>กรณีสมมติ:</strong> ในช่วงแคมเปญส่งเสริมการขายลดราคาพิเศษครั้งใหญ่ (Flash Sale) มีปริมาณลูกค้าหลั่งไหลเข้าสู่เว็บไซต์เป็นจำนวนมาก ส่งผลเกิดปัญหาคอขวดระบบล่าช้า (API Response Latency) และเกิดการปฏิเสธการให้บริการในที่สุด
+    </div>
+
+    <h3>🛠️ 1. เครื่องมือตรวจสอบวิเคราะห์และหาสาเหตุของปัญหา</h3>
+    <ul>
+        <li><strong>Chrome DevTools (Network Panel):</strong> ใช้ในการตรวจสอบและจำแนกเวลาแฝงค่าน้ำหนักฝั่งไคลเอนต์ (Client-Side Latency) โดยจับตาดูเวลาการรอคอยข้อมูลตอบกลับตัวแรก (Time to First Byte - TTFB) เพื่อหา Endpoint ที่ช้าที่สุด</li>
+        <li><strong>Morgan หรือ Winston Middleware Library:</strong> เครื่องมือตัวบันทึกข้อมูลฝั่งเซิร์ฟเวอร์ (Server Logging) ประจำโปรเจกต์หลังบ้าน เพื่อสแกนดูประวัติระยะเวลาการ Query ข้อมูลในเลเยอร์ฐานข้อมูล</li>
+        <li><strong>Postman (Load Testing Tools):</strong> ใช้จัดทำสภาพแวดล้อมจำลองการส่งคำขอปริมาณมหาศาลพร้อมๆ กัน (Virtual Users Load) เพื่อตรวจสอบหาจุดวิกฤตที่รับไม่ไหว (System Break-point)</li>
+    </ul>
+
+    <h3>🔄 2. ขั้นตอนการดำเนินงานแก้ไขปัญหา</h3>
+    <ol>
+        <li><strong>ระบุจุดคอขวด (Identify Bottleneck):</strong> เปิด Network Tab จำแนกเส้นทางที่มีความล่าช้าสูง เช่น เส้นส่งคำสั่งซื้อ <code>POST /api/orders</code> สังเกตสเตตัสข้อผิดพลาดหากเกิดระบบทำงานเกินกำลังจนขึ้น 504 Gateway Timeout</li>
+        <li><strong>วิเคราะห์บันทึกฝั่งฐานข้อมูล (Database Trace):</strong> เช็กประวัติ Logs ดูว่ากระบวนการสั่งซื้อค้างอยู่ที่ขั้นตอนใด หากพบว่าช้าตรงส่วนการค้นหาหรือคัดกรองหนังสือ แสดงว่าระบบฐานข้อมูลกำลังเจอปัญหาไร้ดัชนีนำทาง</li>
+        <li><strong>จำลองสถานการณ์เพื่อตรวจสอบ (Replicate & Confirm):</strong> ใช้เครื่องมือจำลองโหลดส่งยอดคำขอในอัตราที่เพิ่มขึ้น เพื่อประเมินจำนวน Thread หรือพอร์ตเชื่อมต่อที่ค้างคา (Database Connection Leak)</li>
+    </ol>
+
+    <h3>💡 3. แนวทางการแก้ไขปัญหาทางวิศวกรรมเบื้องต้น</h3>
+    <ul>
+        <li><strong>จัดทำ Database Indexing:</strong> สร้างโครงสร้างดัชนี (Index) บนตารางข้อมูลร้านหนังสือจริงของโครงการ โดยเฉพาะคอลัมน์ที่ถูกเรียกค้นหาซ้ำๆ เช่น <code>book_id</code> หรือประเภทหมวดหมู่หนังสือ ช่วยให้ฐานข้อมูลสืบค้นได้เร็วขึ้นโดยไม่ต้องแสกนอ่านไฟล์ตารางทั้งหมด</li>
+        <li><strong>ประยุกต์ใช้ระบบแคชความเร็วสูง (In-Memory Caching):</strong> นำข้อมูลหนังสือที่มีคุณสมบัติค่อนข้างนิ่ง ไม่ค่อยขยับเปลี่ยนแปลบ่อย (เช่น รายชื่อหนังสือแนะนำ หน้าแคตตาล็อกสินค้า) ไปเก็บไว้บนระบบ Memory Cache ความเร็วสูง เพื่อให้หน้าบ้านสามารถดึงผลลัพธ์ไปแสดงผลได้ทันที ลดภาระงานหนักที่ฐานข้อมูลหลัก</li>
+        <li><strong>การจัดการ Connection Pooling:</strong> ปรับแต่งโครงสร้าง Pool จำนวนการต่อท่อเชื่อมต่อข้อมูลให้เหมาะสมยืดหยุ่น เพื่อจำกัดคิวและรองรับคำสั่งจากผู้ใช้จำนวนมากไม่ให้ไปยืนรอค้างจนหน่วยความจำ Server ทำงานหนักเกินพิกัด</li>
+    </ul>
+
+</div>
+
+</body>
+</html>
