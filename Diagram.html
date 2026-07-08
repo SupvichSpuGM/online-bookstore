@@ -644,7 +644,174 @@
     </div>
 
 
-    <h2>🚀 6. แหล่งเก็บซอร์สโค้ด และรายงานความคืบหน้า (Project Deliverables)</h2>
+    <h2>🔄 6. Activity Diagram (แผนภาพแสดงลำดับเวิร์กโฟลว์ผู้ใช้ข้ามบทบาท)</h2>
+    <p>
+        แผนภาพกิจกรรม (Activity Diagram) แสดงการไหลของกระบวนการสั่งซื้อหนังสือข้ามระบบผู้ใช้แบบ Swimlanes แสดงขอบเขตระหว่างลูกค้า (Customer), ระบบประมวลผล (System/Database) และพนักงานจัดการสินค้า (Staff):
+    </p>
+    
+    <div class="diagram-box">
+        <div class="mermaid">
+        flowchart TD
+            %% Swimlanes
+            subgraph Customer_Lane ["👤 Customer Workflow (ลูกค้าร้านค้า)"]
+                direction TB
+                A1([เริ่มต้น]) --> A2[สืบค้นหนังสือบนแคตตาล็อก]
+                A2 --> A3[เพิ่มหนังสือที่สนใจลงตะกร้า]
+                A3 --> A4[กดชำระเงินและกดยืนยันออเดอร์]
+                A4 --> A5[โอนเงินและแนบรูปภาพสลิป]
+                A5 --> A6[รอรับพัสดุและรหัสจัดส่ง]
+                A6 --> A7([เสร็จสิ้นกระบวนการ])
+            end
+
+            subgraph System_Lane ["⚙️ Core System Workflow (ระบบหลังบ้านหลัก)"]
+                direction TB
+                S1[ตรวจสอบสต็อกหนังสือ]
+                S2[ประมวลผลล็อค Transaction]
+                S3{สต็อกพอ?}
+                S4[หักจำนวนสินค้าคงคลัง]
+                S5[บันทึกคำสั่งซื้อเข้าระบบ MySQL]
+                S6[ยกเลิกรายการสั่งซื้อ]
+                S7[ส่งอีเมลยืนยันคำขอแก่ผู้ใช้]
+
+                S1 --> S2
+                S2 --> S3
+                S3 -->|สต็อกพอ| S4
+                S3 -->|สต็อกหมด/ไม่พอ| S6
+                S4 --> S5
+            end
+
+            subgraph Staff_Lane ["🧑‍💼 Staff Workflow (เจ้าหน้าที่จัดการหลังบ้าน)"]
+                direction TB
+                ST1[รับแจ้งออเดอร์ใหม่]
+                ST2[ตรวจสอบสลิปและสเตตัสยอดเงิน]
+                ST3{สลิปโอนเงินถูกต้อง?}
+                ST4[อนุมัติออเดอร์และเตรียมการจัดส่ง]
+                ST5[บันทึกสลิปจัดส่งสำเร็จ]
+                ST6[ปฏิเสธออเดอร์และแจ้งยอดคืนเงิน]
+
+                ST1 --> ST2
+                ST2 --> ST3
+                ST3 -->|ถูกต้อง| ST4
+                ST3 -->|ไม่ถูกต้อง| ST6
+            end
+
+            %% Process Interactions
+            A4 --> S1
+            S5 --> ST1
+            ST4 --> S7
+            S7 --> A6
+            ST5 --> A7
+            
+            %% Minimal Subgraph Styling
+            style Customer_Lane fill:#F0F9FF,stroke:#0284C7,stroke-width:1.5px;
+            style System_Lane fill:#FDF4FF,stroke:#8B5CF6,stroke-width:1.5px;
+            style Staff_Lane fill:#ECFDF5,stroke:#10B981,stroke-width:1.5px;
+        </div>
+    </div>
+
+
+    <h2>💾 7. Database ERD (การออกแบบความสัมพันธ์ฐานข้อมูลMySQL 3NF)</h2>
+    <p>
+        แผนภาพความสัมพันธ์ของเอนทิตี (Entity-Relationship Diagram) แสดงรูปแบบฐานข้อมูลจริงที่รันในโปรดักชัน ซึ่งแยกส่วนของตารางกลางแบบ Normalized (3NF) เพื่อความเสถียรและปลอดภัยในการจัดเก็บ:
+    </p>
+    
+    <div class="diagram-box">
+        <div class="mermaid">
+        erDiagram
+            users {
+                int id PK "AUTO_INCREMENT"
+                string name "NOT NULL"
+                string email UK "NOT NULL"
+                string password_hash "NOT NULL"
+                enum role "customer, staff, admin"
+                timestamp created_at
+            }
+            books {
+                int id PK "AUTO_INCREMENT"
+                string title "NOT NULL"
+                string author "NOT NULL"
+                string isbn UK "NOT NULL"
+                decimal price "NOT NULL"
+                int stock_qty "NOT NULL"
+                string category "NOT NULL"
+            }
+            carts {
+                int id PK "AUTO_INCREMENT"
+                int user_id FK "NOT NULL"
+            }
+            cart_items {
+                int id PK "AUTO_INCREMENT"
+                int cart_id FK "NOT NULL"
+                int book_id FK "NOT NULL"
+                int quantity "NOT NULL"
+            }
+            orders {
+                int id PK "AUTO_INCREMENT"
+                int user_id FK "NOT NULL"
+                decimal total_amount "NOT NULL"
+                enum status "pending, paid, shipped, cancelled"
+                string slip_image_url "NULL"
+                timestamp order_date
+            }
+            order_items {
+                int id PK "AUTO_INCREMENT"
+                int order_id FK "NOT NULL"
+                int book_id FK "NOT NULL"
+                int quantity "NOT NULL"
+                decimal price_per_unit "NOT NULL"
+            }
+
+            users ||--|| carts : owns
+            users ||--o{ orders : places
+            carts ||--o{ cart_items : contains
+            books ||--o{ cart_items : added_to
+            orders ||--|{ order_items : comprises
+            books ||--o{ order_items : sold_in
+        </div>
+    </div>
+
+
+    <h2>🚀 8. Deployment Architecture (สถาปัตยกรรมทางกายภาพและการติดตั้งจริง)</h2>
+    <p>
+        แผนภาพจำลองการติดตั้งระบบซอฟต์แวร์จริง (Deployment Architecture) บนผู้ให้บริการ Cloud ซึ่งแยกสภาพแวดล้อมฝั่ง Client (React บน Vercel) และ Backend Services (Node.js & Express บน Render Cloud) เชื่อมเข้าสู่โฮสต์ MySQL:
+    </p>
+    
+    <div class="diagram-box">
+        <div class="mermaid">
+        flowchart TD
+            subgraph Client_Env ["🌐 Client Environment (Frontend Web)"]
+                ReactApp["📱 React App (Vercel Cloud)<br>Storefront & Backoffice UI"]
+                Browser["🌐 User Web Browser<br>Chrome, Safari, Firefox"]
+                Browser -->|Render UI / React DOM| ReactApp
+            end
+
+            subgraph Cloud_Env ["⚙️ Cloud Service Environment (Express API)"]
+                API_Server["🖥️ Node.js & Express API (Render Cloud)<br>Authentication & Core Services"]
+                JWT_Verify["🛡️ JWT Security Verification"]
+                API_Server --> JWT_Verify
+            end
+
+            subgraph Data_Env ["🗄️ Database Environment (Relational Storage)"]
+                MySQL_RDS[("𛑩 MySQL DB Instance (Cloud SQL RDBMS)<br>Port: 3306")]
+            end
+
+            %% Routing Links
+            Browser -->|HTTPS API Requests / JSON Payload| API_Server
+            API_Server -->|Connection Pool / SQL Queries| MySQL_RDS
+
+            %% Style Classes
+            classDef client fill:#E0F2FE,stroke:#0284C7,stroke-width:1.5px;
+            classDef cloud fill:#F3E8FF,stroke:#8B5CF6,stroke-width:1.5px;
+            classDef db fill:#ECFDF5,stroke:#10B981,stroke-width:1.5px;
+            
+            class ReactApp,Browser client;
+            class API_Server,JWT_Verify cloud;
+            class MySQL_RDS db;
+        </div>
+    </div>
+
+
+    <h2>🚀 9. แหล่งเก็บซอร์สโค้ด และรายงานความคืบหน้า (Project Deliverables)</h2>
     <div class="info-panel">
         <strong>📂 แหล่งเก็บซอร์สโค้ดส่วนกลาง (GitHub Repository):</strong><br>
         <a href="https://github.com/SupvichSpuGM/online-bookstore" target="_blank" style="color:var(--primary); font-weight:600; text-decoration:none;">
