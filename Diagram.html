@@ -292,39 +292,69 @@
     <div class="diagram-box">
         <div class="mermaid">
         graph LR
-            subgraph Actors ["กลุ่มผู้ใช้งาน (Actors)"]
-                Customer[👤 ลูกค้า / ผู้ซื้อ]
-                Staff[🧑‍💼 พนักงานหลังบ้าน]
-                Admin[⚙️ ผู้ดูแลระบบ / แอดมิน]
+            %% Actors with soft pastel colors
+            Customer[👤 Customer]
+            Staff[🧑‍💼 Staff]
+            Admin[⚙️ Admin]
+
+            classDef custStyle fill:#E0F2FE,stroke:#0284C7,stroke-width:1.5px,color:#0369A1;
+            classDef staffStyle fill:#F3E8FF,stroke:#8B5CF6,stroke-width:1.5px,color:#6D28D9;
+            classDef adminStyle fill:#FEE2E2,stroke:#EF4444,stroke-width:1.5px,color:#B91C1C;
+            
+            class Customer custStyle;
+            class Staff staffStyle;
+            class Admin adminStyle;
+
+            subgraph System ["📦 ขอบเขตระบบร้านหนังสือออนไลน์ (System Boundary)"]
+                
+                subgraph G1 ["🔐 ส่วนกลางและการเข้าถึง"]
+                    UC_Auth((UC1: ยืนยันตัวตน))
+                    UC_Search((UC2: ค้นหาหนังสือ))
+                end
+
+                subgraph G2 ["🛒 ตะกร้าและการสั่งซื้อ"]
+                    UC_Cart((UC3: จัดการตะกร้า))
+                    UC_Checkout((UC4: สั่งซื้อหนังสือ))
+                    UC_UploadSlip((UC5: แนบสลิปโอนเงิน))
+                end
+
+                subgraph G3 ["⚙️ จัดการคลังและหลังบ้าน"]
+                    UC_VerifySlip((UC6: ตรวจสอบสลิปเงิน))
+                    UC_ShipOrder((UC7: จัดการจัดส่ง))
+                    UC_ManageCatalog((UC8: บริหารคลังสินค้า))
+                    UC_StockAlert((UC9: เตือนสต็อกต่ำ))
+                    UC_Dashboard((UC10: รายงานสรุปยอดขาย))
+                end
+
             end
 
-            subgraph Boundary ["ขอบเขตระบบร้านหนังสือออนไลน์ (System Boundary)"]
-                UC_Auth((UC1: ยืนยันตัวตนเข้าระบบ))
-                UC_Search((UC2: ค้นหาหนังสือและหมวดหมู่))
-                UC_Cart((UC3: จัดการตะกร้าสินค้า))
-                
-                UC_Checkout((UC4: สั่งซื้อและแนบหลักฐานโอนเงิน))
-                UC_Verify((UC5: ตรวจสอบการชำระเงินและสลิป))
-                UC_Stock((UC6: บริหารคลังสินค้าและหนังสือ))
-                UC_Report((UC7: ดูสรุปยอดขาย BI Dashboard))
-                
-                %% Relationship includes
-                UC_Checkout -.->|&lt;&lt;include&gt;&gt;| UC_Auth
-                UC_Verify -.->|&lt;&lt;include&gt;&gt;| UC_Auth
-                UC_Stock -.->|&lt;&lt;include&gt;&gt;| UC_Auth
-                UC_Report -.->|&lt;&lt;include&gt;&gt;| UC_Auth
-            end
-
-            %% Mapping
+            %% Mapping Connections
             Customer --> UC_Search
             Customer --> UC_Cart
             Customer --> UC_Checkout
 
-            Staff --> UC_Verify
-            Staff --> UC_Stock
+            Staff --> UC_VerifySlip
+            Staff --> UC_ShipOrder
+            Staff --> UC_ManageCatalog
 
-            Admin --> UC_Stock
-            Admin --> UC_Report
+            Admin --> UC_ManageCatalog
+            Admin --> UC_Dashboard
+
+            %% Dependencies
+            UC_Checkout -.->|include| UC_Auth
+            UC_VerifySlip -.->|include| UC_Auth
+            UC_ShipOrder -.->|include| UC_Auth
+            UC_ManageCatalog -.->|include| UC_Auth
+            UC_Dashboard -.->|include| UC_Auth
+
+            UC_UploadSlip -.->|extend| UC_Checkout
+            UC_StockAlert -.->|extend| UC_ManageCatalog
+
+            %% Minimal Subgraph Styling
+            style System fill:#FCFDFD,stroke:#94A3B8,stroke-width:2px;
+            style G1 fill:#FFFFFF,stroke:#E2E8F0;
+            style G2 fill:#FFFFFF,stroke:#E2E8F0;
+            style G3 fill:#FFFFFF,stroke:#E2E8F0;
         </div>
     </div>
 
@@ -365,91 +395,150 @@
     <div class="diagram-box">
         <div class="mermaid">
         classDiagram
+            %% Core Entities (Master Data)
             class User {
-                -int user_id
+                -int id
                 -string name
                 -string email
-                -string password
+                -string password_hash
                 -string role
-                +register() bool
-                +login() string
-                +getProfile() Object
+                +register(name, email, password) bool
+                +login(email, password) string
             }
 
             class Book {
-                -int book_id
+                -int id
                 -string title
                 -string author
-                -double price
+                -string isbn
+                -decimal price
                 -int stock_qty
-                -string category
-                +getDetails() Object
-                +updateStock(int qty) bool
-                +adjustPrice(double newPrice)
+                +updateStock(qty) bool
+                +isAvailable() bool
             }
 
+            %% Transactional Entities (Operations)
             class Cart {
-                -int cart_id
+                -int id
                 -int user_id
-                -double temp_total
-                +addItem(int book_id, int qty) bool
-                +removeItem(int book_id) bool
-                +calculateTotal() double
-                +clearCart()
+                +addItem(book_id, qty) bool
+                +removeItem(book_id) bool
+                +clear() bool
             }
 
             class Order {
-                -int order_id
+                -int id
                 -int user_id
-                -date order_date
-                -double total_amount
+                -decimal total_amount
                 -string status
                 -string slip_image_url
                 +createOrder() int
-                +uploadPaymentSlip(string url) bool
-                +updateStatus(string newStatus) bool
+                +attachSlip(url) bool
+                +approvePayment(staff_id) bool
             }
 
-            User "1" -- "1" Cart : Owns &gt;
-            User "1" -- "0..*" Order : Places &gt;
-            Cart "1" -- "0..*" Book : Temporary Holds &gt;
-            Order "1" -- "1..*" Book : Contains &gt;
+            %% Detail Entities (Sub-transactions)
+            class CartItem {
+                -int id
+                -int cart_id
+                -int book_id
+                -int quantity
+            }
+
+            class OrderItem {
+                -int id
+                -int order_id
+                -int book_id
+                -int quantity
+                -decimal price_per_unit
+            }
+
+            %% Top-Down Relations
+            User "1" --> "1" Cart : Owns
+            User "1" --> "0..*" Order : Places
+            User "0..1" --> "0..*" Order : Verifies (Staff)
+
+            Cart "1" *--> "0..*" CartItem : Contains
+            Book "1" --> "0..*" CartItem : Referenced
+
+            Order "1" *--> "1..*" OrderItem : Comprises
+            Book "1" --> "0..*" OrderItem : Sold via
         </div>
     </div>
 
 
     <h2>🔄 3. Sequence Diagram (ลำดับขั้นตอนการตรวจสอบและชำระเงินเชิงลึก)</h2>
     <p>
-        แผนภาพจำลองปฏิสัมพันธ์ในลักษณะเวลา (Timeline Base) อธิบายกระบวนการตรวจสอบสลิปและการอนุมัติจัดส่งโดยเจ้าหน้าที่ (Staff) ซึ่งเป็นขั้นตอนที่สำคัญในการควบคุมสถานะของธุรกรรมก่อนที่จะบันทึกปลายทางลงใน MySQL:
+        แผนภาพจำลองปฏิสัมพันธ์ในลักษณะเวลา (Timeline Base) อธิบายกระบวนการสั่งซื้อสินค้าและการตัดจำนวนคลังสินค้า โดยประยุกต์ใช้ Database Transaction และ Pessimistic Locking เพื่อรองรับความทนทานต่อสภาวะโหลดข้อมูลจำนวนมาก:
     </p>
     
     <div class="diagram-box">
         <div class="mermaid">
         sequenceDiagram
             autonumber
-            actor Staff as 🧑‍💼 พนักงาน (Staff Dashboard UI)
-            participant Backend as ⚙️ ระบบหลังบ้าน (Express.js API)
-            participant DB as 🗄️ ฐานข้อมูล (MySQL RDBMS)
+            actor Customer as Customer (ลูกค้า)
+            participant Client as React App (หน้าบ้าน)
+            participant AuthMW as Middleware (สิทธิ์)
+            participant API as Express.js (หลังบ้าน)
+            participant DB as MySQL (ฐานข้อมูล)
 
-            Staff->>Backend: 1. ร้องขอรายการคำสั่งซื้อค้างตรวจสอบ (GET /api/orders/pending)
-            activate Backend
-            Backend->>DB: 2. ดึงข้อมูลออเดอร์ที่แนบสลิปเข้ามา
-            activate DB
-            DB-->>Backend: 3. ส่งคืนอาเรย์ข้อมูลรายการธุรกรรม
-            deactivate DB
-            Backend-->>Staff: 4. แสดงผลรายการออเดอร์และรูปภาพสลิปบนหน้าจอ
-            deactivate Backend
-
-            rect rgb(240, 243, 255)
-                note over Staff, DB: ขั้นตอนการตรวจสอบและกดอนุมัติสิทธิ์
-                Staff->>Backend: 5. กดอนุมัติออเดอร์ (PUT /api/orders/:id/approve)
-                activate Backend
-                Backend->>DB: 6. ปรับปรุงสถานะสเตตัสออเดอร์เป็น 'Paid' & เตรียมจัดส่ง
-                activate DB
-                DB-->>Backend: 7. ยืนยันการอัปเดตสเตตัสสำเร็จ
-                deactivate DB
-                Backend-->>Staff: 8. แจ้งเตือนสถานะความสำเร็จ "อนุมัติรายการชำระเงินเรียบร้อย" (HTTP 200 OK)
-                deactivate Backend
+            Customer->>Client: คลิกปุ่มชำระเงิน
+            activate Client
+            Client->>AuthMW: POST /api/orders (Authorization)
+            activate AuthMW
+            
+            AuthMW->>AuthMW: ตรวจสอบความถูกต้อง JWT
+            
+            alt โทเค็นไม่ผ่าน (Token Invalid)
+                AuthMW-->>Client: HTTP 401 Unauthorized
+                Client-->>Customer: แสดงแจ้งเตือนล็อกอินใหม่
+            else โทเค็นผ่าน (Token Valid)
+                AuthMW->>API: ส่งข้อมูลออเดอร์และผู้ใช้
+                deactivate AuthMW
+                activate API
+                
+                rect rgb(240, 249, 255)
+                    note over API, DB: เริ่มต้นทำธุรกรรมและดึงจำนวนสต็อกล่าสุด
+                    API->>DB: START TRANSACTION
+                    activate DB
+                    DB-->>API: Transaction Started
+                    
+                    API->>DB: SELECT stock FROM books FOR UPDATE (ล็อกแถวข้อมูล)
+                    DB-->>API: คืนค่าจำนวนสต็อกล่าสุด
+                end
+                
+                alt สต็อกไม่พอ (Stock &lt; Qty)
+                    rect rgb(255, 247, 237)
+                        note over API, DB: กรณีสต็อกไม่พอ ทำการ Rollback คืนค่าข้อมูล
+                        API->>DB: ROLLBACK
+                        DB-->>API: Transaction Rolled Back
+                        deactivate DB
+                        API-->>Client: HTTP 400 Bad Request
+                        Client-->>Customer: แจ้งเตือนสินค้าไม่พอ
+                    end
+                else สต็อกพอ (Stock &gt;= Qty)
+                    rect rgb(240, 253, 244)
+                        note over API, DB: บันทึกข้อมูลและยืนยันการทำรายการชำระเงินสำเร็จ
+                        API->>DB: UPDATE books (หักลบสต็อก)
+                        activate DB
+                        DB-->>API: Stock Updated
+                        
+                        API->>DB: INSERT INTO orders (สร้างออเดอร์)
+                        DB-->>API: คืนค่า order_id
+                        
+                        API->>DB: INSERT INTO order_items (บันทึกข้อมูลรายการ)
+                        DB-->>API: Items Saved
+                        
+                        API->>DB: COMMIT
+                        DB-->>API: Transaction Committed
+                        deactivate DB
+                    end
+                    
+                    API-->>Client: HTTP 201 Created (Order Object)
+                    deactivate API
+                    Client-->>Customer: แสดงจอออเดอร์สำเร็จ & รอแนบสลิปเงิน
+                    deactivate Client
+                end
             end
         </div>
     </div>
