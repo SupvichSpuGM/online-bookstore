@@ -266,31 +266,31 @@
     
     <div class="member-box">
         <div class="member-name">นายศิระเดช ศรีอ่ำ (รหัสนักศึกษา: 67120669)</div>
-        <div class="member-role">Project Manager / UI UX Designer / Frontend Developer</div>
+        <div class="member-role">🛂 Customer System Developer</div>
         <ul>
-            <li>บริหารจัดการ Sprint, ไทม์ไลน์ภาพรวมของโปรเจกต์ และติดตามสถานะความคืบหน้าของงาน (Project Management)</li>
-            <li>ออกแบบ User Journey, Wireframe และ High-Fidelity UI บน Figma</li>
-            <li>พัฒนาหน้าเว็บ Component และ Interface (Frontend) ฝั่งระบบหลังบ้านพนักงาน (Staff) และผู้ดูแลระบบ (Admin)</li>
+            <li>รับผิดชอบออกแบบและพัฒนาส่วนโต้ตอบ <strong>ลูกค้า (Customer)</strong> ทั้งหมด ได้แก่ หน้าร้าน (Storefront), ระบบค้นหาหนังสือ, ตะกร้าสินค้า และกระบวนการชำระเงิน/แนบสลิป</li>
+            <li>ออกแบบ User Journey และ Wireframe สำหรับประสบการณ์การใช้งานของลูกค้าบน Figma</li>
+            <li>พัฒนา Frontend Components ด้วย React และ Tailwind CSS เชื่อมต่อกับชุด API หลังบ้าน</li>
         </ul>
     </div>
 
     <div class="member-box">
         <div class="member-name">นายกิตติวัฒน์ กุดั่น (รหัสนักศึกษา: 67107666)</div>
-        <div class="member-role">Frontend Developer / Quality Assurance (QA Browser Tester)</div>
+        <div class="member-role">🧑‍💼 Admin System Developer</div>
         <ul>
-            <li>พัฒนา UI Web Components ฝั่งลูกค้าร้านค้าออนไลน์ (Customer Storefront) ด้วย React และ Tailwind CSS</li>
-            <li>ทำ Frontend-Backend Integration ร่วมเชื่อมต่อระบบหน้าบ้านเข้ากับชุด RESTful API</li>
-            <li>จัดทำเอกสาร Test Cases เพื่อทำ Manual Testing และระบบประเมิน User Acceptance Testing (UAT) บนเบราว์เซอร์</li>
+            <li>รับผิดชอบออกแบบและพัฒนาระบบหลังบ้านสำหรับผู้ใช้ระดับ <strong>พนักงาน/Admin (Staff)</strong> ได้แก่ ส่วนตรวจสอบสลิป, อนุมัติออเดอร์ และจัดการจัดส่ง</li>
+            <li>พัฒนา Staff Back-office UI ด้วย React และเชื่อมต่อกับ API การยืนยันสลิปและอัปเดตสถานะออเดอร์</li>
+            <li>จัดทำเอกสาร Test Cases และทำ Manual Testing / UAT เพื่อควบคุมคุณภาพของระบบผ่านเว็บเบราว์เซอร์</li>
         </ul>
     </div>
 
     <div class="member-box">
         <div class="member-name">นายศุภวิชญ์ เชื้อสาทุม (รหัสนักศึกษา: 67125897)</div>
-        <div class="member-role">Backend Developer / Database Administrator / API Test Engineer</div>
+        <div class="member-role">&#x2699;&#xFE0F; Super Admin System Developer / Backend &amp; DBA</div>
         <ul>
-            <li>ออกแบบและจัดทำสถาปัตยกรรมฐานข้อมูลเชิงสัมพันธ์ด้วย <strong>MySQL</strong> <em>(ยกระดับประสิทธิภาพความปลอดภัยข้อมูลทดแทนระบบ Local Storage เดิม)</em></li>
-            <li>พัฒนา Core RESTful API ด้วย <strong>Node.js & Express.js</strong> (ระบบ Authentication, Order logic และ Real-time Stock)</li>
-            <li>เขียนเทสสคริปต์และรับผิดชอบการทำ <strong>API Testing ผ่าน Postman</strong> เพื่อควบคุมคุณภาพซอฟต์แวร์ก่อนการผูกระบบ</li>
+            <li>รับผิดชอบออกแบบและพัฒนาระบบสำหรับผู้ใช้ระดับสูงสุด <strong>ผู้ดูแลระบบ (Super Admin)</strong> ได้แก่ BI Dashboard วิเคราะห์ยอดขาย, จัดการผู้ใช้ทั้งระบบ และการตั้งค่าระบบ</li>
+            <li>ออกแบบและจัดทำสถาปัตยกรรมฐานข้อมูลด้วย <strong>MySQL</strong> และพัฒนา Core RESTful API ด้วย <strong>Node.js &amp; Express.js</strong> (Authentication, Order Logic, Real-time Stock)</li>
+            <li>เขียนเทสสคริปต์และดูแลการทำ <strong>API Testing ผ่าน Postman</strong> เพื่อควบคุมคุณภาพชุด API ก่อนผูกระบบ</li>
         </ul>
     </div>
 
@@ -348,10 +348,13 @@
                 Actor_Admin[Admin BI Dashboard]
             end
 
-            %% API Gateway & Testing Layer
-            subgraph Integration_Layer ["API Gateway & Testing Contract"]
-                Postman_QA{Postman API Testing}
+            %% API Gateway & Routing Layer
+            subgraph Integration_Layer ["Express.js API Router"]
                 API_Routes[RESTful API Endpoints / Express.js]
+            end
+            
+            subgraph QA_Layer ["QA Testing & Validation"]
+                Postman_QA{Postman API Testing}
             end
 
             %% Backend Service Layer
@@ -368,11 +371,11 @@
             end
 
             %% Data Flow Connections
-            Actor_Customer -->|HTTP Requests| Postman_QA
-            Actor_Staff -->|HTTP Requests| Postman_QA
-            Actor_Admin -->|HTTP Requests| Postman_QA
+            Actor_Customer -->|HTTP Requests / JSON| API_Routes
+            Actor_Staff -->|HTTP Requests / JSON| API_Routes
+            Actor_Admin -->|HTTP Requests / JSON| API_Routes
             
-            Postman_QA -->|Verified Payloads| API_Routes
+            Postman_QA -.->|Automated Integration Tests| API_Routes
             
             API_Routes --> Auth_Service
             API_Routes --> Product_Service
@@ -389,6 +392,7 @@
             style Integration_Layer fill:#eef2ff,stroke:#4f46e5,stroke-width:2px;
             style Backend_Layer fill:#fafafa,stroke:#0f172a,stroke-width:2px;
             style Storage_Layer fill:#ecfdf5,stroke:#059669,stroke-width:2px;
+            style QA_Layer fill:#fffbeb,stroke:#d97706,stroke-width:2px;
             style Postman_QA fill:#fffbeb,stroke:#d97706,stroke-width:2px;
         </div>
     </div>

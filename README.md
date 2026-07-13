@@ -78,10 +78,13 @@ graph TD
         Actor_Admin[Admin BI Dashboard]
     end
 
-    %% API Gateway & Testing Layer
-    subgraph Integration_Layer ["API Gateway & Testing Contract"]
-        Postman_QA{Postman API Testing}
+    %% API Gateway & Routing Layer
+    subgraph Integration_Layer ["Express.js API Router"]
         API_Routes[RESTful API Endpoints / Express.js]
+    end
+    
+    subgraph QA_Layer ["QA Testing & Validation"]
+        Postman_QA{Postman API Testing}
     end
 
     %% Backend Service Layer
@@ -98,11 +101,11 @@ graph TD
     end
 
     %% Data Flow Connections
-    Actor_Customer -->|HTTP Requests| Postman_QA
-    Actor_Staff -->|HTTP Requests| Postman_QA
-    Actor_Admin -->|HTTP Requests| Postman_QA
+    Actor_Customer -->|HTTP Requests / JSON| API_Routes
+    Actor_Staff -->|HTTP Requests / JSON| API_Routes
+    Actor_Admin -->|HTTP Requests / JSON| API_Routes
     
-    Postman_QA -->|Verified Payloads| API_Routes
+    Postman_QA -.->|Automated Integration Tests| API_Routes
     
     API_Routes --> Auth_Service
     API_Routes --> Product_Service
@@ -119,6 +122,7 @@ graph TD
     style Integration_Layer fill:#eef2ff,stroke:#4f46e5,stroke-width:2px;
     style Backend_Layer fill:#fafafa,stroke:#0f172a,stroke-width:2px;
     style Storage_Layer fill:#ecfdf5,stroke:#059669,stroke-width:2px;
+    style QA_Layer fill:#fffbeb,stroke:#d97706,stroke-width:2px;
     style Postman_QA fill:#fffbeb,stroke:#d97706,stroke-width:2px;
 ```
 
@@ -131,7 +135,7 @@ graph TD
 
 ### ⚙️ Backend & Database (Server-Side Layer)
 * **Node.js & Express.js** — สภาพแวดล้อมรันไทม์และมิดเดิลแวร์เฟรมเวิร์กประสิทธิภาพสูง ในการสร้างบริการฝั่ง Server รวมถึงการจัดการชุดเส้นทาง RESTful API Endpoints
-* **MySQL RDBMS** — ระบบจัดการฐานข้อมูลเชิงสัมพันธ์ เพื่อเพิ่มความปลอดภัย ความเสถียร และรองรับข้อมูลที่มีความสัมพันธ์ซับซ้อน (ยกระดับขึ้นเพื่อทดแทนระบบ Local Storage แบบเดิม)[cite: 2]
+* **MySQL RDBMS** — ระบบจัดการฐานข้อมูลเชิงสัมพันธ์ เพื่อเพิ่มความปลอดภัย ความเสถียร และรองรับข้อมูลที่มีความสัมพันธ์ซับซ้อน (ยกระดับขึ้นเพื่อทดแทนระบบ Local Storage แบบเดิม)
 
 ### 🎨 Design & Collaboration Tools
 * **Figma** — เครื่องมือหลักที่ใช้จัดทำ User Journey, Wireframe ไปจนถึงการขึ้นแบบจำลองหน้าจอความละเอียดสูง (High-Fidelity UI) ของระบบหน้าบ้านและหลังบ้านทั้งหมด
@@ -145,26 +149,26 @@ graph TD
 
 ### 1️⃣ API Testing (Automation & Contract Verification)
 * **Objective:** ตรวจสอบความสมบูรณ์ ความถูกต้อง และความปลอดภัยของชุดข้อมูลก่อนเริ่มกระบวนการผูกระบบ
-* **Methodology:** ใช้เครื่องมือ **Postman**[cite: 2] ในการเขียนสคริปต์ทำ Automation Test เพื่อตรวจจับโครงสร้าง JSON Payload, ตรวจสอบความถูกต้องของสิทธิ และประเมิน HTTP Status Codes ทุกเส้นทาง[cite: 2]
-* **Responsible:** Backend & API Test Engineer[cite: 2]
+* **Methodology:** ใช้เครื่องมือ **Postman** ในการเขียนสคริปต์ทำ Automation Test เพื่อตรวจจับโครงสร้าง JSON Payload, ตรวจสอบความถูกต้องของสิทธิ และประเมิน HTTP Status Codes ทุกเส้นทาง
+* **Responsible:** Backend & API Test Engineer
 
 ### 2️⃣ User Acceptance Testing (UAT)
 * **Objective:** ประเมินความลื่นไหล ความพึงพอใจ และความถูกต้องของฟังก์ชันการใช้งานจากมุมมองของผู้ใช้จริง
-* **Methodology:** ดำเนินการทดสอบแบบ **Manual Testing** ผ่านเว็บเบราว์เซอร์ โดยอ้างอิงและบันทึกผลอย่างเป็นระบบตามเอกสารใบรายการทดสอบ (Test Cases) ที่ทีมดีไซน์และออกแบบไว้ล่วงหน้า[cite: 2]
-* **Responsible:** QA Browser Tester[cite: 2]
+* **Methodology:** ดำเนินการทดสอบแบบ **Manual Testing** ผ่านเว็บเบราว์เซอร์ โดยอ้างอิงและบันทึกผลอย่างเป็นระบบตามเอกสารใบรายการทดสอบ (Test Cases) ที่ทีมดีไซน์และออกแบบไว้ล่วงหน้า
+* **Responsible:** QA Browser Tester
 
 ---
 
 ## 📊 9. ผลลัพธ์ที่คาดว่าจะได้รับ (Expected Outcomes)
 
 * **[✓] Production-Ready Platform**  
-  ได้แพลตฟอร์มอีคอมเมิร์ซร้านจำหน่ายหนังสือออนไลน์ที่มีฟังก์ชันการทำงานสมบูรณ์ครบถ้วน พร้อมตอบโจทย์กลุ่มผู้ใช้งานทั้ง 3 กลุ่มหลัก (ลูกค้า, พนักงาน, และผู้ดูแลระบบ) ได้จริงตามขอบเขต[cite: 2]
+  ได้แพลตฟอร์มอีคอมเมิร์ซร้านจำหน่ายหนังสือออนไลน์ที่มีฟังก์ชันการทำงานสมบูรณ์ครบถ้วน พร้อมตอบโจทย์กลุ่มผู้ใช้งานทั้ง 3 กลุ่มหลัก (ลูกค้า, พนักงาน, และผู้ดูแลระบบ) ได้จริงตามขอบเขต
 * **[✓] Secure & Scalable Database**  
-  สถาปัตยกรรมฐานข้อมูล MySQL สามารถจัดเก็บข้อมูลการยืนยันตัวตน, คลังสินค้า และประวัติคำสั่งซื้อได้อย่างมั่นคง ถูกต้องปลอดภัย ไม่สูญหายเหมือนการเก็บข้อมูลรูปแบบเดิม[cite: 2]
+  สถาปัตยกรรมฐานข้อมูล MySQL สามารถจัดเก็บข้อมูลการยืนยันตัวตน, คลังสินค้า และประวัติคำสั่งซื้อได้อย่างมั่นคง ถูกต้องปลอดภัย ไม่สูญหายเหมือนการเก็บข้อมูลรูปแบบเดิม
 * **[✓] High-Quality Softwares (Low Defect Rate)**  
-  ซอฟต์แวร์ผ่านกระบวนการคัดกรองบั๊กอย่างเข้มงวดทั้งในระดับ API Layer (Postman) และ UI Layer (Manual UI Test) ช่วยลดความเสี่ยงและการเกิดข้อผิดพลาดรุนแรงเมื่อนำไปเปิดใช้งานจริง[cite: 2]
+  ซอฟต์แวร์ผ่านกระบวนการคัดกรองบั๊กอย่างเข้มงวดทั้งในระดับ API Layer (Postman) และ UI Layer (Manual UI Test) ช่วยลดความเสี่ยงและการเกิดข้อผิดพลาดรุนแรงเมื่อนำไปเปิดใช้งานจริง
 * **[✓] Lean Cross-Functional Engineering Skills**  
-  สมาชิกภายในทีมได้รับประสบการณ์จริงในการทำงานร่วมกันแบบ Lean Team พัฒนาทักษะ Full-stack Development และเข้าใจกระบวนการทดสอบตามวงจร SDLC อย่างเป็นระบบ[cite: 2]
+  สมาชิกภายในทีมได้รับประสบการณ์จริงในการทำงานร่วมกันแบบ Lean Team พัฒนาทักษะ Full-stack Development และเข้าใจกระบวนการทดสอบตามวงจร SDLC อย่างเป็นระบบ
 
 ---
 
@@ -173,8 +177,6 @@ graph TD
 | สัปดาห์ (Week) | กิจกรรมหลัก (Activities) | รายละเอียดของงานโดยย่อ (Brief Description) | ผู้รับผิดชอบหลัก (Assigned Members) |
 | :---: | :--- | :--- | :--- |
 | **สัปดาห์ที่ 1** | **วิเคราะห์และออกแบบระบบ**<br>*(Analysis & Design)* | <ul><li>ประชุมรวบรวมข้อกำหนดและขอบเขตความต้องการระบบ (Requirements)</li><li>จัดทำ User Journey และออกแบบ UI ความละเอียดสูงบน Figma</li><li>ออกแบบสถาปัตยกรรมระบบ และโครงสร้างฐานข้อมูลเชิงสัมพันธ์ (MySQL ER-Diagram)</li></ul> | **ทุกคนในทีม**<br>*(ประสานงานร่วมกัน)* |
-| **สัปดาห์ที่ 2** | **พัฒนาฟังก์ชันระยะแรก**<br>*(Development Sprint 1)* | <ul><li>พัฒนาหน้าจอฝั่งลูกค้าร้านค้าออนไลน์ (Customer Storefront Web UI)</li><li>พัฒนา Core Backend API สเตจแรก (ระบบ Authentication ยืนยันตัวตน และ Product Catalog API)</li></ul> | <ul><li>นายศิระเดช</li><li>นายกิตติวัฒน์</li><li>นายศุภวิชญ์</li></ul>[cite: 2] |
-| **สัปดาห์ที่ 3** | **พัฒนาฟังก์ชันระยะสอง**<br>*(Development Sprint 2)* | <ul><li>พัฒนาหน้าจอฝั่งระบบหลังบ้านพนักงาน (Staff UI) และหน้าต่างสรุปผล (Admin Dashboard)</li><li>พัฒนา Backend API สเตจสอง (ระบบ Cart Logic, Order Workflow และ Real-time Stock)</li><li>เริ่มต้นกระบวนการเชื่อมต่อหน้าบ้านและหลังบ้านเข้าด้วยกัน (Frontend-Backend Integration)</li></ul> | <ul><li>นายศิระเดช</li><li>นายกิตติวัฒน์</li><li>นายศุภวิชญ์</li></ul>[cite: 2] |
+| **สัปดาห์ที่ 2** | **พัฒนาฟังก์ชันระยะแรก**<br>*(Development Sprint 1)* | <ul><li>พัฒนาหน้าจอฝั่งลูกค้าร้านค้าออนไลน์ (Customer Storefront Web UI)</li><li>พัฒนา Core Backend API สเตจแรก (ระบบ Authentication ยืนยันตัวตน และ Product Catalog API)</li></ul> | <ul><li>นายศิระเดช (Customer Developer)</li><li>นายกิตติวัฒน์ (Admin Developer)</li><li>นายศุภวิชญ์ (Super Admin/Backend)</li></ul> |
+| **สัปดาห์ที่ 3** | **พัฒนาฟังก์ชันระยะสอง**<br>*(Development Sprint 2)* | <ul><li>พัฒนาหน้าจอฝั่งระบบหลังบ้านพนักงาน (Staff UI) และหน้าต่างสรุปผล (Admin Dashboard)</li><li>พัฒนา Backend API สเตจสอง (ระบบ Cart Logic, Order Workflow และ Real-time Stock)</li><li>เริ่มต้นกระบวนการเชื่อมต่อหน้าบ้านและหลังบ้านเข้าด้วยกัน (Frontend-Backend Integration)</li></ul> | <ul><li>นายศิระเดช (Customer Developer)</li><li>นายกิตติวัฒน์ (Admin Developer)</li><li>นายศุภวิชญ์ (Super Admin/Backend)</li></ul> |
 | **สัปดาห์ที่ 4** | **ทดสอบระบบและนำเสนอ**<br>*(Testing & Presentation)* | <ul><li>เขียนและรันสคริปต์ทำ API Automation Testing ผ่านเครื่องมือ Postman</li><li>ดำเนินการทดสอบ Manual Browser Testing และประเมินผล UAT ตามใบ Test Cases</li><li>สรุปรายงานข้อผิดพลาด เคลียร์บั๊ก จัดทำเอกสารเล่มรายงานฉบับสมบูรณ์ และนำเสนอโครงงาน</li></ul> | **ทุกคนในทีม**<br>*(เน้นส่วนงาน QA และ PM)* |
-
-```
