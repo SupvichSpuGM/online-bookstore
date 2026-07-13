@@ -3,6 +3,16 @@
 
 ---
 
+## 📂 เอกสารโครงงาน (Project Documents)
+
+| ไฟล์ | คำอธิบาย |
+| :--- | :--- |
+| 📄 [README.md](./README.md) | ภาพรวมโครงงาน ทีม เทคโนโลยี และแผนการดำเนินงาน |
+| 📊 [Diagram.md](./Diagram.md) | แผนภาพสถาปัตยกรรมระบบ (Use Case, Class, Sequence, ERD, Deployment) |
+| 📝 [workshop4.md](./workshop4.md) | Workshop #4: Theoretical Assessment — การวิเคราะห์และออกแบบระบบ |
+
+---
+
 ## 👥 1. โครงสร้างทีมและบทบาทหน้าที่ (Team Structure & Roles Allocation)
 โครงสร้างทีมในลักษณะ Lean Cross-Functional (สมาชิก 3 คน) ควบคุมและจัดการกระบวนการพัฒนาตลอดจนการทำ API Automation Testing:
 
