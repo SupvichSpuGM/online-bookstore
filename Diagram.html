@@ -371,17 +371,52 @@
             <tr>
                 <td><strong>UC1: ยืนยันตัวตนเข้าระบบ</strong></td>
                 <td>ลูกค้า, พนักงาน, ผู้ดูแลระบบ</td>
-                <td>ใช้สถาปัตยกรรมสแกนสิทธิ์ตรวจสอบความถูกต้องของรหัสผ่านเพื่อสร้าง JWT Token ก่อนเข้าถึงข้อมูลส่วนบุคคล</td>
+                <td>ตรวจสอบ email/password แล้วสร้าง JWT Token ที่มีอายุการใช้งาน สำหรับควบคุมการเข้าถึง API ที่ต้องมีสิทธิ์</td>
+            </tr>
+            <tr>
+                <td><strong>UC2: ค้นหาหนังสือ</strong></td>
+                <td>ลูกค้า (Customer)</td>
+                <td>สืบค้นหนังสือจากชื่อ, ชื่อผู้แต่ง, ISBN หรือหมวดหมู่ ไม่ต้องล็อกอินก็ใช้งานได้</td>
+            </tr>
+            <tr>
+                <td><strong>UC3: จัดการตะกร้าสินค้า</strong></td>
+                <td>ลูกค้า (Customer)</td>
+                <td>เพิ่ม/ลบ/ปรับจำนวนหนังสือในตะกร้า ระบบตรวจสอบจำนวนสต็อกก่อนยืนยัน</td>
             </tr>
             <tr>
                 <td><strong>UC4: สั่งซื้อและแนบหลักฐาน</strong></td>
                 <td>ลูกค้า (Customer)</td>
-                <td>คำนวณราคาสุทธิจากระบบตะกร้าสินค้า ดึงข้อมูลการตัดสต็อก และรองรับการอัปโหลดไฟล์ภาพสลิปเพื่อส่งต่อให้เจ้าหน้าที่</td>
+                <td>คำนวณราคาสุทธิ, ตัดสต็อกด้วย Transaction Lock และสร้าง Order พร้อม UC5 เป็น extend</td>
             </tr>
             <tr>
-                <td><strong>UC6: บริหารคลังสินค้า</strong></td>
+                <td><strong>UC5: แนบสลิปโอนเงิน</strong></td>
+                <td>ลูกค้า (Customer)</td>
+                <td>«extend» UC4 — อัปโหลดไฟล์ภาพสลิปผูกกับ order_id เพื่อส่งต่อให้พนักงานตรวจสอบ</td>
+            </tr>
+            <tr>
+                <td><strong>UC6: ตรวจสอบสลิปเงิน</strong></td>
+                <td>พนักงาน (Staff)</td>
+                <td>พนักงานดูรายการออเดอร์ค้างอนุมัติ ตรวจยืนยันสลิปและอัปเดต status เป็น "paid"</td>
+            </tr>
+            <tr>
+                <td><strong>UC7: จัดการจัดส่ง</strong></td>
+                <td>พนักงาน (Staff)</td>
+                <td>บันทึกเลขพัสดุและวันที่จัดส่ง อัปเดต status ออเดอร์เป็น "shipped" และแจ้งลูกค้า</td>
+            </tr>
+            <tr>
+                <td><strong>UC8: บริหารคลังสินค้า</strong></td>
                 <td>พนักงานหลังบ้าน, ผู้ดูแลระบบ</td>
-                <td>ระบบควบคุมการ เพิ่ม-ลบ-แก้ไข ข้อมูลหนังสือ จัดการหมวดหมู่ และปรับปรุงจำนวนสินค้าพร้อมจำหน่ายแบบ Real-time</td>
+                <td>เพิ่ม/ลบ/แก้ไขข้อมูลหนังสือ จัดการหมวดหมู่ และปรับปรุงจำนวนสต็อก Real-time</td>
+            </tr>
+            <tr>
+                <td><strong>UC9: เตือนสต็อกต่ำ</strong></td>
+                <td>ระบบ → พนักงาน (Staff)</td>
+                <td>«extend» UC8 — ระบบแจ้งเตือนอัตโนมัติเมื่อ stock_qty ต่ำกว่าเกณฑ์ที่กำหนด</td>
+            </tr>
+            <tr>
+                <td><strong>UC10: รายงานสรุปยอดขาย</strong></td>
+                <td>ผู้ดูแลระบบ (Admin)</td>
+                <td>แสดง Dashboard สรุปยอดขาย, หนังสือขายดี, รายรับรายสัปดาห์/เดือน สำหรับวิเคราะห์ธุรกิจ</td>
             </tr>
         </tbody>
     </table>
@@ -429,12 +464,17 @@
             class Order {
                 -int id
                 -int user_id
+                -int verified_by
                 -decimal total_amount
                 -string status
                 -string slip_image_url
+                -string tracking_number
+                -timestamp order_date
+                -timestamp shipped_at
                 +createOrder() int
                 +attachSlip(url) bool
                 +approvePayment(staff_id) bool
+                +shipOrder(tracking_number) bool
             }
 
             %% Detail Entities (Sub-transactions)
@@ -692,12 +732,14 @@
                 ST1 --> ST2
                 ST2 --> ST3
                 ST3 -->|ถูกต้อง| ST4
+                ST4 --> ST5
                 ST3 -->|ไม่ถูกต้อง| ST6
             end
 
             %% Process Interactions
             A4 --> S1
             S5 --> ST1
+            S6 --> A_Cancel([❌ แจ้งลูกค้า: ยกเลิกออเดอร์เนื่องจากสินค้าหมด])
             ST4 --> S7
             S7 --> A6
             ST5 --> A7
@@ -710,7 +752,39 @@
     </div>
 
 
-    <h2>💾 7. Database ERD (การออกแบบความสัมพันธ์ฐานข้อมูลMySQL 3NF)</h2>
+    <h2>📌 7. State Diagram (วงจรชีวิตสถานะของคำสั่งซื้อ Order)</h2>
+    <p>
+        แผนภาพสถานะ (State Diagram) แสดงการเปลี่ยนสถานะของ Order ตลอด Lifecycle ตั้งแต่ลูกค้ากดยืนยันการสั่งซื้อ จนกว่าพัสดุจะถูกจัดส่ง หรือออเดอร์ถูกยกเลิก โดย Transition แต่ละเส้นระบุเงื่อนไขและผู้รับผิดชอบในการเปลี่ยนสถานะ:
+    </p>
+
+    <div class="diagram-box">
+        <div class="mermaid">
+        stateDiagram-v2
+            [*] --> pending : Customer creates order (UC4)
+
+            pending --> paid : Staff verifies slip ✅ (UC6)
+            pending --> cancelled : Stock insufficient OR Slip rejected ❌
+
+            paid --> shipped : Staff dispatches parcel (UC7)
+            paid --> cancelled : Admin / Staff cancels order
+
+            shipped --> [*] : Order complete — delivery confirmed
+            cancelled --> [*] : Order terminated
+
+            note right of pending
+                สถานะเริ่มต้นหลังลูกค้ากด
+                ยืนยันออเดอร์และแนบสลิป
+            end note
+
+            note right of paid
+                พนักงานยืนยันการชำระเงิน
+                แล้ว เตรียมจัดส่ง
+            end note
+        </div>
+    </div>
+
+
+    <h2>💾 8. Database ERD (การออกแบบความสัมพันธ์ฐานข้อมูล MySQL 3NF)</h2>
     <p>
         แผนภาพความสัมพันธ์ของเอนทิตี (Entity-Relationship Diagram) แสดงรูปแบบฐานข้อมูลจริงที่รันในโปรดักชัน ซึ่งแยกส่วนของตารางกลางแบบ Normalized (3NF) เพื่อความเสถียรและปลอดภัยในการจัดเก็บ:
     </p>
@@ -748,10 +822,13 @@
             orders {
                 int id PK "AUTO_INCREMENT"
                 int user_id FK "NOT NULL"
+                int verified_by FK "NULL (staff user_id)"
                 decimal total_amount "NOT NULL"
                 enum status "pending, paid, shipped, cancelled"
                 string slip_image_url "NULL"
+                string tracking_number "NULL"
                 timestamp order_date
+                timestamp shipped_at "NULL"
             }
             order_items {
                 int id PK "AUTO_INCREMENT"
@@ -763,6 +840,7 @@
 
             users ||--|| carts : owns
             users ||--o{ orders : places
+            users ||--o{ orders : "verifies (staff)"
             carts ||--o{ cart_items : contains
             books ||--o{ cart_items : added_to
             orders ||--|{ order_items : comprises
@@ -771,7 +849,7 @@
     </div>
 
 
-    <h2>🚀 8. Deployment Architecture (สถาปัตยกรรมทางกายภาพและการติดตั้งจริง)</h2>
+    <h2>🚀 9. Deployment Architecture (สถาปัตยกรรมทางกายภาพและการติดตั้งจริง)</h2>
     <p>
         แผนภาพจำลองการติดตั้งระบบซอฟต์แวร์จริง (Deployment Architecture) บนผู้ให้บริการ Cloud ซึ่งแยกสภาพแวดล้อมฝั่ง Client (React บน Vercel) และ Backend Services (Node.js & Express บน Render Cloud) เชื่อมเข้าสู่โฮสต์ MySQL:
     </p>
@@ -811,7 +889,79 @@
     </div>
 
 
-    <h2>🚀 9. แหล่งเก็บซอร์สโค้ด และรายงานความคืบหน้า (Project Deliverables)</h2>
+    <h2>🚀 10. แหล่งเก็บซอร์สโค้ด และรายงานความคืบหน้า (Project Deliverables)</h2>
+    
+    <h3>👥 โครงสร้างทีมและบทบาทหน้าที่ (Team Structure)</h3>
+    <table class="spec-table">
+        <thead>
+            <tr>
+                <th style="width: 35%">รายชื่อสมาชิก</th>
+                <th style="width: 25%">บทบาทหน้าที่ (Role)</th>
+                <th style="width: 40%">ขอบเขตความรับผิดชอบหลัก</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>นายศิระเดช ศรีอ่ำ</strong> (67120669)</td>
+                <td>🛂 Customer System Developer</td>
+                <td>รับผิดชอบฟังก์ชันลูกค้าทั้งหมด (Storefront, ค้นหาหนังสือ, จัดการตะกร้า, และสั่งซื้อ/แนบสลิป)</td>
+            </tr>
+            <tr>
+                <td><strong>นายกิตติวัฒน์ กุดั่น</strong> (67107666)</td>
+                <td>🧑‍💼 Admin System Developer</td>
+                <td>รับผิดชอบฟังก์ชันพนักงาน/แอดมิน (อนุมัติการจ่ายเงิน/สลิป และจัดการการจัดส่งสินค้า)</td>
+            </tr>
+            <tr>
+                <td><strong>นายศุภวิชญ์ เชื้อสาทุม</strong> (67125897)</td>
+                <td>⚙️ Super Admin System Developer / Backend & DBA</td>
+                <td>รับผิดชอบฟังก์ชัน Super Admin (Dashboard ยอดขาย, จัดการผู้ใช้) และดูแลระบบฐานข้อมูล MySQL/REST API</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>📈 ตารางสถานะและขอบเขตชิ้นงาน (Progress Checklist)</h3>
+    <table class="spec-table">
+        <thead>
+            <tr>
+                <th style="width: 40%">กิจกรรม/งานส่งมอบ (Deliverables)</th>
+                <th style="width: 30%">สถานะการดำเนินงาน</th>
+                <th style="width: 30%">ผู้ตรวจสอบ/ผู้รับผิดชอบ</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1. เอกสารสถาปัตยกรรมระบบ (Use Case, Class, Sequence)</td>
+                <td><span class="highlight-badge" style="background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;">✓ เสร็จสมบูรณ์ (100%)</span></td>
+                <td>นายศิระเดช ศรีอ่ำ (PM)</td>
+            </tr>
+            <tr>
+                <td>2. การออกแบบโครงสร้างฐานข้อมูลเชิงสัมพันธ์ (MySQL Schema ERD)</td>
+                <td><span class="highlight-badge" style="background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;">✓ เสร็จสมบูรณ์ (100%)</span></td>
+                <td>นายศุภวิชญ์ เชื้อสาทุม (DBA)</td>
+            </tr>
+            <tr>
+                <td>3. พัฒนาระบบโต้ตอบและหน้าต่างผู้ใช้งาน (React Storefront UI)</td>
+                <td><span class="highlight-badge" style="background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;">✓ เสร็จสมบูรณ์ (100%)</span></td>
+                <td>นายศิระเดช, นายกิตติวัฒน์</td>
+            </tr>
+            <tr>
+                <td>4. พัฒนา Core RESTful API และการจัดการ Transaction Lock</td>
+                <td><span class="highlight-badge" style="background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;">✓ เสร็จสมบูรณ์ (100%)</span></td>
+                <td>นายศุภวิชญ์ เชื้อสาทุม</td>
+            </tr>
+            <tr>
+                <td>5. การทำ API Automation Testing ด้วยสคริปต์ Postman</td>
+                <td><span class="highlight-badge" style="background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;">✓ เสร็จสมบูรณ์ (100%)</span></td>
+                <td>นายศุภวิชญ์ เชื้อสาทุม</td>
+            </tr>
+            <tr>
+                <td>6. การทำ User Acceptance Testing (UAT Manual UI Test)</td>
+                <td><span class="highlight-badge" style="background:#d1fae5; color:#065f46; border:1px solid #a7f3d0;">✓ เสร็จสมบูรณ์ (100%)</span></td>
+                <td>นายกิตติวัฒน์ กุดั่น (QA)</td>
+            </tr>
+        </tbody>
+    </table>
+
     <div class="info-panel">
         <strong>📂 แหล่งเก็บซอร์สโค้ดส่วนกลาง (GitHub Repository):</strong><br>
         <a href="https://github.com/SupvichSpuGM/online-bookstore" target="_blank" style="color:var(--primary); font-weight:600; text-decoration:none;">
