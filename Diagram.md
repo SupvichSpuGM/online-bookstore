@@ -81,6 +81,7 @@ classDiagram
         -string role
         +register(name, email, password) bool
         +login(email, password) string
+        +logout() bool
     }
     class Book {
         -int id
@@ -89,7 +90,13 @@ classDiagram
         -string isbn
         -decimal price
         -int stock_qty
-        +updateStock(qty) bool
+        -string category
+        +searchBooks(query) List~Book~
+        +addBook(title, author, isbn, price, stock_qty, category) bool
+        +updateBookDetails(id, title, author, price, category) bool
+        +deleteBook(id) bool
+        +updateStock(id, qty) bool
+        +checkLowStockLimit(limit) List~Book~
         +isAvailable() bool
     }
     class Cart {
@@ -97,6 +104,7 @@ classDiagram
         -int user_id
         +addItem(book_id, qty) bool
         +removeItem(book_id) bool
+        +updateItemQty(book_id, qty) bool
         +clear() bool
     }
     class Order {
@@ -109,9 +117,9 @@ classDiagram
         -string tracking_number
         -timestamp order_date
         -timestamp shipped_at
-        +createOrder() int
+        +checkout(cart_id) int
         +attachSlip(url) bool
-        +approvePayment(staff_id) bool
+        +verifySlipPayment(staff_id, is_valid) bool
         +shipOrder(tracking_number) bool
     }
     class CartItem {
@@ -127,6 +135,13 @@ classDiagram
         -int quantity
         -decimal price_per_unit
     }
+    class Dashboard {
+        -int report_id
+        -timestamp generated_at
+        +getSalesReport(startDate, endDate) SalesReport
+        +getBestSellers(limit) List~Book~
+        +getTotalRevenue() decimal
+    }
 
     User "1" --> "1" Cart : Owns
     User "1" --> "0..*" Order : Places
@@ -135,52 +150,133 @@ classDiagram
     Book "1" --> "0..*" CartItem : Referenced
     Order "1" *--> "1..*" OrderItem : Comprises
     Book "1" --> "0..*" OrderItem : Sold via
+    User "0..*" --> "1" Dashboard : Accesses (Admin)
+    Dashboard --> Order : Analyzes
+    Dashboard --> Book : Tracks
 ```
 
 ---
 
 ## 🔄 3. Sequence Diagram (ลำดับขั้นตอนการตรวจสอบและชำระเงินเชิงลึก)
 
-แผนภาพจำลองปฏิสัมพันธ์ในลักษณะเวลา (Timeline Base) อธิบายกระบวนการสั่งซื้อสินค้าและการตัดจำนวนคลังสินค้า โดยประยุกต์ใช้ Database Transaction และ Pessimistic Locking:
+แผนภาพจำลองปฏิสัมพันธ์ในลักษณะเวลา (Timeline Base) อธิบายกระบวนการสั่งซื้อสินค้า, แนบหลักฐานชำระเงิน, การตรวจสอบอนุมัติโดยพนักงาน และการจัดส่งสินค้า โดยสอดคล้องสัมพันธ์กับ Use Cases (UC4, UC5, UC6, UC7) และการทำงานของคลาสข้อมูล:
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Customer as Customer (ลูกค้า)
+    actor Staff as Staff (พนักงาน)
     participant Client as React App (หน้าบ้าน)
     participant AuthMW as Middleware (สิทธิ์)
     participant API as Express.js (หลังบ้าน)
     participant DB as MySQL (ฐานข้อมูล)
 
-    Customer->>Client: คลิกปุ่มชำระเงิน
-    Client->>AuthMW: POST /api/orders (Authorization)
-    AuthMW->>AuthMW: ตรวจสอบความถูกต้อง JWT
-
-    alt โทเค็นไม่ผ่าน
-        AuthMW-->>Client: HTTP 401 Unauthorized
-        Client-->>Customer: แสดงแจ้งเตือนล็อกอินใหม่
-    else โทเค็นผ่าน
-        AuthMW->>API: ส่งข้อมูลออเดอร์และผู้ใช้
-        API->>DB: START TRANSACTION
-        DB-->>API: Transaction Started
-        API->>DB: SELECT stock FROM books FOR UPDATE
-        DB-->>API: คืนค่าจำนวนสต็อกล่าสุด
-
-        alt สต็อกไม่พอ
-            API->>DB: ROLLBACK
-            DB-->>API: Transaction Rolled Back
-            API-->>Client: HTTP 400 Bad Request
-            Client-->>Customer: แจ้งเตือนสินค้าไม่พอ
-        else สต็อกพอ
-            API->>DB: UPDATE books (หักลบสต็อก)
-            API->>DB: INSERT INTO orders
-            DB-->>API: คืนค่า order_id
-            API->>DB: INSERT INTO order_items
-            API->>DB: COMMIT
-            DB-->>API: Transaction Committed
-            API-->>Client: HTTP 201 Created
-            Client-->>Customer: แสดงจอออเดอร์สำเร็จ
+    %% Part 1: Order Checkout (UC4)
+    rect rgb(240, 249, 255)
+        note over Customer, DB: Part 1: Order Checkout (UC4)
+        Customer->>Client: คลิกปุ่มชำระเงิน
+        activate Client
+        Client->>AuthMW: POST /api/orders (Authorization Token)
+        activate AuthMW
+        AuthMW->>AuthMW: ตรวจสอบความถูกต้อง JWT (UC1)
+        alt โทเค็นไม่ผ่าน
+            AuthMW-->>Client: HTTP 401 Unauthorized
+            Client-->>Customer: แสดงหน้าจอแจ้งเตือนล็อกอิน
+        else โทเค็นผ่าน
+            AuthMW->>API: ส่งข้อมูลออเดอร์และสิทธิ์ผู้ใช้
+            deactivate AuthMW
+            activate API
+            API->>DB: START TRANSACTION
+            activate DB
+            DB-->>API: Transaction Started
+            API->>DB: SELECT stock_qty FROM books FOR UPDATE (ตรวจสอบสต็อก)
+            DB-->>API: คืนค่าจำนวนสต็อกล่าสุด
+            alt สต็อกไม่พอ
+                API->>DB: ROLLBACK
+                DB-->>API: Transaction Rolled Back
+                deactivate DB
+                API-->>Client: HTTP 400 Bad Request (สินค้าไม่พอ)
+                Client-->>Customer: แจ้งเตือนสินค้าไม่เพียงพอ
+            else สต็อกพอ
+                API->>DB: UPDATE books (หักลบสต็อก)
+                activate DB
+                DB-->>API: Stock Updated
+                API->>DB: INSERT INTO orders (สถานะ = 'pending')
+                DB-->>API: คืนค่า order_id
+                API->>DB: INSERT INTO order_items (บันทึกข้อมูลรายการ)
+                API->>DB: COMMIT
+                DB-->>API: Transaction Committed
+                deactivate DB
+                API-->>Client: HTTP 201 Created (order_id)
+                deactivate API
+                Client-->>Customer: แสดงหน้าจอให้แนบสลิปเงิน
+                deactivate Client
+            end
         end
+    end
+
+    %% Part 2: Attach Slip (UC5)
+    rect rgb(254, 242, 242)
+        note over Customer, DB: Part 2: Attach Slip (UC5)
+        Customer->>Client: เลือกไฟล์รูปภาพและกดอัปโหลดสลิป
+        activate Client
+        Client->>API: POST /api/orders/:id/slip (Slip Image File)
+        activate API
+        API->>DB: UPDATE orders SET slip_image_url = ?, status = 'pending' WHERE id = ?
+        activate DB
+        DB-->>API: Slip Saved
+        deactivate DB
+        API-->>Client: HTTP 200 OK
+        deactivate API
+        Client-->>Customer: แสดงสถานะออเดอร์ 'รอตรวจสอบสลิป'
+        deactivate Client
+    end
+
+    %% Part 3: Verify Payment Slip (UC6)
+    rect rgb(255, 251, 235)
+        note over Staff, DB: Part 3: Verify Payment Slip (UC6)
+        Staff->>Client: เปิดหน้ารายการสั่งซื้อค้างตรวจสอบ
+        activate Client
+        Client->>API: GET /api/orders?status=pending (Authorization Token)
+        activate API
+        API->>DB: SELECT * FROM orders WHERE status = 'pending'
+        activate DB
+        DB-->>API: คืนค่ารายการออเดอร์ค้างตรวจสอบ
+        deactivate DB
+        API-->>Client: HTTP 200 OK (แสดงรายการพร้อมรูปภาพสลิป)
+        deactivate API
+        Client-->>Staff: แสดงผลรายการออเดอร์และรูปภาพสลิปบนบราวเซอร์
+        deactivate Client
+        
+        Staff->>Client: กดปุ่มอนุมัติยอดเงิน (สลิปถูกต้อง)
+        activate Client
+        Client->>API: PATCH /api/orders/:id/verify (status = 'paid')
+        activate API
+        API->>DB: UPDATE orders SET status = 'paid', verified_by = ? WHERE id = ?
+        activate DB
+        DB-->>API: Order Status Updated to 'paid'
+        deactivate DB
+        API-->>Client: HTTP 200 OK
+        deactivate API
+        Client-->>Staff: แจ้งเตือนสถานะสำเร็จและอัปเดตหน้าจอ
+        deactivate Client
+    end
+
+    %% Part 4: Ship Order (UC7)
+    rect rgb(240, 253, 244)
+        note over Staff, DB: Part 4: Ship Order (UC7)
+        Staff->>Client: บันทึกเลขพัสดุและจัดส่งสินค้า
+        activate Client
+        Client->>API: PATCH /api/orders/:id/ship (tracking_number)
+        activate API
+        API->>DB: UPDATE orders SET status = 'shipped', tracking_number = ?, shipped_at = NOW() WHERE id = ?
+        activate DB
+        DB-->>API: Order Status Updated to 'shipped'
+        deactivate DB
+        API-->>Client: HTTP 200 OK
+        deactivate API
+        Client-->>Staff: แสดงสถานะการจัดส่งสำเร็จ
+        deactivate Client
     end
 ```
 

@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop #7 - User Acceptance Testing (UAT) (CSI204)</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <!-- Mermaid JS for Flowcharts -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'neutral',
+            securityLevel: 'loose',
+            fontFamily: 'Sarabun, Inter, sans-serif',
+            flowchart: { useMaxWidth: true, htmlLabels: true }
+        });
+    </script>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --primary-light: #f5f3ff;
+            --primary-border: #ddd6fe;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --success-border: #a7f3d0;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --danger-border: #fecaca;
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --warning-border: #fef3c7;
+            --info: #06b6d4;
+            --info-light: #ecfeff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            line-height: 1.7;
+            color: var(--text-main);
+            background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            padding: 45px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Header UI style */
+        .header-block {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 35px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        h1 {
+            color: #1e1b4b;
+            font-size: 30px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--text-muted);
+            margin: 0 0 20px 0;
+            font-weight: 400;
+        }
+
+        .badge-sub {
+            display: inline-block;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            padding: 6px 20px;
+            border-radius: 99px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid var(--primary-border);
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: #1e1b4b;
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 45px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        h3 {
+            color: var(--primary);
+            font-size: 17px;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        p {
+            font-size: 15.5px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        /* Team Structure Style */
+        .team-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        @media (min-width: 768px) {
+            .team-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .team-card {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: left;
+            transition: var(--transition);
+        }
+
+        .team-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-border);
+            box-shadow: var(--shadow-md);
+        }
+
+        .team-name {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .team-id {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .team-role {
+            font-size: 12px;
+            background: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            display: inline-block;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Info Alert Box */
+        .info-box {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            color: var(--text-muted);
+            padding: 16px 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 25px 0;
+            font-size: 15px;
+        }
+
+        .info-box strong {
+            color: var(--primary-dark);
+        }
+
+        /* Dashboard Stat Widgets */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        @media (min-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .stat-card.total::after { background: var(--text-muted); }
+        .stat-card.pass-rate::after { background: var(--primary); }
+        .stat-card.passed::after { background: var(--success); }
+        .stat-card.failed::after { background: var(--danger); }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1;
+            margin-bottom: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Circular/Bar Progress styling */
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 58.33%;
+            background-color: var(--primary);
+            border-radius: 3px;
+            transition: width 0.5s ease-in-out, background-color 0.5s;
+        }
+
+        /* Diagram wrapper */
+        .diagram-container {
+            background: #fafafa;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 25px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Tab buttons */
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 18px;
+            border-radius: 99px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary-border);
+            background: var(--primary-light);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+
+        /* Interactive UAT Table Wrapper */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14.5px;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-muted);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr.fail-row {
+            background-color: rgba(239, 68, 68, 0.01);
+        }
+
+        /* Status toggles/dropdowns */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .status-badge.pass {
+            background-color: var(--success-light);
+            color: var(--success);
+            border-color: var(--success-border);
+        }
+
+        .status-badge.fail {
+            background-color: var(--danger-light);
+            color: var(--danger);
+            border-color: var(--danger-border);
+        }
+
+        .status-badge:hover {
+            transform: scale(1.03);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .issue-type-tag {
+            font-size: 12px;
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .issue-type-tag.critical {
+            background-color: var(--danger-light);
+            color: var(--danger);
+            border-color: var(--danger-border);
+        }
+
+        .issue-type-tag.high {
+            background-color: #fff7ed;
+            color: #ea580c;
+            border-color: #ffedd5;
+        }
+
+        .issue-type-tag.medium {
+            background-color: var(--warning-light);
+            color: #d97706;
+            border-color: var(--warning-border);
+        }
+
+        /* Accordion style for Presentation prep Q&A */
+        .accordion-item {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .accordion-item:hover {
+            border-color: var(--primary-border);
+        }
+
+        .accordion-header {
+            padding: 18px 24px;
+            font-weight: 600;
+            color: var(--text-main);
+            background-color: #fff;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: var(--transition);
+        }
+
+        .accordion-header:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .accordion-icon {
+            font-size: 14px;
+            transition: transform 0.2s ease;
+            font-weight: bold;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            border-top: 1px solid transparent;
+            background-color: #fafafa;
+        }
+
+        .accordion-body {
+            padding: 20px 24px;
+            font-size: 14.5px;
+            color: var(--text-muted);
+            text-align: justify;
+        }
+
+        .accordion-item.active .accordion-icon {
+            transform: rotate(90deg);
+        }
+
+        .accordion-item.active .accordion-content {
+            border-top-color: var(--border-color);
+        }
+
+        /* Info Badge for Status list */
+        .info-pill {
+            font-size: 11px;
+            font-weight: 600;
+            background-color: #f1f5f9;
+            color: #64748b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            text-transform: uppercase;
+        }
+
+        /* Toast styling for interactive updates */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #0f172a;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        
+        <!-- Header Section -->
+        <div class="header-block">
+            <span class="badge-sub">วิชา CSI204 ดิจิทัลแพลตฟอร์มสำหรับพัฒนาซอฟต์แวร์</span>
+            <h1>Workshop #7: User Acceptance Testing (UAT)</h1>
+            <div class="subtitle">การวิเคราะห์ ออกแบบ และดำเนินการทดสอบระบบจำหน่ายหนังสือออนไลน์ (Online Book Store)</div>
+            
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-name">นายศิระเดช ศรีอ่ำ</div>
+                    <div class="team-id">รหัสนักศึกษา: 67120669</div>
+                    <span class="team-role">Project Manager / UI UX / Frontend Staff</span>
+                </div>
+                <div class="team-card">
+                    <div class="team-name">นายกิตติวัฒน์ กุดั่น</div>
+                    <div class="team-id">รหัสนักศึกษา: 67107666</div>
+                    <span class="team-role">Frontend Customer / Lead QA Tester</span>
+                </div>
+                <div class="team-card">
+                    <div class="team-name">นายศุภวิชญ์ เชื้อสาทุม</div>
+                    <div class="team-id">รหัสนักศึกษา: 67125897</div>
+                    <span class="team-role">Backend Developer / Database / API Test</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- UAT Overview & Goal -->
+        <h2>วัตถุประสงค์และภาพรวมกิจกรรม</h2>
+        <div class="info-box">
+            <strong>หลักการ UAT (User Acceptance Testing):</strong> การทดสอบแบบยอมรับโดยผู้ใช้เพื่อตรวจสอบว่าระบบสามารถรองรับขั้นตอนการทำงานจริง (Business Workflows) ตามประเภทผู้ใช้ที่แตกต่างกันได้ครบถ้วน โดยการตรวจสอบจะดำเนินการในรูปแบบ <strong>Manual Testing</strong> เพื่อประเมินความสมบูรณ์ ความพร้อม และวิเคราะห์ความปลอดภัยของระบบก่อนส่งมอบ Go-Live
+        </div>
+        <p>
+            ในแบบประเมินนี้ทีมงานได้กำหนดผู้ใช้หรือ <strong>Persona</strong> หลัก 3 บทบาท คือ <strong>ลูกค้า (Customer)</strong>, <strong>พนักงานคลังสินค้า (Staff)</strong>, และ <strong>ผู้จัดการ/ผู้บริหาร (Manager)</strong> และทำการทดสอบในขอบข่ายการทำงานจริงทั้งหมด 12 รายการ ซึ่งมีกรณีทดสอบผ่าน 7 รายการ และไม่ผ่าน 5 รายการ (คิดเป็น 58.33% Pass Rate) โดยข้อผิดพลาดทั้งหมดจะถูกจัดทำเป็นบันทึกสรุปปัญหา (Issue Registry) เพื่อวางแผนแก้ไขระบบต่อไป
+        </p>
+
+        <!-- UAT Dashboard Metrics -->
+        <h2>แผงสรุปผลลัพธ์การทดสอบ (UAT Metrics Dashboard)</h2>
+        <div style="font-size: 13px; color: var(--text-muted); margin-top: -15px; margin-bottom: 20px; font-style: italic;">
+            *คุณสามารถคลิกที่ปุ่มสถานะ "ผ่าน/ไม่ผ่าน" ในตารางทดสอบด้านล่าง เพื่อทดลองเปลี่ยนผลและอัปเดตสถิตินี้แบบ Real-time!
+        </div>
+        <div class="dashboard-grid">
+            <div class="stat-card total">
+                <div class="stat-value" id="stat-total">12</div>
+                <div class="stat-label">เคสการทดสอบทั้งหมด</div>
+            </div>
+            <div class="stat-card pass-rate">
+                <div class="stat-value" id="stat-rate">58.33%</div>
+                <div class="stat-label">อัตราการผ่านการทดสอบ</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="stat-fill" style="width: 58.33%;"></div>
+                </div>
+            </div>
+            <div class="stat-card passed">
+                <div class="stat-value" id="stat-pass" style="color: var(--success);">7</div>
+                <div class="stat-label">จำนวนเคสที่ "ผ่าน" (Pass)</div>
+            </div>
+            <div class="stat-card failed">
+                <div class="stat-value" id="stat-fail" style="color: var(--danger);">5</div>
+                <div class="stat-label">จำนวนเคสที่ "ไม่ผ่าน" (Fail)</div>
+            </div>
+        </div>
+
+        <!-- UAT Workflow Diagram -->
+        <h2>แผนภาพกระบวนการ UAT & วงจรปัญหา (UAT Workflow Diagram)</h2>
+        <p>
+            กระบวนการดำเนิน UAT เริ่มจากการสร้างกรณีทดสอบจาก Persona, ดำเนินการทดสอบบันทึกสถานะ ตลอดจนเข้าสู่วงจรแก้ไขเมื่อเกิดข้อผิดพลาดขึ้น
+        </p>
+        <div class="diagram-container">
+            <div class="mermaid">
+                graph TD
+                    Start([เริ่มต้นกระบวนการ UAT]) --> P1["ขั้นตอนที่ 1: วิเคราะห์ Persona & Requirements"]
+                    P1 --> P2["ขั้นตอนที่ 2: ออกแบบ UAT Test Cases"]
+                    P2 --> P3["ขั้นตอนที่ 3: ดำเนินการทดสอบ Manual Testing"]
+                    P3 --> P3_1{"ประเมินผลการทดสอบ"}
+                    
+                    P3_1 -- "ผ่าน (Pass)" --> PassState["บันทึกสถานะ: ผ่านการทดสอบ (Pass)"]
+                    P3_1 -- "ไม่ผ่าน (Fail)" --> FailState["ระบุประเภทปัญหา & รายละเอียด Issue"]
+                    
+                    FailState --> LogIssue["ลงทะเบียนรายงานบั๊ก ISS-001 ถึง ISS-005"]
+                    LogIssue --> FixBug["นักพัฒนาแก้ไขโค้ด Backend & Frontend"]
+                    FixBug --> Retest["ดำเนินการทดสอบซ้ำ Re-test"]
+                    Retest --> P3_1
+                    
+                    PassState --> P4["ขั้นตอนที่ 4: สรุปผลรายงาน UAT & ประเมินความพึงพอใจ"]
+                    P4 --> End([จบกระบวนการ UAT / พร้อมนำส่งมอบระบบ])
+
+                    style Start fill:#f8fafc,stroke:#334155,stroke-width:2px;
+                    style End fill:#f8fafc,stroke:#334155,stroke-width:2px;
+                    style P3_1 fill:#fffbeb,stroke:#d97706,stroke-width:2px;
+                    style PassState fill:#ecfdf5,stroke:#10b981,stroke-width:2px;
+                    style FailState fill:#fef2f2,stroke:#ef4444,stroke-width:2px;
+            </div>
+        </div>
+
+        <!-- UAT Test Cases Suite -->
+        <h2>รายละเอียดเคสการทดสอบแยกตาม Persona (UAT Suite)</h2>
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="filterPersona('all')">ทั้งหมด (All Cases)</button>
+            <button class="tab-btn" onclick="filterPersona('customer')">ลูกค้า (Customer)</button>
+            <button class="tab-btn" onclick="filterPersona('staff')">พนักงาน (Staff)</button>
+            <button class="tab-btn" onclick="filterPersona('manager')">ผู้จัดการ/ผู้บริหาร (Manager)</button>
+        </div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">รหัสทดสอบ</th>
+                        <th style="width: 180px;">รายการทดสอบ</th>
+                        <th style="width: 150px;">กลุ่มผู้ใช้งาน (Persona)</th>
+                        <th style="width: 120px;">สถานะ UAT</th>
+                        <th>ปัญหา / ข้อผิดพลาด</th>
+                        <th>รายละเอียดของปัญหา</th>
+                    </tr>
+                </thead>
+                <tbody id="uat-table-body">
+                    <!-- Dynamic Rows Rendered by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Issues Registry -->
+        <h2>ตารางรายงานบันทึกปัญหาที่ตรวจพบ (Issue Registry Log)</h2>
+        <p>
+            รายการปัญหาความบกพร่องที่คัดลอกจากกรณี UAT ที่มีสถานะ "ไม่ผ่าน" (Fail) จำเป็นต้องดำเนินการแก้ไขและทดสอบใหม่ก่อนส่งมอบ:
+        </p>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">รหัสปัญหา</th>
+                        <th>รายละเอียดข้อบกพร่อง</th>
+                        <th style="width: 200px;">ประเภทปัญหา</th>
+                        <th style="width: 150px;">ระดับความสำคัญ</th>
+                        <th style="width: 120px;">อ้างอิงเคส</th>
+                    </tr>
+                </thead>
+                <tbody id="issues-table-body">
+                    <!-- Dynamic Rows Rendered by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- QA section for Final Project presentation -->
+        <h2>แนวทางการตอบคำถามช่วงนำเสนอ Final Project (QA Preparation)</h2>
+        <p>
+            แนวทางการชี้แจงปัญหาและกลไกความปลอดภัยเชิงสถาปัตยกรรมระบบ เพื่อใช้สำหรับตอบข้อสงสัยของคณะกรรมการผู้ประเมินโครงงาน:
+        </p>
+
+        <div class="accordion">
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>💬 คำถามที่ 1: หากลูกค้ากดชำระเงินซ้ำๆ 5 ครั้ง ติดต่อกัน ระบบจะป้องกันอย่างไร?</span>
+                    <span class="accordion-icon">▶</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <strong>คำตอบเชิงเทคนิค (Technical Answer):</strong>
+                        <br>1. <strong>ฝั่งหน้าบ้าน (Frontend):</strong> ทันทีที่ผู้ใช้คลิกปุ่ม "ชำระเงิน" สคริปต์ JavaScript จะสั่งเปลี่ยนคุณสมบัติปุ่มให้เป็น <code>disabled</code> ทันทีเพื่อปิดกั้นไม่ให้กดซ้ำ พร้อมทั้งแสดง UI Loading Spinner
+                        <br>2. <strong>ฝั่งหลังบ้าน (Backend):</strong> นำเทคนิค <strong>Idempotency Key</strong> มาร่วมใช้งาน โดยสร้างโทเค็นเฉพาะของธุรกรรมนั้นๆ แนบไปกับคำขอ (Request Headers) และใช้หน่วยความจำความเร็วสูงอย่าง **Redis** เป็นกลไกช่วยทำ Distributed Lock (เช่น ตั้งเวลา Lock 15 วินาที) หากมีคำสั่งซื้อที่มีโทเค็นเดียวกันส่งซ้ำซ้อนเข้ามา ระบบเซิร์ฟเวอร์จะปฏิเสธการประมวลผลธุรกรรมที่เกินมาและส่ง HTTP Status 409 Conflict กลับไปทันที
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>💬 คำถามที่ 2: หากการชำระเงินสำเร็จ (ยอดหักจากบัญชีแล้ว) แต่ Database เกิดล่มระหว่างนั้น จะเกิดอะไรขึ้นและจะรับมืออย่างไร?</span>
+                    <span class="accordion-icon">▶</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <strong>คำตอบเชิงเทคนิค (Technical Answer):</strong>
+                        <br>1. <strong>การประยุกต์ใช้ Database Transaction (ACID):</strong> การจัดการบันทึกข้อมูลจะอยู่ภายใต้การสแกน Transaction บล็อกเดียวกัน เช่น <code>START TRANSACTION</code> และส่งกระบวนการบันทึกสถานะชำระเงินคู่ไปกับการหักลดสต็อก หากส่วนใดส่วนหนึ่งพังลงและยกเลิกก่อนการทำ <code>COMMIT</code> ตัวระบบ SQL จะยกเลิกสถานการณ์ที่ค้างไว้ทิ้ง (Rollback) เพื่อไม่ให้ระบบเกิดภาวะข้อมูลขัดแย้ง
+                        <br>2. <strong>การใช้ระบบ Event Queue / Webhook Retry:</strong> ทางเดินของข้อมูลผ่าน Payment Gateway จะใช้โครงสร้าง Webhook Receiver ซึ่งจะมี Retry Policy ส่งสัญญาณเตือนซ้ำ หากฝั่ง Gateway ไม่ได้รับสัญญาณ HTTP 200 OK ตอบกลับ (เพราะ DB ล่ม) นอกจากนั้นระบบจะเขียนบันทึกประวัติธุรกรรมแบบสำรองภายนอก (Audit Logs File) เป็นไฟล์สำรองเพื่อใช้สำหรับมาไล่สอบทานยอดเงินและกู้คืน (Manual Reconciliation) ภายหลังได้อย่างแม่นยำ
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>💬 คำถามที่ 3: หากสินค้าหมดระหว่างที่ลูกค้ากำลังทำรายการเช็คเอาท์ (Checkout) ระบบควรตอบสนองอย่างไร?</span>
+                    <span class="accordion-icon">▶</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <strong>คำตอบเชิงเทคนิค (Technical Answer):</strong>
+                        <br>1. **Optimistic Locking:** ในฐานข้อมูล MySQL ตารางสต็อกจะใช้การระบุเงื่อนไขตรวจสอบปริมาณล่าสุด เช่น การส่งคำสั่งแก้ไขสต็อกพร้อมเงื่อนไข <code>UPDATE books SET stock = stock - 1 WHERE id = :id AND stock >= 1</code> ซึ่งหากระหว่างการจองนั้นไม่มีสินค้าหลงเหลืออยู่ ระบบ SQL จะแจ้งเตือนผลกระทบ 0 แถวกลับมา
+                        <br>2. **Real-time Inventory Re-verification:** เมื่อเรียกใช้ API ยืนยันคำชำระเงิน `/api/orders/checkout` ระบบ backend จะดึงสเตตัสความถูกต้องของสต็อกมาเปรียบเทียบในตะกร้าอีกครั้งก่อนรับชำระ หากมีผู้ใช้ซื้อตัดหน้าไปก่อน ระบบจะส่งข้อมูลตอบกลับปฏิเสธ พร้อมดึงประวัติตะกร้ามาปรับแก้จำนวนให้เป็นจำนวนคงเหลือจริง และเตือนผู้ใช้ว่า "ขออภัย สต็อกสินค้าไม่พอ"
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>💬 คำถามที่ 4: หากยอดเงินโอนที่ชำระมาไม่ตรงกับยอดเรียกเก็บจริงในระบบ จะมีวิธีการตรวจสอบและสกัดกั้นอย่างไร?</span>
+                    <span class="accordion-icon">▶</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <strong>คำตอบเชิงเทคนิค (Technical Answer):</strong>
+                        <br>1. **การใช้เศษสตางค์สุ่ม (Unique Decimal Points):** ในโหมดโอนเงินผ่านระบบบัญชีปกติ จะใช้วิธีสุ่มยอดจุดทศนิยมแนบท้ายให้กับลูกค้ารายนั้น เช่น 300.18 บาท เพื่อความแม่นยำในการคัดกรองยอด
+                        <br>2. **เชื่อมต่อ Payment Gateway API เต็มรูปแบบ:** การป้องกันปัญหาที่ดีที่สุดคือการยกเลิกการตรวจสลิปรูปแบบเขียนมือและหันมาประยุกต์ใช้ PromptPay Dynamic QR Code (ผ่านธนาคารโดยตรง) ระบบจะสั่งผลิต QR Code ที่ฟิกซ์จำนวนเงิน ยอดชำระ และข้อมูลคำสั่งซื้อไว้ชัดเจน หากยอดเงินโอนเข้ามาไม่ตรง ยอดเงินจะไม่ผ่านตัว API Callback และหากเกิดข้อสงสัย ระบบจะออโต้โอนย้ายคำสั่งซื้อนั้นไปอยู่ในหมวด "รอการยืนยัน/โอนเงินไม่ตรงกำหนด" พร้อมแจ้งเจ้าหน้าที่เข้ามาแมนนวลเช็คเป็นกรณีพิเศษ
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>💬 คำถามที่ 5: นักศึกษาได้ทดสอบกรณีผิดปกติ (Negative Test Case) อะไรบ้างในโครงการนี้?</span>
+                    <span class="accordion-icon">▶</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <strong>คำตอบเชิงเทคนิค (Technical Answer):</strong>
+                        <br>ทีมงานจัดทับการทดสอบ Negative Test Case เพื่อดักบั๊กดังนี้:
+                        <br>1. **ฝั่งสมัครสมาชิก/ความปลอดภัย:** ป้อนรูปแบบ Email ที่ไม่มีฟอร์แมตถูกต้อง, พยายามกรอกรหัสผ่านผิดติดต่อกันเกิน 5 ครั้ง (ระบบล็อก IP บล็อกความปลอดภัยชั่วคราว)
+                        <br>2. **ฝั่งตะกร้าสินค้า:** การลองส่งรหัสตะกร้าด้วยตัวเลขติดลบ (เช่น สั่งซื้อ -2 เล่ม) หรือการยัดอักขระแปลกปลอมผ่าน URL เพื่อเช็คกลไกการปัดค่าออกของเซิร์ฟเวอร์
+                        <br>3. **ระบบจัดการสต็อก:** การสั่งซื้อหนังสือ 1,000 เล่มในขณะที่คลังเหลือ 2 เล่ม เพื่อรับประกันว่า API จะสามารถตอบสนองปฏิเสธความยาวเกินคิวได้อย่างถูกต้องสมบูรณ์
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Notification Toast Element -->
+    <div id="toast" class="toast">ปรับปรุงผลการคำนวณ UAT สำเร็จ!</div>
+
+    <script>
+        // Test Cases Data Store
+        const testCases = [
+            {
+                id: "UAT-C01",
+                persona: "customer",
+                personaThai: "ลูกค้า (Customer)",
+                name: "สมัครสมาชิก",
+                passed: true,
+                issueType: "ไม่มี",
+                issueDetail: "-",
+                issueId: "",
+                severity: ""
+            },
+            {
+                id: "UAT-C02",
+                persona: "customer",
+                personaThai: "ลูกค้า (Customer)",
+                name: "เข้าสู่ระบบ",
+                passed: true,
+                issueType: "ไม่มี",
+                issueDetail: "-",
+                issueId: "",
+                severity: ""
+            },
+            {
+                id: "UAT-C03",
+                persona: "customer",
+                personaThai: "ลูกค้า (Customer)",
+                name: "ค้นหาสินค้า",
+                passed: true,
+                issueType: "ไม่มี",
+                issueDetail: "-",
+                issueId: "",
+                severity: ""
+            },
+            {
+                id: "UAT-C04",
+                persona: "customer",
+                personaThai: "ลูกค้า (Customer)",
+                name: "เพิ่มสินค้าในตะกร้า",
+                passed: true,
+                issueType: "UI_UX",
+                issueDetail: "ตัวอักษรแสดงผลและปุ่มกดบนมือถือมีขนาดเล็กเกินไป ส่งผลให้กดยากเล็กน้อย (แต่ฟังก์ชันหลักผ่าน)",
+                issueId: "",
+                severity: ""
+            },
+            {
+                id: "UAT-C05",
+                persona: "customer",
+                personaThai: "ลูกค้า (Customer)",
+                name: "ชำระเงิน",
+                passed: false,
+                issueType: "FUNCTIONAL",
+                issueDetail: "ลูกค้าสแกนคิวอาร์โค้ดแนบหลักฐานชำระเงินสำเร็จ แต่ในระบบหลังบ้านของร้านไม่มีรายการสั่งซื้อนั้นเกิดขึ้น",
+                issueId: "ISS-001",
+                issueDesc: "ลูกค้าชำระเงินสำเร็จแต่ไม่เกิดรายการสั่งซื้อในระบบ (Order Lost)",
+                severity: "Critical"
+            },
+            {
+                id: "UAT-S01",
+                persona: "staff",
+                personaThai: "พนักงาน (Staff)",
+                name: "ตรวจสอบคำสั่งซื้อ",
+                passed: false,
+                issueType: "FUNCTIONAL",
+                issueDetail: "ยอดรวมของคำสั่งซื้อที่แสดงบนตารางผู้ใช้งานพนักงาน มีการคำนวณราคาสุทธิผิดพลาด",
+                issueId: "ISS-002",
+                issueDesc: "ระบบหลังบ้านคำนวณราคาสุทธิผิดพลาดในระบบตรวจเช็กคำสั่งซื้อ",
+                severity: "High"
+            },
+            {
+                id: "UAT-S02",
+                persona: "staff",
+                personaThai: "พนักงาน (Staff)",
+                name: "อัปเดตสถานะสินค้า",
+                passed: true,
+                issueType: "ไม่มี",
+                issueDetail: "-",
+                issueId: "",
+                severity: ""
+            },
+            {
+                id: "UAT-S03",
+                persona: "staff",
+                personaThai: "พนักงาน (Staff)",
+                name: "จัดการสต็อกสินค้า",
+                passed: false,
+                issueType: "PERFORMANCE",
+                issueDetail: "เมื่อเปิดคลังสินค้าที่มีข้อมูลหนังสือนำเข้ามากกว่า 10,000 เล่ม ระบบตอบสนองล่าช้าและหน้าจอบราวเซอร์ค้างชั่วขณะ",
+                issueId: "ISS-003",
+                issueDesc: "หน้าต่างคลังสินค้าโหลดช้ามากเมื่อมีหนังสือจำนวนหลักหมื่นเล่มขึ้นไป",
+                severity: "Medium"
+            },
+            {
+                id: "UAT-M01",
+                persona: "manager",
+                personaThai: "ผู้จัดการ/ผู้บริหาร (Manager)",
+                name: "เพิ่มข้อมูลสินค้า",
+                passed: true,
+                issueType: "ไม่มี",
+                issueDetail: "-",
+                issueId: "",
+                severity: ""
+            },
+            {
+                id: "UAT-M02",
+                persona: "manager",
+                personaThai: "ผู้จัดการ/ผู้บริหาร (Manager)",
+                name: "แก้ไขข้อมูลสินค้า",
+                passed: true,
+                issueType: "ไม่มี",
+                issueDetail: "-",
+                issueId: "",
+                severity: ""
+            },
+            {
+                id: "UAT-M03",
+                persona: "manager",
+                personaThai: "ผู้จัดการ/ผู้บริหาร (Manager)",
+                name: "ดูรายงานยอดขาย",
+                passed: false,
+                issueType: "FUNCTIONAL",
+                issueDetail: "หน้าสรุปรายงานไม่ยอมแสดงรายการสั่งซื้อและยอดรวมแยกตามช่องทางการขาย",
+                issueId: "ISS-004",
+                issueDesc: "รายงานการขายไม่แสดงยอดแยกหมวดหมู่และรายการสั่งซื้อของลูกค้า",
+                severity: "High"
+            },
+            {
+                id: "UAT-M04",
+                persona: "manager",
+                personaThai: "ผู้จัดการ/ผู้บริหาร (Manager)",
+                name: "ดูแดชบอร์ดผู้บริหาร",
+                passed: false,
+                issueType: "DATA",
+                issueDetail: "สรุปรายงานจำนวนสต็อกรวมบน Dashboard ไม่ตรงกับปริมาณสินค้าที่พนักงานอัปเดตเข้าระบบจริง",
+                issueId: "ISS-005",
+                issueDesc: "ข้อมูลสถิติตัวเลขแดชบอร์ดสรุปยอดสต็อกล่าช้าและไม่สอดคล้องกับพนักงานคลัง",
+                severity: "High"
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            renderUatTable();
+            renderIssuesTable();
+            updateMetrics();
+        });
+
+        // Filter functionality
+        function filterPersona(persona) {
+            currentFilter = persona;
+            
+            // Manage Active Button Style
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            renderUatTable();
+        }
+
+        // Render UAT Test Cases Table
+        function renderUatTable() {
+            const tbody = document.getElementById('uat-table-body');
+            tbody.innerHTML = '';
+
+            const filteredCases = currentFilter === 'all' 
+                ? testCases 
+                : testCases.filter(c => c.persona === currentFilter);
+
+            filteredCases.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                if (!item.passed) {
+                    tr.classList.add('fail-row');
+                }
+
+                // Status tag
+                const statusBadge = item.passed 
+                    ? `<span class="status-badge pass" onclick="toggleTestCase('${item.id}')">🟢 ผ่าน (Pass)</span>` 
+                    : `<span class="status-badge fail" onclick="toggleTestCase('${item.id}')">🔴 ไม่ผ่าน (Fail)</span>`;
+
+                // Issue Type tag
+                let typeBadge = '';
+                if (item.issueType && item.issueType !== 'ไม่มี') {
+                    let sevClass = '';
+                    if (item.severity === 'Critical') sevClass = 'critical';
+                    else if (item.severity === 'High') sevClass = 'high';
+                    else if (item.severity === 'Medium') sevClass = 'medium';
+
+                    typeBadge = `<span class="issue-type-tag ${sevClass}">${item.issueType}</span>`;
+                } else {
+                    typeBadge = '<span class="issue-type-tag">ไม่มี</span>';
+                }
+
+                tr.innerHTML = `
+                    <td style="font-weight: 700; color: var(--primary);">${item.id}</td>
+                    <td style="font-weight: 500; color: var(--text-main);">${item.name}</td>
+                    <td>${item.personaThai}</td>
+                    <td>${statusBadge}</td>
+                    <td>${typeBadge}</td>
+                    <td style="font-size: 13.5px;">${item.issueDetail}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Render Issues Registry dynamic
+        function renderIssuesTable() {
+            const tbody = document.getElementById('issues-table-body');
+            tbody.innerHTML = '';
+
+            // Filter for only failed test cases that have issueId
+            const failedCases = testCases.filter(c => !c.passed && c.issueId);
+
+            if (failedCases.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--success); font-weight: 600; padding: 25px;">
+                            🎉 ยอดเยี่ยม! ไม่พบปัญหาและข้อบกพร่องที่ค้างอยู่ในระบบขณะนี้
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            failedCases.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                // Severity styling
+                let sevBadge = '';
+                if (item.severity === 'Critical') {
+                    sevBadge = `<span class="issue-type-tag critical">Critical</span>`;
+                } else if (item.severity === 'High') {
+                    sevBadge = `<span class="issue-type-tag high">High</span>`;
+                } else if (item.severity === 'Medium') {
+                    sevBadge = `<span class="issue-type-tag medium">Medium</span>`;
+                }
+
+                // Map type name
+                let typeName = '';
+                if (item.issueType === 'FUNCTIONAL') typeName = 'ระบบทำงานไม่ตรงตามความต้องการ';
+                else if (item.issueType === 'PERFORMANCE') typeName = 'ปัญหาด้านประสิทธิภาพ';
+                else if (item.issueType === 'DATA') typeName = 'ปัญหาเกี่ยวกับข้อมูล';
+                else typeName = item.issueType;
+
+                tr.innerHTML = `
+                    <td style="font-weight: 700; color: var(--danger);">${item.issueId}</td>
+                    <td style="font-weight: 500; color: var(--text-main);">${item.issueDesc}</td>
+                    <td>${typeName}</td>
+                    <td>${sevBadge}</td>
+                    <td style="font-weight: 600; color: var(--primary);">${item.id}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Toggle Test Case Status
+        function toggleTestCase(id) {
+            const tc = testCases.find(c => c.id === id);
+            if (tc) {
+                tc.passed = !tc.passed;
+
+                // Adjust descriptions / types dynamically on state change
+                if (tc.passed) {
+                    // Cache the original issue context to restore if failed again
+                    tc.prevIssueType = tc.issueType;
+                    tc.prevIssueDetail = tc.issueDetail;
+                    tc.prevIssueId = tc.issueId;
+                    tc.prevIssueDesc = tc.issueDesc;
+                    tc.prevSeverity = tc.severity;
+
+                    tc.issueType = "ไม่มี";
+                    tc.issueDetail = "-";
+                    tc.issueId = "";
+                    tc.severity = "";
+                } else {
+                    // Restore original issue values or set defaults if not exist
+                    tc.issueType = tc.prevIssueType || "FUNCTIONAL";
+                    tc.issueDetail = tc.prevIssueDetail || "พบปัญหาการทำงานขัดข้องจากการปรับปรุงสถานะ";
+                    tc.issueId = tc.prevIssueId || `ISS-NEW-${id.split('-')[1]}`;
+                    tc.issueDesc = tc.prevIssueDesc || `ปัญหาจากการทดสอบเคส ${tc.name}`;
+                    tc.severity = tc.prevSeverity || "High";
+                }
+
+                // Render updates
+                renderUatTable();
+                renderIssuesTable();
+                updateMetrics();
+                showToast(`อัปเดตสเตตัสรหัส ${id} สำเร็จ!`);
+            }
+        }
+
+        // Update dashboard values
+        function updateMetrics() {
+            const total = testCases.length;
+            const passed = testCases.filter(c => c.passed).length;
+            const failed = total - passed;
+            const rate = ((passed / total) * 100).toFixed(2);
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-pass').innerText = passed;
+            document.getElementById('stat-fail').innerText = failed;
+            document.getElementById('stat-rate').innerText = `${rate}%`;
+
+            const fill = document.getElementById('stat-fill');
+            fill.style.width = `${rate}%`;
+
+            // Dynamic progress bar colors
+            if (rate >= 80) {
+                fill.style.backgroundColor = 'var(--success)';
+            } else if (rate >= 50) {
+                fill.style.backgroundColor = 'var(--warning)';
+            } else {
+                fill.style.backgroundColor = 'var(--danger)';
+            }
+        }
+
+        // Accordion functionality
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const content = item.querySelector('.accordion-content');
+            
+            // Toggle active class on item
+            const isActive = item.classList.contains('active');
+            
+            // Close all items
+            document.querySelectorAll('.accordion-item').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('.accordion-content').style.maxHeight = null;
+            });
+
+            if (!isActive) {
+                item.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        }
+
+        // Toast feedback notifier
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+    </script>
+</body>
+
+</html>
