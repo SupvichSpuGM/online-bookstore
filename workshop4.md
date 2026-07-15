@@ -51,30 +51,30 @@ graph LR
     subgraph System ["📦 ขอบเขตระบบร้านหนังสือออนไลน์ (System Boundary)"]
         subgraph G1 ["🔐 ส่วนกลางและการเข้าถึง"]
             UC_Auth(UC1: ยืนยันตัวตน)
-            UC_Search((UC2: ค้นหาหนังสือ))
+            UC_Search(UC2: ค้นหาหนังสือ)
         end
         subgraph G2 ["🛒 ตะกร้าและการสั่งซื้อ"]
-            UC_Cart((UC3: จัดการตะกร้า))
-            UC_Checkout((UC4: สั่งซื้อหนังสือ))
-            UC_UploadSlip((UC5: แนบสลิปโอนเงิน))
+            UC_Cart(UC3: จัดการตะกร้า)
+            UC_Checkout(UC4: สั่งซื้อหนังสือ)
+            UC_UploadSlip(UC5: แนบสลิปโอนเงิน)
         end
         subgraph G3 ["⚙️ จัดการคลังและหลังบ้าน"]
-            UC_VerifySlip((UC6: ตรวจสอบสลิปเงิน))
-            UC_ShipOrder((UC7: จัดการจัดส่ง))
-            UC_ManageCatalog((UC8: บริหารคลังสินค้า))
-            UC_StockAlert((UC9: เตือนสต็อกต่ำ))
-            UC_Dashboard((UC10: รายงานสรุปยอดขาย))
+            UC_VerifySlip(UC6: ตรวจสอบสลิปเงิน)
+            UC_ShipOrder(UC7: จัดการจัดส่ง)
+            UC_ManageCatalog(UC8: บริหารคลังสินค้า)
+            UC_StockAlert(UC9: เตือนสต็อกต่ำ)
+            UC_Dashboard(UC10: รายงานสรุปยอดขาย)
         end
     end
 
     Customer --- UC_Search
-    Customer --> UC_Cart
-    Customer --> UC_Checkout
-    Staff --> UC_VerifySlip
-    Staff --> UC_ShipOrder
-    Staff --> UC_ManageCatalog
-    Admin --> UC_ManageCatalog
-    Admin --> UC_Dashboard
+    Customer --- UC_Cart
+    Customer --- UC_Checkout
+    Staff --- UC_VerifySlip
+    Staff --- UC_ShipOrder
+    Staff --- UC_ManageCatalog
+    Admin --- UC_ManageCatalog
+    Admin --- UC_Dashboard
 
     UC_Checkout -.->|include| UC_Auth
     UC_VerifySlip -.->|include| UC_Auth
