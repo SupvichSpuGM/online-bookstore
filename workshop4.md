@@ -50,7 +50,7 @@ graph LR
 
     subgraph System ["📦 ขอบเขตระบบร้านหนังสือออนไลน์ (System Boundary)"]
         subgraph G1 ["🔐 ส่วนกลางและการเข้าถึง"]
-            UC_Auth((UC1: ยืนยันตัวตน))
+            UC_Auth(UC1: ยืนยันตัวตน)
             UC_Search((UC2: ค้นหาหนังสือ))
         end
         subgraph G2 ["🛒 ตะกร้าและการสั่งซื้อ"]
@@ -67,7 +67,7 @@ graph LR
         end
     end
 
-    Customer --> UC_Search
+    Customer --- UC_Search
     Customer --> UC_Cart
     Customer --> UC_Checkout
     Staff --> UC_VerifySlip
