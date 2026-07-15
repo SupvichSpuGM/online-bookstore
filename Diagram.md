@@ -14,38 +14,57 @@ graph LR
     Admin["⚙️ Admin"]
 
     subgraph System ["📦 ขอบเขตระบบร้านหนังสือออนไลน์ (System Boundary)"]
-        subgraph G1 ["🔐 ส่วนกลางและการเข้าถึง"]
-            UC_Auth((UC1: ยืนยันตัวตน))
-            UC_Search((UC2: ค้นหาหนังสือ))
+        subgraph G1 ["🔐 ส่วนการเข้าถึงและจัดการสมาชิก"]
+            UC_Register((UC1: สมัครสมาชิก))
+            UC_Auth((UC2: เข้าสู่ระบบและยืนยันตัวตน))
+            UC_Profile((UC8: จัดการโปรไฟล์และที่อยู่จัดส่ง))
         end
-        subgraph G2 ["🛒 ตะกร้าและการสั่งซื้อ"]
-            UC_Cart((UC3: จัดการตะกร้า))
-            UC_Checkout((UC4: สั่งซื้อหนังสือ))
-            UC_UploadSlip((UC5: แนบสลิปโอนเงิน))
+        subgraph G2 ["🛒 ส่วนสืบค้นและสั่งซื้อสินค้า"]
+            UC_Search((UC3: ค้นหาและดูรายละเอียดหนังสือ))
+            UC_Cart((UC4: จัดการตะกร้าสินค้า))
+            UC_Checkout((UC5: สั่งซื้อหนังสือ))
+            UC_UploadSlip((UC6: แนบสลิปโอนเงิน))
+            UC_OrderHistory((UC7: ติดตามพัสดุและประวัติสั่งซื้อ))
         end
-        subgraph G3 ["⚙️ จัดการคลังและหลังบ้าน"]
-            UC_VerifySlip((UC6: ตรวจสอบสลิปเงิน))
-            UC_ShipOrder((UC7: จัดการจัดส่ง))
-            UC_ManageCatalog((UC8: บริหารคลังสินค้า))
-            UC_StockAlert((UC9: เตือนสต็อกต่ำ))
-            UC_Dashboard((UC10: รายงานสรุปยอดขาย))
+        subgraph G3 ["🧑‍💼 ส่วนจัดการหลังบ้านของพนักงาน"]
+            UC_VerifySlip((UC9: ตรวจสอบและอนุมัติสลิปโอนเงิน))
+            UC_ShipOrder((UC10: จัดการการจัดส่งและระบุเลขพัสดุ))
+            UC_ManageCatalog((UC11: บริหารจัดการคลังสินค้าและสต็อก))
+            UC_StockAlert((UC12: แจ้งเตือนสต็อกสินค้าต่ำ))
+        end
+        subgraph G4 ["⚙️ ส่วนจัดการระบบและวิเคราะห์ข้อมูล"]
+            UC_Dashboard((UC13: ดูรายงานวิเคราะห์ยอดขาย BI Dashboard))
+            UC_ManageUsers((UC14: จัดการผู้ใช้งานและระดับสิทธิ์ระบบ))
         end
     end
 
+    Customer --> UC_Register
+    Customer --> UC_Auth
     Customer --> UC_Search
     Customer --> UC_Cart
     Customer --> UC_Checkout
+    Customer --> UC_UploadSlip
+    Customer --> UC_OrderHistory
+    Customer --> UC_Profile
+
+    Staff --> UC_Auth
     Staff --> UC_VerifySlip
     Staff --> UC_ShipOrder
     Staff --> UC_ManageCatalog
+
+    Admin --> UC_Auth
     Admin --> UC_ManageCatalog
     Admin --> UC_Dashboard
+    Admin --> UC_ManageUsers
 
     UC_Checkout -.->|include| UC_Auth
+    UC_OrderHistory -.->|include| UC_Auth
+    UC_Profile -.->|include| UC_Auth
     UC_VerifySlip -.->|include| UC_Auth
     UC_ShipOrder -.->|include| UC_Auth
     UC_ManageCatalog -.->|include| UC_Auth
     UC_Dashboard -.->|include| UC_Auth
+    UC_ManageUsers -.->|include| UC_Auth
     UC_UploadSlip -.->|extend| UC_Checkout
     UC_StockAlert -.->|extend| UC_ManageCatalog
 ```
@@ -54,25 +73,30 @@ graph LR
 
 | รหัสและชื่อ Use Case | ผู้มีสิทธิ์ (Actors) | เงื่อนไขและคำอธิบาย |
 | :--- | :--- | :--- |
-| **UC1: ยืนยันตัวตนเข้าระบบ** | ลูกค้า, พนักงาน, ผู้ดูแลระบบ | ตรวจสอบ email/password แล้วสร้าง JWT Token สำหรับควบคุมการเข้าถึง API |
-| **UC2: ค้นหาหนังสือ** | ลูกค้า (Customer) | สืบค้นหนังสือจากชื่อ, ผู้แต่ง, ISBN หรือหมวดหมู่ ไม่ต้องล็อกอินก็ใช้งานได้ |
-| **UC3: จัดการตะกร้าสินค้า** | ลูกค้า (Customer) | เพิ่ม/ลบ/ปรับจำนวนหนังสือในตะกร้า ระบบตรวจสอบสต็อกก่อนยืนยัน |
-| **UC4: สั่งซื้อและแนบหลักฐาน** | ลูกค้า (Customer) | คำนวณราคาสุทธิ, ตัดสต็อกด้วย Transaction Lock และสร้าง Order |
-| **UC5: แนบสลิปโอนเงิน** | ลูกค้า (Customer) | «extend» UC4 — อัปโหลดไฟล์ภาพสลิปผูกกับ order_id |
-| **UC6: ตรวจสอบสลิปเงิน** | พนักงาน (Staff) | ดูรายการออเดอร์ค้างอนุมัติ ตรวจยืนยันสลิปและอัปเดต status เป็น "paid" |
-| **UC7: จัดการจัดส่ง** | พนักงาน (Staff) | บันทึกเลขพัสดุและวันที่จัดส่ง อัปเดต status ออเดอร์เป็น "shipped" |
-| **UC8: บริหารคลังสินค้า** | พนักงานหลังบ้าน, ผู้ดูแลระบบ | เพิ่ม/ลบ/แก้ไขข้อมูลหนังสือ จัดการหมวดหมู่ และปรับปรุงสต็อก Real-time |
-| **UC9: เตือนสต็อกต่ำ** | ระบบ → พนักงาน | «extend» UC8 — แจ้งเตือนอัตโนมัติเมื่อ stock_qty ต่ำกว่าเกณฑ์ |
-| **UC10: รายงานสรุปยอดขาย** | ผู้ดูแลระบบ (Admin) | แสดง Dashboard สรุปยอดขาย, หนังสือขายดี, รายรับรายสัปดาห์/เดือน |
+| **UC1: สมัครสมาชิก** | ลูกค้าผู้ใช้งานใหม่ | ลงทะเบียนสร้างบัญชีลูกค้าใหม่โดยระบุ ชื่อ, อีเมล, รหัสผ่าน และข้อมูลที่อยู่เริ่มต้น ระบบทำการบันทึกอย่างปลอดภัย |
+| **UC2: เข้าสู่ระบบและยืนยันตัวตน** | ลูกค้า, พนักงาน, ผู้ดูแลระบบ | ตรวจสอบ email/password แล้วสร้าง JWT Token ที่มีอายุการใช้งาน สำหรับควบคุมและสแกนสิทธิ์การเข้าถึงข้อมูลหลังบ้าน |
+| **UC3: ค้นหาและดูรายละเอียดหนังสือ** | ลูกค้า / บุคคลทั่วไป | สืบค้นหนังสือจากชื่อ, ชื่อผู้แต่ง, ISBN หรือหมวดหมู่ พร้อมแสดงรายละเอียด ราคา และข้อมูลคลังสินค้า โดยไม่ต้องล็อกอิน |
+| **UC4: จัดการตะกร้าสินค้า** | ลูกค้า (Customer) | เพิ่ม/ลด/ปรับจำนวนเล่มหนังสือในตะกร้าช็อปปิ้งส่วนตัว ระบบทำการดึงสต็อกคอยควบคุมปริมาณ |
+| **UC5: สั่งซื้อหนังสือ** | ลูกค้า (Customer) | «include» UC2 — ตรวจสอบและประมวลผลคำสั่งซื้อ คำนวณราคาหักส่วนลด ล็อกจำนวนสต็อกจริงด้วย Pessimistic Locking และสร้างใบสั่งซื้อสถานะ pending |
+| **UC6: แนบสลิปโอนเงิน** | ลูกค้า (Customer) | «extend» UC5 — ลูกค้าทำการอัปโหลดสลิปหลักฐานการชำระเงินโอนผูกกับ order_id เพื่อส่งให้พนักงานเข้าตรวจสอบคิว |
+| **UC7: ติดตามพัสดุและประวัติสั่งซื้อ** | ลูกค้า (Customer) | «include» UC2 — เข้าส่องดูสถานะออเดอร์ (pending, paid, shipped, cancelled) และแสดงเลข Tracking Number พร้อมลิงก์ขนส่ง |
+| **UC8: จัดการโปรไฟล์และที่อยู่จัดส่ง** | ลูกค้า (Customer) | «include» UC2 — แก้ไขข้อมูลบัญชี เบอร์ติดต่อ และจัดระเบียบข้อมูลที่อยู่จัดส่งสำหรับออเดอร์ถัดไป |
+| **UC9: ตรวจสอบและอนุมัติสลิปโอนเงิน** | พนักงาน (Staff) | «include» UC2 — พนักงานเปิดดูลายน้ำและรูปภาพหลักฐานการโอน หากถูกต้องจะกดยืนยันแล้วปรับสถานะออเดอร์เป็น paid |
+| **UC10: จัดการการจัดส่งและระบุเลขพัสดุ** | พนักงาน (Staff) | «include» UC2 — แพ็คสินค้าจัดส่งพัสดุ บันทึกเลขขนส่ง Tracking Number เข้าออเดอร์ และปรับสถานะเป็น shipped |
+| **UC11: บริหารจัดการคลังสินค้าและสต็อก** | พนักงานหลังบ้าน, ผู้ดูแลระบบ | «include» UC2 — เพิ่มหนังสือใหม่ ลบรายการที่หมดอายุ หรือแก้ไขข้อมูลราคา รายละเอียด และจำนวนสต็อกสินค้าในคลัง |
+| **UC12: แจ้งเตือนสต็อกสินค้าต่ำ** | ระบบอัตโนมัติ (System) | «extend» UC11 — ตรวจสอบสต็อกหนังสือเมื่อเกิดการสั่งซื้อหรือปรับปรุง หากสต็อกต่ำกว่าเกณฑ์ (<= 5 เล่ม) จะยิง Webhook แจ้งเตือนพนักงานคลังสินค้า |
+| **UC13: ดูรายงานสรุปยอดขาย BI Dashboard** | ผู้ดูแลระบบ (Admin) | «include» UC2 — แสดงแผง BI Dashboard วิเคราะห์รายได้รวม หนังสือขายดี 5 อันดับแรก และสถิติข้อมูลธุรกรรมสะสม |
+| **UC14: จัดการผู้ใช้งานและระดับสิทธิ์ระบบ** | ผู้ดูแลระบบ (Admin / Super Admin) | «include» UC2 — จัดการบัญชีรายชื่อพนักงาน ตรวจสอบประวัติการล็อกอิน และสับเปลี่ยนกำหนดบทบาทหน้าที่ (Roles) ภายในระบบ |
 
 ---
 
 ## 🏗️ 2. Class Diagram & Entity Attributes (โครงสร้างความสัมพันธ์ของคลาสข้อมูล)
 
-แผนภาพคลาสเชิงวัตถุระบุข้อมูลจำเพาะ (Data Specifications) ของชุดข้อมูล ประกอบด้วยชนิดข้อมูล (Data Type), สิทธิ์การเข้าถึง (Access Modifier) เช่น Private (-) และ Public (+) รวมถึงฟังก์ชันบริการภายในตัวคลาส:
+แผนภาพคลาสเชิงวัตถุระบุข้อมูลจำเพาะ (Data Specifications) ของชุดข้อมูล ประกอบด้วยชนิดข้อมูล (Data Type), สิทธิ์การเข้าถึง (Access Modifier) เช่น Private (-) และ Public (+) รวมถึงฟังก์ชันบริการภายในตัวคลาสที่เชื่อมโยงไปกับ Use Cases ทั้งหมด:
 
 ```mermaid
 classDiagram
+    %% Core Entities (Master Data)
     class User {
         -int id
         -string name
@@ -81,7 +105,10 @@ classDiagram
         -string role
         +register(name, email, password) bool
         +login(email, password) string
+        +getProfile() User
+        +verifyToken(token) User$
     }
+
     class Book {
         -int id
         -string title
@@ -89,9 +116,26 @@ classDiagram
         -string isbn
         -decimal price
         -int stock_qty
+        -string category
         +updateStock(qty) bool
         +isAvailable() bool
+        +search(query, category) List~Book~$
+        +addBook(title, author, isbn, price, qty, category) bool$
+        +editBook(id, title, author, price, qty, category) bool$
+        +deleteBook(id) bool$
+        +checkLowStockAlert() bool
     }
+
+    class SalesReport {
+        -timestamp generated_at
+        -decimal total_sales
+        -int total_orders
+        +getWeeklySales() SalesReport$
+        +getMonthlySales() SalesReport$
+        +getTopSellers() List~Book~$
+    }
+
+    %% Transactional Entities (Operations)
     class Cart {
         -int id
         -int user_id
@@ -99,6 +143,7 @@ classDiagram
         +removeItem(book_id) bool
         +clear() bool
     }
+
     class Order {
         -int id
         -int user_id
@@ -114,12 +159,15 @@ classDiagram
         +approvePayment(staff_id) bool
         +shipOrder(tracking_number) bool
     }
+
+    %% Detail Entities (Sub-transactions)
     class CartItem {
         -int id
         -int cart_id
         -int book_id
         -int quantity
     }
+
     class OrderItem {
         -int id
         -int order_id
@@ -128,20 +176,115 @@ classDiagram
         -decimal price_per_unit
     }
 
+    %% Relations
     User "1" --> "1" Cart : Owns
     User "1" --> "0..*" Order : Places
     User "0..1" --> "0..*" Order : Verifies (Staff)
+    User "1" --> "0..*" SalesReport : Generates (Admin)
+
     Cart "1" *--> "0..*" CartItem : Contains
     Book "1" --> "0..*" CartItem : Referenced
+
     Order "1" *--> "1..*" OrderItem : Comprises
     Book "1" --> "0..*" OrderItem : Sold via
 ```
 
 ---
 
-## 🔄 3. Sequence Diagram (ลำดับขั้นตอนการตรวจสอบและชำระเงินเชิงลึก)
+## 🔄 3. Sequence Diagrams (ลำดับขั้นตอนการประมวลผลตาม Use Cases)
 
-แผนภาพจำลองปฏิสัมพันธ์ในลักษณะเวลา (Timeline Base) อธิบายกระบวนการสั่งซื้อสินค้าและการตัดจำนวนคลังสินค้า โดยประยุกต์ใช้ Database Transaction และ Pessimistic Locking:
+แผนภาพจำลองปฏิสัมพันธ์ในลักษณะเวลา (Timeline Base) เพื่อแจกแจงลำดับการทำงานของ Use Cases สำคัญต่างๆ ในระบบ:
+
+### 🔐 3.1 UC1 & UC2: การสมัครสมาชิกและการเข้าสู่ระบบเพื่อยืนยันตัวตน (Register & Login Flow)
+กระบวนการสมัครสมาชิก (Register) และการเข้าสู่ระบบ (Login) เพื่อรับสิทธิ์การใช้งานผ่าน JWT Token:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User (ลูกค้า/พนักงาน/แอดมิน)
+    participant Client as React App (หน้าบ้าน)
+    participant API as Express.js (หลังบ้าน)
+    participant DB as MySQL (ฐานข้อมูล)
+
+    opt กรณีผู้ใช้ใหม่ (สมัครสมาชิก)
+        User->>Client: กรอกข้อมูลสมัครสมาชิก (ชื่อ, อีเมล, รหัสผ่าน)
+        Client->>API: POST /api/auth/register (payload)
+        API->>DB: SELECT id FROM users WHERE email = ?
+        DB-->>API: คืนค่าผู้ใช้ (ถ้ามี)
+        alt อีเมลซ้ำซ้อน
+            API-->>Client: HTTP 400 Bad Request (Email already exists)
+            Client-->>User: แสดงข้อความเตือนอีเมลซ้ำ
+        else อีเมลไม่ซ้ำ
+            API->>API: ทำการแฮชรหัสผ่าน (bcrypt)
+            API->>DB: INSERT INTO users (name, email, password_hash, role)
+            DB-->>API: คืนค่า insert_id และยืนยันบันทึก
+            API-->>Client: HTTP 201 Created (Success Status)
+            Client-->>User: แสดงการสมัครสมาชิกสำเร็จ & นำไปหน้าล็อกอิน
+        end
+    end
+
+    User->>Client: กรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ
+    Client->>API: POST /api/auth/login (email, password)
+    API->>DB: SELECT * FROM users WHERE email = ?
+    DB-->>API: คืนค่าข้อมูลผู้ใช้ (id, password_hash, role)
+    
+    alt ไม่พบอีเมล หรือ รหัสผ่านไม่ถูกต้อง
+        API-->>Client: HTTP 401 Unauthorized (Invalid credentials)
+        Client-->>User: แสดงข้อความแจ้งเตือนความผิดพลาด
+    else อีเมลและรหัสผ่านถูกต้อง
+        API->>API: สร้าง JWT Token (ระบุ id, role, วันหมดอายุ)
+        API-->>Client: HTTP 200 OK (JWT Token, User Profile)
+        Client->>Client: บันทึก Token ใน LocalStorage/Context
+        Client-->>User: ยินดีต้อนรับเข้าสู่ระบบ (Redirect ไปยังหน้าหลักตามสิทธิ์)
+    end
+```
+
+### 🛒 3.2 UC3 & UC4: การค้นหาหนังสือและจัดการตะกร้าสินค้า (Search & Shopping Flow)
+ขั้นตอนที่ผู้ใช้ค้นหาหนังสือและทำรายการใส่ตะกร้า พร้อมตรวจสอบจำนวนคลังสินค้าก่อนอัปเดตสเตตัสตะกร้า:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Customer as Customer (ลูกค้า)
+    participant Client as React App (หน้าบ้าน)
+    participant API as Express.js (หลังบ้าน)
+    participant DB as MySQL (ฐานข้อมูล)
+
+    Customer->>Client: พิมพ์คำค้นหาหนังสือ / เลือกหมวดหมู่
+    Client->>API: GET /api/books?search=...&category=...
+    API->>DB: SELECT * FROM books WHERE title LIKE ... OR category = ...
+    DB-->>API: คืนค่ารายการหนังสือที่ค้นหาพบ
+    API-->>Client: HTTP 200 OK (Array of Books)
+    Client-->>Customer: แสดงผลรายการหนังสือบนหน้าจอ
+
+    opt เพิ่มสินค้าลงตะกร้า (Add Item)
+        Customer->>Client: คลิกปุ่ม "ใส่ตะกร้า"
+        Client->>API: POST /api/cart/items (book_id, quantity) [Auth Header]
+        API->>DB: SELECT stock_qty FROM books WHERE id = ?
+        DB-->>API: คืนค่าจำนวนสต็อกของหนังสือ
+        alt สต็อกต่ำกว่าจำนวนที่ต้องการ
+            API-->>Client: HTTP 400 Bad Request (Insufficient stock)
+            Client-->>Customer: แจ้งเตือนสินค้าในคลังไม่พอ
+        else สต็อกเพียงพอ
+            API->>DB: INSERT/UPDATE cart_items (cart_id, book_id, quantity)
+            DB-->>API: บันทึกข้อมูลสำเร็จ
+            API-->>Client: HTTP 200 OK (Updated Cart Items)
+            Client-->>Customer: อัปเดตตัวเลขในตะกร้าช็อปปิ้ง
+        end
+    end
+
+    opt ลบสินค้าหรือปรับจำนวน (Remove/Update Qty)
+        Customer->>Client: ปรับลดจำนวน/ลบสินค้าในหน้าตะกร้า
+        Client->>API: PUT/DELETE /api/cart/items/:id (quantity) [Auth Header]
+        API->>DB: UPDATE/DELETE cart_items SET quantity = ... WHERE id = ?
+        DB-->>API: ดำเนินการฐานข้อมูลสำเร็จ
+        API-->>Client: HTTP 200 OK (Updated Cart)
+        Client-->>Customer: อัปเดตยอดรวมและรายการใหม่บนตะกร้า
+    end
+```
+
+### 💳 3.3 UC5: การสั่งซื้อหนังสือพร้อม Pessimistic Locking (Checkout Flow)
+ขั้นตอนสั่งซื้อที่มีการล็อคข้อมูลจำนวนสต็อกในตารางเพื่อป้องกันสภาวะชิงข้อมูล (Race Condition):
 
 ```mermaid
 sequenceDiagram
@@ -179,9 +322,132 @@ sequenceDiagram
             API->>DB: COMMIT
             DB-->>API: Transaction Committed
             API-->>Client: HTTP 201 Created
-            Client-->>Customer: แสดงจอออเดอร์สำเร็จ
+            Client-->>Customer: แสดงจอออเดอร์สำเร็จ & รอแนบสลิปเงิน
         end
     end
+```
+
+### 📄 3.4 UC6: การแนบหลักฐานการชำระเงิน (Upload Payment Slip Flow)
+ขั้นตอนที่ลูกค้าอัปโหลดรูปภาพสลิปเงินเพื่อผูกกับใบสั่งซื้อค้างจ่าย:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Customer as Customer (ลูกค้า)
+    participant Client as React App (หน้าบ้าน)
+    participant API as Express.js (หลังบ้าน)
+    participant Storage as Cloud Storage (ที่เก็บไฟล์)
+    participant DB as MySQL (ฐานข้อมูล)
+
+    Customer->>Client: ไปที่หน้ารายการสั่งซื้อ & อัปโหลดรูปภาพสลิป
+    Client->>API: POST /api/orders/:id/slip (Multipart Image File) [Auth Header]
+    API->>Storage: อัปโหลดรูปภาพสลิปไปยัง Cloud Storage (เช่น S3/Cloudinary)
+    Storage-->>API: คืนค่า URL ของรูปภาพสลิปโอนเงิน (slip_image_url)
+    API->>DB: UPDATE orders SET slip_image_url = ?, status = 'pending' WHERE id = ?
+    DB-->>API: บันทึกและยืนยันการเปลี่ยนแปลงข้อมูล
+    API-->>Client: HTTP 200 OK (Slip Uploaded & Order Updated)
+    Client-->>Customer: แสดงแจ้งเตือนอัปโหลดสลิปสำเร็จ & สเตตัสเปลี่ยนเป็น "รอตรวจสอบ"
+```
+
+### 📦 3.5 UC9 & UC10: การตรวจสอบสลิปและการจัดการจัดส่ง (Verify & Fulfillment Flow)
+ขั้นตอนการตรวจสอบและอนุมัติยอดโอนเงินโดยพนักงาน และการออกใบจัดส่งพร้อม tracking number:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Staff as Staff (พนักงานคลังสินค้า)
+    participant Client as React App (หน้าบ้าน)
+    participant API as Express.js (หลังบ้าน)
+    participant DB as MySQL (ฐานข้อมูล)
+
+    Staff->>Client: เปิดหน้ารายการคำสั่งซื้อค้างตรวจสอบ (Pending Orders)
+    Client->>API: GET /api/orders/pending [Auth Header - Staff Role]
+    API->>DB: SELECT * FROM orders WHERE status = 'pending'
+    DB-->>API: คืนค่ารายการคำสั่งซื้อและลิงก์รูปสลิป
+    API-->>Client: HTTP 200 OK (Orders Array)
+    Client-->>Staff: แสดงรูปภาพสลิปเปรียบเทียบกับยอดเงินออเดอร์
+    
+    alt ข้อมูลสลิปถูกต้องยอดเงินครบ
+        Staff->>Client: คลิกอนุมัติ "ยืนยันยอดเงินสำเร็จ"
+        Client->>API: PUT /api/orders/:id/approve [Auth Header]
+        API->>DB: UPDATE orders SET status = 'paid', verified_by = ? WHERE id = ?
+        DB-->>API: ยืนยันปรับปรุงแถวข้อมูลสำเร็จ
+        API-->>Client: HTTP 200 OK (Payment Verified)
+        Client-->>Staff: อัปเดตสเตตัสออเดอร์เป็น "Paid (ชำระเงินแล้ว)" บนหน้าจอ
+    else สลิปปลอมหรือยอดเงินไม่ตรง
+        Staff->>Client: คลิกปฏิเสธรายการระบุเหตุผล
+        Client->>API: PUT /api/orders/:id/reject (reason) [Auth Header]
+        API->>DB: UPDATE orders SET status = 'cancelled' WHERE id = ?
+        DB-->>API: ยืนยันยกเลิกคำสั่งซื้อสำเร็จ
+        API-->>Client: HTTP 200 OK (Order Cancelled)
+        Client-->>Staff: อัปเดตสถานะออเดอร์บนหน้าจอเป็น "Cancelled"
+    end
+
+    opt ขั้นตอนการจัดส่งสินค้า (UC10)
+        Staff->>Client: กรอกเลขพัสดุ (Tracking Number) สำหรับออเดอร์สเตตัส 'paid'
+        Client->>API: PUT /api/orders/:id/ship (tracking_number) [Auth Header]
+        API->>DB: UPDATE orders SET status = 'shipped', tracking_number = ?, shipped_at = NOW() WHERE id = ?
+        DB-->>API: ยืนยันบันทึกข้อมูลเรียบร้อย
+        API-->>Client: HTTP 200 OK (Order Shipped)
+        Client-->>Staff: แสดงสถานะการจัดส่งสำเร็จ
+    end
+```
+
+### ⚙️ 3.6 UC11 & UC12: การบริหารคลังสินค้าและเตือนสต็อกต่ำ (Inventory & Alert Flow)
+การจัดการข้อมูลหนังสือและการรับรู้ระบบแจ้งเตือนอัตโนมัติเมื่อจำนวนสต็อกต่ำกว่าเกณฑ์:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Staff as Staff/Admin (พนักงานคลังสินค้า)
+    participant Client as React App (หน้าบ้าน)
+    participant API as Express.js (หลังบ้าน)
+    participant DB as MySQL (ฐานข้อมูล)
+    actor Discord as Discord/System Notification
+
+    Staff->>Client: กรอกข้อมูลปรับเพิ่ม/แก้ไขรายละเอียดหนังสือในสต็อก
+    Client->>API: PUT /api/books/:id (title, price, stock_qty) [Auth Header]
+    API->>DB: UPDATE books SET stock_qty = ?, price = ? WHERE id = ?
+    DB-->>API: อัปเดตแถวสินค้าในฐานข้อมูลสำเร็จ
+
+    API->>DB: SELECT stock_qty, title FROM books WHERE id = ?
+    DB-->>API: คืนค่าจำนวนสต็อกคงเหลือปัจจุบัน
+    
+    alt สต็อกต่ำกว่าเกณฑ์ความปลอดภัย (เช่น stock_qty <= 5)
+        API->>Discord: ส่ง Webhook/Notification แจ้งเตือนระบบ "สินค้าสต็อกต่ำ!"
+        Discord-->>Staff: แสดงข้อความแจ้งเตือน "หนังสือ [Title] เหลือในคลังเพียง [Qty] เล่ม!"
+    end
+
+    API-->>Client: HTTP 200 OK (Book Updated Successfully)
+    Client-->>Staff: แสดงผลข้อมูลคลังหนังสือเวอร์ชันอัปเดตเรียบร้อย
+```
+
+### 📊 3.7 UC13: รายงานสรุปยอดขายสำหรับผู้ดูแลระบบ (BI Dashboard Summary Flow)
+การสรุปและคำนวณสถิติยอดขายเพื่อใช้ในการวิเคราะห์แบบเรียลไทม์:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Admin as Admin (ผู้ดูแลระบบ)
+    participant Client as React App (หน้าบ้าน)
+    participant API as Express.js (หลังบ้าน)
+    participant DB as MySQL (ฐานข้อมูล)
+
+    Admin->>Client: คลิกหน้าเมนู "แผงสรุปรายงาน (Dashboard)"
+    Client->>API: GET /api/reports/dashboard [Auth Header - Admin Role]
+    
+    API->>DB: SELECT SUM(total_amount) FROM orders WHERE status = 'paid' OR status = 'shipped'
+    DB-->>API: คืนค่ารายรับสะสมทั้งหมด
+    
+    API->>DB: SELECT book_id, SUM(quantity) FROM order_items GROUP BY book_id ORDER BY SUM(quantity) DESC LIMIT 5
+    DB-->>API: คืนค่ารายชื่อ 5 หนังสือยอดนิยม
+    
+    API->>DB: SELECT DATE(order_date), SUM(total_amount) FROM orders WHERE order_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY DATE(order_date)
+    DB-->>API: คืนค่าข้อมูลกราฟรายวัน
+    
+    API-->>Client: HTTP 200 OK (JSON Payload)
+    Client->>Client: นำข้อมูลไปเรนเดอร์ในรูปแบบ Chart & Metrics
+    Client-->>Admin: แสดงผล BI Dashboard สวยงามบนหน้าจอแอดมิน
 ```
 
 ---
@@ -241,10 +507,10 @@ flowchart TD
 
 ```mermaid
 stateDiagram-v2
-    [*] --> pending : Customer creates order (UC4)
-    pending --> paid : Staff verifies slip ✅ (UC6)
+    [*] --> pending : Customer creates order (UC5)
+    pending --> paid : Staff verifies slip ✅ (UC9)
     pending --> cancelled : Stock insufficient OR Slip rejected ❌
-    paid --> shipped : Staff dispatches parcel (UC7)
+    paid --> shipped : Staff dispatches parcel (UC10)
     paid --> cancelled : Admin / Staff cancels order
     shipped --> [*] : Order complete — delivery confirmed
     cancelled --> [*] : Order terminated

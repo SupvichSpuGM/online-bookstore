@@ -49,38 +49,58 @@ graph LR
     Admin["⚙️ Admin"]
 
     subgraph System ["📦 ขอบเขตระบบร้านหนังสือออนไลน์ (System Boundary)"]
-        subgraph G1 ["🔐 ส่วนกลางและการเข้าถึง"]
-            UC_Auth(UC1: ยืนยันตัวตน)
-            UC_Search(UC2: ค้นหาหนังสือ)
+        subgraph G1 ["🔐 ส่วนการเข้าถึงและจัดการสมาชิก"]
+            UC_Register((UC1: สมัครสมาชิก))
+            UC_Auth((UC2: เข้าสู่ระบบและยืนยันตัวตน))
+            UC_Profile((UC8: จัดการโปรไฟล์และที่อยู่จัดส่ง))
         end
-        subgraph G2 ["🛒 ตะกร้าและการสั่งซื้อ"]
-            UC_Cart(UC3: จัดการตะกร้า)
-            UC_Checkout(UC4: สั่งซื้อหนังสือ)
-            UC_UploadSlip(UC5: แนบสลิปโอนเงิน)
+        subgraph G2 ["🛒 ส่วนสืบค้นและสั่งซื้อสินค้า"]
+            UC_Search((UC3: ค้นหาและดูรายละเอียดหนังสือ))
+            UC_Cart((UC4: จัดการตะกร้าสินค้า))
+            UC_Checkout((UC5: สั่งซื้อหนังสือ))
+            UC_UploadSlip((UC6: แนบสลิปโอนเงิน))
+            UC_OrderHistory((UC7: ติดตามพัสดุและประวัติสั่งซื้อ))
         end
-        subgraph G3 ["⚙️ จัดการคลังและหลังบ้าน"]
-            UC_VerifySlip(UC6: ตรวจสอบสลิปเงิน)
-            UC_ShipOrder(UC7: จัดการจัดส่ง)
-            UC_ManageCatalog(UC8: บริหารคลังสินค้า)
-            UC_StockAlert(UC9: เตือนสต็อกต่ำ)
-            UC_Dashboard(UC10: รายงานสรุปยอดขาย)
+        subgraph G3 ["🧑‍💼 ส่วนจัดการหลังบ้านของพนักงาน"]
+            UC_VerifySlip((UC9: ตรวจสอบและอนุมัติสลิปโอนเงิน))
+            UC_ShipOrder((UC10: จัดการการจัดส่งและระบุเลขพัสดุ))
+            UC_ManageCatalog((UC11: บริหารจัดการคลังสินค้าและสต็อก))
+            UC_StockAlert((UC12: แจ้งเตือนสต็อกสินค้าต่ำ))
+        end
+        subgraph G4 ["⚙️ ส่วนจัดการระบบและวิเคราะห์ข้อมูล"]
+            UC_Dashboard((UC13: ดูรายงานวิเคราะห์ยอดขาย BI Dashboard))
+            UC_ManageUsers((UC14: จัดการผู้ใช้งานและระดับสิทธิ์ระบบ))
         end
     end
 
+    Customer --- UC_Register
+    Customer --- UC_Auth
     Customer --- UC_Search
     Customer --- UC_Cart
     Customer --- UC_Checkout
+    Customer --- UC_UploadSlip
+    Customer --- UC_OrderHistory
+    Customer --- UC_Profile
+
+    Staff --- UC_Auth
     Staff --- UC_VerifySlip
     Staff --- UC_ShipOrder
     Staff --- UC_ManageCatalog
+
+    Admin --- UC_Auth
     Admin --- UC_ManageCatalog
     Admin --- UC_Dashboard
+    Admin --- UC_ManageUsers
 
     UC_Checkout -.->|include| UC_Auth
+    UC_OrderHistory -.->|include| UC_Auth
+    UC_Profile -.->|include| UC_Auth
     UC_VerifySlip -.->|include| UC_Auth
     UC_ShipOrder -.->|include| UC_Auth
     UC_ManageCatalog -.->|include| UC_Auth
     UC_Dashboard -.->|include| UC_Auth
+    UC_ManageUsers -.->|include| UC_Auth
+
     UC_UploadSlip -.->|extend| UC_Checkout
     UC_StockAlert -.->|extend| UC_ManageCatalog
 ```
