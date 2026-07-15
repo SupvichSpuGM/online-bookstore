@@ -44,34 +44,45 @@
 
 ```mermaid
 graph LR
-    subgraph Actors ["กลุ่มผู้ใช้งาน (Actors)"]
-        Customer["👤 ลูกค้า / ผู้ซื้อ"]
-        Staff["🧑‍💼 พนักงานหลังบ้าน"]
-        Admin["⚙️ ผู้ดูแลระบบ / แอดมิน"]
-    end
+    Customer["👤 Customer"]
+    Staff["🧑‍💼 Staff"]
+    Admin["⚙️ Admin"]
 
-    subgraph Boundary ["ขอบเขตระบบร้านหนังสือออนไลน์"]
-        UC_Auth((UC1: ยืนยันตัวตนเข้าระบบ))
-        UC_Search((UC2: ค้นหาหนังสือและหมวดหมู่))
-        UC_Cart((UC3: จัดการตะกร้าสินค้า))
-        UC_Checkout((UC4: สั่งซื้อและแนบหลักฐานโอนเงิน))
-        UC_Verify((UC5: ตรวจสอบการชำระเงินและสลิป))
-        UC_Stock((UC6: บริหารคลังสินค้าและหนังสือ))
-        UC_Report((UC7: ดูสรุปยอดขาย BI Dashboard))
-
-        UC_Checkout -.->|include| UC_Auth
-        UC_Verify -.->|include| UC_Auth
-        UC_Stock -.->|include| UC_Auth
-        UC_Report -.->|include| UC_Auth
+    subgraph System ["📦 ขอบเขตระบบร้านหนังสือออนไลน์ (System Boundary)"]
+        subgraph G1 ["🔐 ส่วนกลางและการเข้าถึง"]
+            UC_Auth((UC1: ยืนยันตัวตน))
+            UC_Search((UC2: ค้นหาหนังสือ))
+        end
+        subgraph G2 ["🛒 ตะกร้าและการสั่งซื้อ"]
+            UC_Cart((UC3: จัดการตะกร้า))
+            UC_Checkout((UC4: สั่งซื้อหนังสือ))
+            UC_UploadSlip((UC5: แนบสลิปโอนเงิน))
+        end
+        subgraph G3 ["⚙️ จัดการคลังและหลังบ้าน"]
+            UC_VerifySlip((UC6: ตรวจสอบสลิปเงิน))
+            UC_ShipOrder((UC7: จัดการจัดส่ง))
+            UC_ManageCatalog((UC8: บริหารคลังสินค้า))
+            UC_StockAlert((UC9: เตือนสต็อกต่ำ))
+            UC_Dashboard((UC10: รายงานสรุปยอดขาย))
+        end
     end
 
     Customer --> UC_Search
     Customer --> UC_Cart
     Customer --> UC_Checkout
-    Staff --> UC_Verify
-    Staff --> UC_Stock
-    Admin --> UC_Stock
-    Admin --> UC_Report
+    Staff --> UC_VerifySlip
+    Staff --> UC_ShipOrder
+    Staff --> UC_ManageCatalog
+    Admin --> UC_ManageCatalog
+    Admin --> UC_Dashboard
+
+    UC_Checkout -.->|include| UC_Auth
+    UC_VerifySlip -.->|include| UC_Auth
+    UC_ShipOrder -.->|include| UC_Auth
+    UC_ManageCatalog -.->|include| UC_Auth
+    UC_Dashboard -.->|include| UC_Auth
+    UC_UploadSlip -.->|extend| UC_Checkout
+    UC_StockAlert -.->|extend| UC_ManageCatalog
 ```
 
 ### 💡 2. Class Diagram
@@ -81,51 +92,67 @@ graph LR
 ```mermaid
 classDiagram
     class User {
-        -int user_id
+        -int id
         -string name
         -string email
-        -string password
+        -string password_hash
         -string role
-        +register() bool
-        +login() string
-        +getProfile() Object
+        +register(name, email, password) bool
+        +login(email, password) string
     }
     class Book {
-        -int book_id
+        -int id
         -string title
         -string author
-        -double price
+        -string isbn
+        -decimal price
         -int stock_qty
-        -string category
-        +getDetails() Object
-        +updateStock(int qty) bool
-        +adjustPrice(double newPrice)
+        +updateStock(qty) bool
+        +isAvailable() bool
     }
     class Cart {
-        -int cart_id
+        -int id
         -int user_id
-        -double temp_total
-        +addItem(int book_id, int qty) bool
-        +removeItem(int book_id) bool
-        +calculateTotal() double
-        +clearCart()
+        +addItem(book_id, qty) bool
+        +removeItem(book_id) bool
+        +clear() bool
     }
     class Order {
-        -int order_id
+        -int id
         -int user_id
-        -date order_date
-        -double total_amount
+        -int verified_by
+        -decimal total_amount
         -string status
         -string slip_image_url
+        -string tracking_number
+        -timestamp order_date
+        -timestamp shipped_at
         +createOrder() int
-        +uploadPaymentSlip(string url) bool
-        +updateStatus(string newStatus) bool
+        +attachSlip(url) bool
+        +approvePayment(staff_id) bool
+        +shipOrder(tracking_number) bool
+    }
+    class CartItem {
+        -int id
+        -int cart_id
+        -int book_id
+        -int quantity
+    }
+    class OrderItem {
+        -int id
+        -int order_id
+        -int book_id
+        -int quantity
+        -decimal price_per_unit
     }
 
-    User "1" -- "1" Cart : Owns
-    User "1" -- "0..*" Order : Places
-    Cart "1" -- "0..*" Book : Temporary Holds
-    Order "1" -- "1..*" Book : Contains
+    User "1" --> "1" Cart : Owns
+    User "1" --> "0..*" Order : Places
+    User "0..1" --> "0..*" Order : Verifies (Staff)
+    Cart "1" *--> "0..*" CartItem : Contains
+    Book "1" --> "0..*" CartItem : Referenced
+    Order "1" *--> "1..*" OrderItem : Comprises
+    Book "1" --> "0..*" OrderItem : Sold via
 ```
 
 ### 💡 3. Sequence Diagram
@@ -135,29 +162,41 @@ classDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Staff as 🧑‍💼 พนักงาน (Staff Dashboard UI)
-    participant Backend as ⚙️ ระบบหลังบ้าน (Express.js API)
-    participant DB as 🗄️ ฐานข้อมูล (MySQL RDBMS)
+    actor Customer as Customer (ลูกค้า)
+    participant Client as React App (หน้าบ้าน)
+    participant AuthMW as Middleware (สิทธิ์)
+    participant API as Express.js (หลังบ้าน)
+    participant DB as MySQL (ฐานข้อมูล)
 
-    Staff->>Backend: ร้องขอรายการคำสั่งซื้อค้างตรวจสอบ (GET /api/orders/pending)
-    activate Backend
-    Backend->>DB: ดึงข้อมูลออเดอร์ที่แนบสลิปเข้ามา
-    activate DB
-    DB-->>Backend: ส่งคืนอาเรย์ข้อมูลรายการธุรกรรม
-    deactivate DB
-    Backend-->>Staff: แสดงผลรายการออเดอร์และรูปภาพสลิปบนหน้าจอ
-    deactivate Backend
+    Customer->>Client: คลิกปุ่มชำระเงิน
+    Client->>AuthMW: POST /api/orders (Authorization)
+    AuthMW->>AuthMW: ตรวจสอบความถูกต้อง JWT
 
-    rect rgb(245, 243, 255)
-        note over Staff, DB: ขั้นตอนการตรวจสอบและกดอนุมัติสิทธิ์
-        Staff->>Backend: กดอนุมัติออเดอร์ (PUT /api/orders/:id/approve)
-        activate Backend
-        Backend->>DB: ปรับปรุงสถานะออเดอร์เป็น 'Paid' & เตรียมจัดส่ง
-        activate DB
-        DB-->>Backend: ยืนยันการอัปเดตสำเร็จ
-        deactivate DB
-        Backend-->>Staff: แจ้งเตือน "อนุมัติรายการชำระเงินเรียบร้อย" (HTTP 200 OK)
-        deactivate Backend
+    alt โทเค็นไม่ผ่าน
+        AuthMW-->>Client: HTTP 401 Unauthorized
+        Client-->>Customer: แสดงแจ้งเตือนล็อกอินใหม่
+    else โทเค็นผ่าน
+        AuthMW->>API: ส่งข้อมูลออเดอร์และผู้ใช้
+        API->>DB: START TRANSACTION
+        DB-->>API: Transaction Started
+        API->>DB: SELECT stock FROM books FOR UPDATE
+        DB-->>API: คืนค่าจำนวนสต็อกล่าสุด
+
+        alt สต็อกไม่พอ
+            API->>DB: ROLLBACK
+            DB-->>API: Transaction Rolled Back
+            API-->>Client: HTTP 400 Bad Request
+            Client-->>Customer: แจ้งเตือนสินค้าไม่พอ
+        else สต็อกพอ
+            API->>DB: UPDATE books (หักลบสต็อก)
+            API->>DB: INSERT INTO orders
+            DB-->>API: คืนค่า order_id
+            API->>DB: INSERT INTO order_items
+            API->>DB: COMMIT
+            DB-->>API: Transaction Committed
+            API-->>Client: HTTP 201 Created
+            Client-->>Customer: แสดงจอออเดอร์สำเร็จ
+        end
     end
 ```
 
@@ -185,7 +224,7 @@ sequenceDiagram
 
 **หน้าที่และความสำคัญ:** แบบจำลองหน้าต่างแอปพลิเคชันที่มีความเสมือนจริงสูง (High-fidelity) มีสีสัน กราฟิก และตอบสนองต่อการทดลองคลิกสลับหน้าจอ (Clickable Flow) เพื่อทำแบบทดสอบ UX Testing ก่อนสร้างชิ้นงานสมบูรณ์
 
-> **Figma Interactive Prototype:** [คลิกเพื่อเปิดทดลองใช้งานบน Figma](https://figma.com/file/online-bookstore-prototype)
+> **Figma Interactive Prototype:** [คลิกเพื่อเปิดทดลองใช้งานบน Figma](https://www.figma.com/make/sfQBdsZm0zQ2XW9xZZv85Y/E-Commerce-Bookstore-Wireframe?t=5LqLUcmW0jqEUlre-1)
 
 ความแตกต่างจาก Wireframe:
 * มีการใช้สีสัน Gradient และ Typography ตาม Design System จริง
