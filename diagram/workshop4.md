@@ -44,32 +44,32 @@
 
 ```mermaid
 graph LR
-    Customer["👤 Customer"]
-    Staff["🧑‍💼 Staff"]
-    Admin["⚙️ Admin"]
+    Customer["👤 ลูกค้า"]
+    Staff["🧑‍💼 พนักงาน"]
+    Admin["⚙️ ผู้ดูแลระบบ"]
 
-    subgraph System ["📦 ขอบเขตระบบร้านหนังสือออนไลน์ (System Boundary)"]
-        subgraph G1 ["🔐 ส่วนการเข้าถึงและจัดการสมาชิก"]
-            UC_Register((UC1: สมัครสมาชิก))
-            UC_Auth((UC2: เข้าสู่ระบบและยืนยันตัวตน))
-            UC_Profile((UC8: จัดการโปรไฟล์และที่อยู่จัดส่ง))
+    subgraph System ["📦 ระบบร้านหนังสือออนไลน์"]
+        subgraph G1 ["🔐 การสมัครและจัดการบัญชีผู้ใช้"]
+            UC_Register(["สมัครสมาชิกใหม่"])
+            UC_Auth(["เข้าสู่ระบบ"])
+            UC_Profile(["แก้ไขโปรไฟล์และที่อยู่จัดส่ง"])
         end
-        subgraph G2 ["🛒 ส่วนสืบค้นและสั่งซื้อสินค้า"]
-            UC_Search((UC3: ค้นหาและดูรายละเอียดหนังสือ))
-            UC_Cart((UC4: จัดการตะกร้าสินค้า))
-            UC_Checkout((UC5: สั่งซื้อหนังสือ))
-            UC_UploadSlip((UC6: แนบสลิปโอนเงิน))
-            UC_OrderHistory((UC7: ติดตามพัสดุและประวัติสั่งซื้อ))
+        subgraph G2 ["🛒 การค้นหาและสั่งซื้อหนังสือ"]
+            UC_Search(["ค้นหาและดูรายละเอียดหนังสือ"])
+            UC_Cart(["เพิ่มหรือลบสินค้าในตะกร้า"])
+            UC_Checkout(["กดยืนยันสั่งซื้อ ⚠️ ต้องล็อกอินก่อน"])
+            UC_UploadSlip(["แนบสลิปโอนเงิน ✅ ทำต่อจากการสั่งซื้อ"])
+            UC_OrderHistory(["ติดตามพัสดุและประวัติออเดอร์ ⚠️ ต้องล็อกอินก่อน"])
         end
-        subgraph G3 ["🧑‍💼 ส่วนจัดการหลังบ้านของพนักงาน"]
-            UC_VerifySlip((UC9: ตรวจสอบและอนุมัติสลิปโอนเงิน))
-            UC_ShipOrder((UC10: จัดการการจัดส่งและระบุเลขพัสดุ))
-            UC_ManageCatalog((UC11: บริหารจัดการคลังสินค้าและสต็อก))
-            UC_StockAlert((UC12: แจ้งเตือนสต็อกสินค้าต่ำ))
+        subgraph G3 ["🧑‍💼 งานพนักงานหลังบ้าน"]
+            UC_VerifySlip(["ตรวจสอบและอนุมัติสลิปโอนเงิน ⚠️ ต้องล็อกอินก่อน"])
+            UC_ShipOrder(["บันทึกการจัดส่งและเลขพัสดุ ⚠️ ต้องล็อกอินก่อน"])
+            UC_ManageCatalog(["เพิ่ม/แก้ไข/ลบหนังสือในคลัง ⚠️ ต้องล็อกอินก่อน"])
+            UC_StockAlert(["แจ้งเตือนอัตโนมัติเมื่อสินค้าใกล้หมด ✅ เชื่อมกับการจัดการคลัง"])
         end
-        subgraph G4 ["⚙️ ส่วนจัดการระบบและวิเคราะห์ข้อมูล"]
-            UC_Dashboard((UC13: ดูรายงานวิเคราะห์ยอดขาย BI Dashboard))
-            UC_ManageUsers((UC14: จัดการผู้ใช้งานและระดับสิทธิ์ระบบ))
+        subgraph G4 ["📊 การวิเคราะห์และจัดการระบบ"]
+            UC_Dashboard(["ดูรายงานยอดขายและสถิติ ⚠️ ต้องล็อกอินก่อน"])
+            UC_ManageUsers(["จัดการบัญชีพนักงานและสิทธิ์ ⚠️ ต้องล็อกอินก่อน"])
         end
     end
 
@@ -92,17 +92,6 @@ graph LR
     Admin --- UC_Dashboard
     Admin --- UC_ManageUsers
 
-    UC_Checkout -.->|include| UC_Auth
-    UC_OrderHistory -.->|include| UC_Auth
-    UC_Profile -.->|include| UC_Auth
-    UC_VerifySlip -.->|include| UC_Auth
-    UC_ShipOrder -.->|include| UC_Auth
-    UC_ManageCatalog -.->|include| UC_Auth
-    UC_Dashboard -.->|include| UC_Auth
-    UC_ManageUsers -.->|include| UC_Auth
-
-    UC_UploadSlip -.->|extend| UC_Checkout
-    UC_StockAlert -.->|extend| UC_ManageCatalog
 ```
 
 ### 💡 2. Class Diagram
