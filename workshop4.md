@@ -234,77 +234,71 @@ classDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Customer as Customer (ลูกค้า)
-    participant Client as React App (หน้าบ้าน)
-    participant AuthMW as Middleware (สิทธิ์)
-    participant API as Express.js (หลังบ้าน)
-    participant DB as MySQL (ฐานข้อมูล)
+    actor Customer as 👤 ลูกค้า
+    participant Web as 🌐 หน้าเว็บไซต์
+    participant System as ⚙️ ระบบหลังบ้าน
+    participant DB as 🗄️ ฐานข้อมูล
 
-    Note over Customer, DB: ① ค้นหาและดูรายละเอียดหนังสือ (UC3)
-    Customer->>Client: พิมพ์คำค้นหา / เลือกหมวดหมู่
-    Client->>API: GET /api/books?search=...&category=...
-    API->>DB: SELECT * FROM books WHERE title LIKE ... OR category = ...
-    DB-->>API: คืนค่ารายการหนังสือ
-    API-->>Client: HTTP 200 OK (Array of Books)
-    Client-->>Customer: แสดงรายการหนังสือ
+    Note over Customer, DB: ขั้นตอนที่ 1 — ค้นหาและเลือกดูหนังสือ
+    Customer->>Web: พิมพ์ชื่อหนังสือหรือเลือกหมวดหมู่ที่ต้องการ
+    Web->>System: ส่งคำค้นหาไปยังระบบ
+    System->>DB: ดึงรายชื่อหนังสือที่ตรงกับคำค้นหา
+    DB-->>System: ส่งข้อมูลหนังสือกลับมา
+    System-->>Web: ส่งรายการหนังสือให้แสดงผล
+    Web-->>Customer: แสดงรายการหนังสือบนหน้าจอ
 
-    Customer->>Client: คลิกเลือกหนังสือเพื่อดูรายละเอียด
-    Client->>API: GET /api/books/:id
-    API->>DB: SELECT * FROM books WHERE id = ?
-    DB-->>API: คืนค่ารายละเอียดหนังสือ (พร้อม stock_qty)
-    API-->>Client: HTTP 200 OK (Book Detail Object)
-    Client-->>Customer: แสดงหน้ารายละเอียดพร้อมปุ่ม "ใส่ตะกร้า"
+    Customer->>Web: คลิกเลือกหนังสือที่สนใจ
+    Web->>System: ขอข้อมูลรายละเอียดหนังสือเล่มนั้น
+    System->>DB: ดึงข้อมูลหนังสือ (ชื่อ, ราคา, จำนวนคงเหลือ)
+    DB-->>System: ส่งข้อมูลครบถ้วนกลับมา
+    System-->>Web: ส่งข้อมูลให้แสดงผล
+    Web-->>Customer: แสดงหน้ารายละเอียดหนังสือพร้อมปุ่ม "ใส่ตะกร้า"
 
-    Note over Customer, DB: ② เพิ่มสินค้าลงตะกร้า (UC4)
-    Customer->>Client: คลิกปุ่ม "ใส่ตะกร้า"
-    Client->>AuthMW: POST /api/cart/items (book_id, quantity) [Auth Header]
-    AuthMW->>AuthMW: ตรวจสอบ JWT Token
-    alt Token ไม่ถูกต้อง
-        AuthMW-->>Client: HTTP 401 Unauthorized
-        Client-->>Customer: แจ้งเตือนล็อกอินใหม่
-    else Token ถูกต้อง
-        AuthMW->>API: ส่ง request พร้อม user_id
-        API->>DB: SELECT stock_qty FROM books WHERE id = ?
-        DB-->>API: คืนค่าจำนวนสต็อก
-        alt สต็อกไม่พอ
-            API-->>Client: HTTP 400 Bad Request (Insufficient stock)
-            Client-->>Customer: แจ้งเตือนสินค้าในคลังไม่พอ
-        else สต็อกเพียงพอ
-            API->>DB: INSERT/UPDATE cart_items (cart_id, book_id, quantity)
-            DB-->>API: บันทึกสำเร็จ
-            API-->>Client: HTTP 200 OK (Updated Cart)
-            Client-->>Customer: อัปเดตตัวเลขในตะกร้า
+    Note over Customer, DB: ขั้นตอนที่ 2 — เพิ่มหนังสือลงตะกร้าสินค้า
+    Customer->>Web: กดปุ่ม "ใส่ตะกร้า"
+    Web->>System: ตรวจสอบว่าลูกค้าเข้าสู่ระบบแล้วหรือยัง
+
+    alt ยังไม่ได้เข้าสู่ระบบ
+        System-->>Web: แจ้งว่าต้องล็อกอินก่อน
+        Web-->>Customer: แสดงหน้าล็อกอิน
+    else เข้าสู่ระบบแล้ว
+        System->>DB: ตรวจสอบจำนวนหนังสือในคลังสินค้า
+        DB-->>System: ส่งจำนวนคงเหลือกลับมา
+
+        alt หนังสือในคลังไม่พอ
+            System-->>Web: แจ้งว่าสินค้าในคลังไม่เพียงพอ
+            Web-->>Customer: แสดงข้อความ "สินค้าในคลังไม่พอ"
+        else หนังสือในคลังพอ
+            System->>DB: บันทึกหนังสือลงในตะกร้าของลูกค้า
+            DB-->>System: ยืนยันการบันทึกสำเร็จ
+            System-->>Web: ส่งข้อมูลตะกร้าอัปเดตกลับมา
+            Web-->>Customer: แสดงจำนวนสินค้าในตะกร้าเพิ่มขึ้น
         end
     end
 
-    Note over Customer, DB: ③ สั่งซื้อพร้อม Pessimistic Locking (UC5)
-    Customer->>Client: คลิกปุ่มชำระเงิน
-    Client->>AuthMW: POST /api/orders [Auth Header]
-    AuthMW->>AuthMW: ตรวจสอบ JWT Token
-    alt Token ไม่ถูกต้อง
-        AuthMW-->>Client: HTTP 401 Unauthorized
-        Client-->>Customer: แจ้งเตือนล็อกอินใหม่
-    else Token ถูกต้อง
-        AuthMW->>API: ส่งข้อมูลออเดอร์และผู้ใช้
-        API->>DB: START TRANSACTION
-        DB-->>API: Transaction Started
-        API->>DB: SELECT stock FROM books FOR UPDATE (ล็อกแถวข้อมูล)
-        DB-->>API: คืนค่าจำนวนสต็อกล่าสุด
-        alt สต็อกไม่พอ
-            API->>DB: ROLLBACK
-            DB-->>API: Transaction Rolled Back
-            API-->>Client: HTTP 400 Bad Request
-            Client-->>Customer: แจ้งเตือนสินค้าไม่พอ
-        else สต็อกพอ
-            API->>DB: UPDATE books SET stock_qty = stock_qty - ? (หักลบสต็อก)
-            API->>DB: INSERT INTO orders (user_id, address_id, total_amount, status='pending')
-            DB-->>API: คืนค่า order_id ใหม่
-            API->>DB: INSERT INTO order_items (order_id, book_id, quantity, price_per_unit)
-            API->>DB: DELETE FROM cart_items WHERE cart_id = ? (ล้างตะกร้า)
-            API->>DB: COMMIT
-            DB-->>API: Transaction Committed
-            API-->>Client: HTTP 201 Created (order_id)
-            Client-->>Customer: แสดงออเดอร์สำเร็จ & นำทางไปหน้าแนบสลิป
+    Note over Customer, DB: ขั้นตอนที่ 3 — กดยืนยันสั่งซื้อ
+    Customer->>Web: กดปุ่ม "ชำระเงิน" เพื่อยืนยันออเดอร์
+    Web->>System: ตรวจสอบว่าลูกค้าเข้าสู่ระบบอยู่หรือไม่
+
+    alt ยังไม่ได้เข้าสู่ระบบ
+        System-->>Web: แจ้งว่าต้องล็อกอินก่อน
+        Web-->>Customer: แสดงหน้าล็อกอิน
+    else เข้าสู่ระบบแล้ว
+        System->>DB: เริ่มต้นกระบวนการสั่งซื้อ (ล็อกข้อมูลสต็อกชั่วคราวเพื่อป้องกันการซื้อซ้ำ)
+        DB-->>System: ยืนยันจำนวนสินค้าคงเหลือล่าสุด
+
+        alt สินค้าในคลังหมดหรือไม่พอ
+            System->>DB: ยกเลิกกระบวนการ คืนสต็อกตามเดิม
+            System-->>Web: แจ้งว่าสินค้าไม่เพียงพอ
+            Web-->>Customer: แสดงข้อความ "สินค้าหมดแล้ว กรุณาลองใหม่"
+        else สินค้าในคลังเพียงพอ
+            System->>DB: หักจำนวนสินค้าในคลัง
+            System->>DB: สร้างรายการสั่งซื้อใหม่พร้อมที่อยู่จัดส่ง
+            System->>DB: บันทึกรายการหนังสือในออเดอร์
+            System->>DB: ล้างรายการในตะกร้าสินค้า
+            System->>DB: บันทึกทุกอย่างสำเร็จ (ปลดล็อกข้อมูล)
+            System-->>Web: ยืนยันการสั่งซื้อสำเร็จ
+            Web-->>Customer: แสดงหน้ายืนยันออเดอร์ พร้อมนำไปหน้าแนบสลิปโอนเงิน
         end
     end
 ```
