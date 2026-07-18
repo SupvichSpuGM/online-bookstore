@@ -672,6 +672,15 @@
             API-->>Client: HTTP 200 OK (Array of Books)
             Client-->>Customer: แสดงผลรายการหนังสือบนหน้าจอ
 
+            opt ดูรายละเอียดหนังสือ (View Book Detail)
+                Customer->>Client: คลิกที่หนังสือเพื่อดูรายละเอียด (ชื่อ, ผู้แต่ง, ราคา, สต็อก)
+                Client->>API: GET /api/books/:id
+                API->>DB: SELECT * FROM books WHERE id = ?
+                DB-->>API: คืนค่ารายละเอียดครบถ้วนของหนังสือ (พร้อม stock_qty)
+                API-->>Client: HTTP 200 OK (Book Detail Object)
+                Client-->>Customer: แสดงหน้ารายละเอียดหนังสือพร้อมปุ่ม "ใส่ตะกร้า"
+            end
+
             opt เปิดหน้าตะกร้าสินค้า (View Cart)
                 Customer->>Client: คลิกไอคอนตะกร้าสินค้า
                 Client->>AuthMW: GET /api/cart [Authorization Header]

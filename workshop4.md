@@ -119,6 +119,23 @@ classDiagram
         -string role
         +register(name, email, password) bool
         +login(email, password) string
+        +getProfile() User
+        +updateProfile(name, phone) bool
+        +verifyToken(token) User$
+    }
+    class Address {
+        -int id
+        -int user_id
+        -string recipient_name
+        -string phone
+        -string address_line
+        -string province
+        -string postal_code
+        -bool is_default
+        +addAddress(user_id, detail) bool
+        +editAddress(id, detail) bool
+        +deleteAddress(id) bool
+        +setDefault(id) bool
     }
     class Book {
         -int id
@@ -127,19 +144,47 @@ classDiagram
         -string isbn
         -decimal price
         -int stock_qty
+        -string category
+        -string cover_image_url
         +updateStock(qty) bool
         +isAvailable() bool
+        +search(query, category) List~Book~$
+        +addBook(title, author, isbn, price, qty, category) bool$
+        +editBook(id, title, author, price, qty, category) bool$
+        +deleteBook(id) bool$
+        +checkLowStockAlert() bool
+    }
+    class Notification {
+        -int id
+        -string type
+        -string message
+        -int book_id
+        -timestamp sent_at
+        +sendLowStockAlert(book_id, qty) bool$
+        +sendWebhook(payload) bool$
+    }
+    class SalesReport {
+        -timestamp generated_at
+        -decimal total_sales
+        -int total_orders
+        +getWeeklySales() SalesReport$
+        +getMonthlySales() SalesReport$
+        +getTopSellers() List~Book~$
+        +getDailyRevenue(days) List~Object~$
     }
     class Cart {
         -int id
         -int user_id
         +addItem(book_id, qty) bool
         +removeItem(book_id) bool
+        +updateItemQty(book_id, qty) bool
+        +getItems() List~CartItem~
         +clear() bool
     }
     class Order {
         -int id
         -int user_id
+        -int address_id
         -int verified_by
         -decimal total_amount
         -string status
@@ -147,10 +192,12 @@ classDiagram
         -string tracking_number
         -timestamp order_date
         -timestamp shipped_at
-        +createOrder() int
-        +attachSlip(url) bool
-        +approvePayment(staff_id) bool
-        +shipOrder(tracking_number) bool
+        +createOrder(user_id, address_id) int
+        +attachSlip(order_id, url) bool
+        +approvePayment(order_id, staff_id) bool
+        +rejectOrder(order_id, reason) bool
+        +shipOrder(order_id, tracking_number) bool
+        +getOrderHistory(user_id) List~Order~
     }
     class CartItem {
         -int id
@@ -168,11 +215,16 @@ classDiagram
 
     User "1" --> "1" Cart : Owns
     User "1" --> "0..*" Order : Places
+    User "1" --> "0..*" Address : Manages (UC8)
     User "0..1" --> "0..*" Order : Verifies (Staff)
+    User "1" --> "0..*" SalesReport : Generates (Admin)
+    Address "1" --> "0..*" Order : UsedIn
     Cart "1" *--> "0..*" CartItem : Contains
     Book "1" --> "0..*" CartItem : Referenced
     Order "1" *--> "1..*" OrderItem : Comprises
     Book "1" --> "0..*" OrderItem : Sold via
+    Book "1" --> "0..*" Notification : Triggers (UC12)
+    SalesReport "1" ..> "0..*" Order : Aggregates
 ```
 
 ### 💡 3. Sequence Diagram
@@ -188,34 +240,71 @@ sequenceDiagram
     participant API as Express.js (หลังบ้าน)
     participant DB as MySQL (ฐานข้อมูล)
 
-    Customer->>Client: คลิกปุ่มชำระเงิน
-    Client->>AuthMW: POST /api/orders (Authorization)
-    AuthMW->>AuthMW: ตรวจสอบความถูกต้อง JWT
+    Note over Customer, DB: ① ค้นหาและดูรายละเอียดหนังสือ (UC3)
+    Customer->>Client: พิมพ์คำค้นหา / เลือกหมวดหมู่
+    Client->>API: GET /api/books?search=...&category=...
+    API->>DB: SELECT * FROM books WHERE title LIKE ... OR category = ...
+    DB-->>API: คืนค่ารายการหนังสือ
+    API-->>Client: HTTP 200 OK (Array of Books)
+    Client-->>Customer: แสดงรายการหนังสือ
 
-    alt โทเค็นไม่ผ่าน
+    Customer->>Client: คลิกเลือกหนังสือเพื่อดูรายละเอียด
+    Client->>API: GET /api/books/:id
+    API->>DB: SELECT * FROM books WHERE id = ?
+    DB-->>API: คืนค่ารายละเอียดหนังสือ (พร้อม stock_qty)
+    API-->>Client: HTTP 200 OK (Book Detail Object)
+    Client-->>Customer: แสดงหน้ารายละเอียดพร้อมปุ่ม "ใส่ตะกร้า"
+
+    Note over Customer, DB: ② เพิ่มสินค้าลงตะกร้า (UC4)
+    Customer->>Client: คลิกปุ่ม "ใส่ตะกร้า"
+    Client->>AuthMW: POST /api/cart/items (book_id, quantity) [Auth Header]
+    AuthMW->>AuthMW: ตรวจสอบ JWT Token
+    alt Token ไม่ถูกต้อง
         AuthMW-->>Client: HTTP 401 Unauthorized
-        Client-->>Customer: แสดงแจ้งเตือนล็อกอินใหม่
-    else โทเค็นผ่าน
+        Client-->>Customer: แจ้งเตือนล็อกอินใหม่
+    else Token ถูกต้อง
+        AuthMW->>API: ส่ง request พร้อม user_id
+        API->>DB: SELECT stock_qty FROM books WHERE id = ?
+        DB-->>API: คืนค่าจำนวนสต็อก
+        alt สต็อกไม่พอ
+            API-->>Client: HTTP 400 Bad Request (Insufficient stock)
+            Client-->>Customer: แจ้งเตือนสินค้าในคลังไม่พอ
+        else สต็อกเพียงพอ
+            API->>DB: INSERT/UPDATE cart_items (cart_id, book_id, quantity)
+            DB-->>API: บันทึกสำเร็จ
+            API-->>Client: HTTP 200 OK (Updated Cart)
+            Client-->>Customer: อัปเดตตัวเลขในตะกร้า
+        end
+    end
+
+    Note over Customer, DB: ③ สั่งซื้อพร้อม Pessimistic Locking (UC5)
+    Customer->>Client: คลิกปุ่มชำระเงิน
+    Client->>AuthMW: POST /api/orders [Auth Header]
+    AuthMW->>AuthMW: ตรวจสอบ JWT Token
+    alt Token ไม่ถูกต้อง
+        AuthMW-->>Client: HTTP 401 Unauthorized
+        Client-->>Customer: แจ้งเตือนล็อกอินใหม่
+    else Token ถูกต้อง
         AuthMW->>API: ส่งข้อมูลออเดอร์และผู้ใช้
         API->>DB: START TRANSACTION
         DB-->>API: Transaction Started
-        API->>DB: SELECT stock FROM books FOR UPDATE
+        API->>DB: SELECT stock FROM books FOR UPDATE (ล็อกแถวข้อมูล)
         DB-->>API: คืนค่าจำนวนสต็อกล่าสุด
-
         alt สต็อกไม่พอ
             API->>DB: ROLLBACK
             DB-->>API: Transaction Rolled Back
             API-->>Client: HTTP 400 Bad Request
             Client-->>Customer: แจ้งเตือนสินค้าไม่พอ
         else สต็อกพอ
-            API->>DB: UPDATE books (หักลบสต็อก)
-            API->>DB: INSERT INTO orders
-            DB-->>API: คืนค่า order_id
-            API->>DB: INSERT INTO order_items
+            API->>DB: UPDATE books SET stock_qty = stock_qty - ? (หักลบสต็อก)
+            API->>DB: INSERT INTO orders (user_id, address_id, total_amount, status='pending')
+            DB-->>API: คืนค่า order_id ใหม่
+            API->>DB: INSERT INTO order_items (order_id, book_id, quantity, price_per_unit)
+            API->>DB: DELETE FROM cart_items WHERE cart_id = ? (ล้างตะกร้า)
             API->>DB: COMMIT
             DB-->>API: Transaction Committed
-            API-->>Client: HTTP 201 Created
-            Client-->>Customer: แสดงจอออเดอร์สำเร็จ
+            API-->>Client: HTTP 201 Created (order_id)
+            Client-->>Customer: แสดงออเดอร์สำเร็จ & นำทางไปหน้าแนบสลิป
         end
     end
 ```
