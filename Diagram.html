@@ -479,7 +479,23 @@
                 +register(name, email, password) bool
                 +login(email, password) string
                 +getProfile() User
+                +updateProfile(name, phone) bool
                 +verifyToken(token) User$
+            }
+
+            class Address {
+                -int id
+                -int user_id
+                -string recipient_name
+                -string phone
+                -string address_line
+                -string province
+                -string postal_code
+                -bool is_default
+                +addAddress(user_id, detail) bool
+                +editAddress(id, detail) bool
+                +deleteAddress(id) bool
+                +setDefault(id) bool
             }
 
             class Book {
@@ -490,6 +506,7 @@
                 -decimal price
                 -int stock_qty
                 -string category
+                -string cover_image_url
                 +updateStock(qty) bool
                 +isAvailable() bool
                 +search(query, category) List~Book~$
@@ -499,6 +516,16 @@
                 +checkLowStockAlert() bool
             }
 
+            class Notification {
+                -int id
+                -string type
+                -string message
+                -int book_id
+                -timestamp sent_at
+                +sendLowStockAlert(book_id, qty) bool$
+                +sendWebhook(payload) bool$
+            }
+
             class SalesReport {
                 -timestamp generated_at
                 -decimal total_sales
@@ -506,6 +533,7 @@
                 +getWeeklySales() SalesReport$
                 +getMonthlySales() SalesReport$
                 +getTopSellers() List~Book~$
+                +getDailyRevenue(days) List~Object~$
             }
 
             %% Transactional Entities (Operations)
@@ -514,12 +542,15 @@
                 -int user_id
                 +addItem(book_id, qty) bool
                 +removeItem(book_id) bool
+                +updateItemQty(book_id, qty) bool
+                +getItems() List~CartItem~
                 +clear() bool
             }
 
             class Order {
                 -int id
                 -int user_id
+                -int address_id
                 -int verified_by
                 -decimal total_amount
                 -string status
@@ -527,10 +558,12 @@
                 -string tracking_number
                 -timestamp order_date
                 -timestamp shipped_at
-                +createOrder() int
-                +attachSlip(url) bool
-                +approvePayment(staff_id) bool
-                +shipOrder(tracking_number) bool
+                +createOrder(user_id, address_id) int
+                +attachSlip(order_id, url) bool
+                +approvePayment(order_id, staff_id) bool
+                +rejectOrder(order_id, reason) bool
+                +shipOrder(order_id, tracking_number) bool
+                +getOrderHistory(user_id) List~Order~
             }
 
             %% Detail Entities (Sub-transactions)
@@ -552,14 +585,20 @@
             %% Relations
             User "1" --> "1" Cart : Owns
             User "1" --> "0..*" Order : Places
+            User "1" --> "0..*" Address : Manages (UC8)
             User "0..1" --> "0..*" Order : Verifies (Staff)
             User "1" --> "0..*" SalesReport : Generates (Admin)
+
+            Address "1" --> "0..*" Order : UsedIn
 
             Cart "1" *--> "0..*" CartItem : Contains
             Book "1" --> "0..*" CartItem : Referenced
 
             Order "1" *--> "1..*" OrderItem : Comprises
             Book "1" --> "0..*" OrderItem : Sold via
+
+            Book "1" --> "0..*" Notification : Triggers (UC12)
+            SalesReport "1" ..> "0..*" Order : Aggregates
         </div>
     </div>
 
@@ -615,13 +654,14 @@
     </div>
 
     <h3>🛒 3.2 UC3 & UC4: การค้นหาหนังสือและจัดการตะกร้าสินค้า (Search & Shopping Flow)</h3>
-    <p>ขั้นตอนที่ผู้ใช้ค้นหาหนังสือและทำรายการใส่ตะกร้า พร้อมตรวจสอบจำนวนคลังสินค้าก่อนอัปเดตสเตตัสตะกร้า:</p>
+    <p>ขั้นตอนที่ผู้ใช้ค้นหาหนังสือ, ดูรายการในตะกร้า และทำรายการใส่ตะกร้า พร้อมตรวจสอบ Auth และจำนวนคลังสินค้า:</p>
     <div class="diagram-box">
         <div class="mermaid">
         sequenceDiagram
             autonumber
             actor Customer as Customer (ลูกค้า)
             participant Client as React App (หน้าบ้าน)
+            participant AuthMW as Middleware (สิทธิ์)
             participant API as Express.js (หลังบ้าน)
             participant DB as MySQL (ฐานข้อมูล)
 
@@ -632,9 +672,27 @@
             API-->>Client: HTTP 200 OK (Array of Books)
             Client-->>Customer: แสดงผลรายการหนังสือบนหน้าจอ
 
+            opt เปิดหน้าตะกร้าสินค้า (View Cart)
+                Customer->>Client: คลิกไอคอนตะกร้าสินค้า
+                Client->>AuthMW: GET /api/cart [Authorization Header]
+                AuthMW->>AuthMW: ตรวจสอบ JWT Token
+                alt Token ไม่ถูกต้อง
+                    AuthMW-->>Client: HTTP 401 Unauthorized
+                    Client-->>Customer: แสดงหน้าล็อกอิน
+                else Token ถูกต้อง
+                    AuthMW->>API: ส่ง user_id ที่ถอดรหัสได้
+                    API->>DB: SELECT ci.*, b.title, b.price FROM cart_items ci JOIN books b ON ci.book_id = b.id WHERE ci.cart_id = ?
+                    DB-->>API: คืนค่ารายการหนังสือในตะกร้า
+                    API-->>Client: HTTP 200 OK (Cart Items Array)
+                    Client-->>Customer: แสดงรายการหนังสือในตะกร้าพร้อมยอดรวม
+                end
+            end
+
             opt เพิ่มสินค้าลงตะกร้า (Add Item)
                 Customer->>Client: คลิกปุ่ม "ใส่ตะกร้า"
-                Client->>API: POST /api/cart/items (book_id, quantity) [Auth Header]
+                Client->>AuthMW: POST /api/cart/items (book_id, quantity) [Auth Header]
+                AuthMW->>AuthMW: ตรวจสอบ JWT Token
+                AuthMW->>API: ส่ง request พร้อม user_id
                 API->>DB: SELECT stock_qty FROM books WHERE id = ?
                 DB-->>API: คืนค่าจำนวนสต็อกของหนังสือ
                 alt สต็อกต่ำกว่าจำนวนที่ต้องการ
@@ -650,7 +708,8 @@
 
             opt ลบสินค้าหรือปรับจำนวน (Remove/Update Qty)
                 Customer->>Client: ปรับลดจำนวน/ลบสินค้าในหน้าตะกร้า
-                Client->>API: PUT/DELETE /api/cart/items/:id (quantity) [Auth Header]
+                Client->>AuthMW: PUT/DELETE /api/cart/items/:id (quantity) [Auth Header]
+                AuthMW->>API: ส่ง request ผ่าน Middleware
                 API->>DB: UPDATE/DELETE cart_items SET quantity = ... WHERE id = ?
                 DB-->>API: ดำเนินการฐานข้อมูลสำเร็จ
                 API-->>Client: HTTP 200 OK (Updated Cart)
@@ -708,24 +767,27 @@
                 else สต็อกพอ (Stock &gt;= Qty)
                     rect rgb(240, 253, 244)
                         note over API, DB: บันทึกข้อมูลและยืนยันการทำรายการชำระเงินสำเร็จ
-                        API->>DB: UPDATE books (หักลบสต็อก)
+                        API->>DB: UPDATE books SET stock_qty = stock_qty - ? (หักลบสต็อก)
                         activate DB
                         DB-->>API: Stock Updated
                         
-                        API->>DB: INSERT INTO orders (สร้างออเดอร์)
-                        DB-->>API: คืนค่า order_id
+                        API->>DB: INSERT INTO orders (user_id, address_id, total_amount, status='pending')
+                        DB-->>API: คืนค่า order_id ใหม่
                         
-                        API->>DB: INSERT INTO order_items (บันทึกข้อมูลรายการ)
+                        API->>DB: INSERT INTO order_items (order_id, book_id, quantity, price_per_unit)
                         DB-->>API: Items Saved
+
+                        API->>DB: DELETE FROM cart_items WHERE cart_id = ? (ล้างตะกร้าสินค้า)
+                        DB-->>API: Cart Cleared
                         
                         API->>DB: COMMIT
                         DB-->>API: Transaction Committed
                         deactivate DB
                     end
                     
-                    API-->>Client: HTTP 201 Created (Order Object)
+                    API-->>Client: HTTP 201 Created (order_id)
                     deactivate API
-                    Client-->>Customer: แสดงจอออเดอร์สำเร็จ & รอแนบสลิปเงิน
+                    Client-->>Customer: แสดงจอออเดอร์สำเร็จ & นำทางไปหน้าแนบสลิปเงิน
                     deactivate Client
                 end
             end
@@ -740,27 +802,44 @@
             autonumber
             actor Customer as Customer (ลูกค้า)
             participant Client as React App (หน้าบ้าน)
+            participant AuthMW as Middleware (สิทธิ์)
             participant API as Express.js (หลังบ้าน)
             participant Storage as Cloud Storage (ที่เก็บไฟล์)
             participant DB as MySQL (ฐานข้อมูล)
 
-            Customer->>Client: ไปที่หน้ารายการสั่งซื้อ & อัปโหลดรูปภาพสลิป
+            Customer->>Client: ไปที่หน้ารายการสั่งซื้อ & เลือกอัปโหลดรูปภาพสลิป
             activate Client
-            Client->>API: POST /api/orders/:id/slip (Multipart Image File) [Auth Header]
-            activate API
-            API->>Storage: อัปโหลดรูปภาพสลิปไปยัง Cloud Storage (เช่น S3/Cloudinary)
-            activate Storage
-            Storage-->>API: คืนค่า URL ของรูปภาพสลิปโอนเงิน (slip_image_url)
-            deactivate Storage
-            
-            API->>DB: UPDATE orders SET slip_image_url = ?, status = 'pending' WHERE id = ?
-            activate DB
-            DB-->>API: บันทึกและยืนยันการเปลี่ยนแปลงข้อมูล
-            deactivate DB
-            
-            API-->>Client: HTTP 200 OK (Slip Uploaded & Order Updated)
-            deactivate API
-            Client-->>Customer: แสดงแจ้งเตือนอัปโหลดสลิปสำเร็จ & สเตตัสเปลี่ยนเป็น "รอตรวจสอบ"
+            Client->>AuthMW: POST /api/orders/:id/slip (Multipart Image File) [Auth Header]
+            activate AuthMW
+            AuthMW->>AuthMW: ตรวจสอบ JWT Token และสิทธิ์เจ้าของ order
+            alt Token ไม่ถูกต้องหรือไม่ใช่เจ้าของ order
+                AuthMW-->>Client: HTTP 401/403 Unauthorized / Forbidden
+                Client-->>Customer: แจ้งเตือนไม่มีสิทธิ์อัปโหลด
+            else Token ถูกต้องและเป็นเจ้าของ order
+                AuthMW->>API: ส่ง request พร้อม user_id
+                deactivate AuthMW
+                activate API
+                API->>DB: SELECT status FROM orders WHERE id = ? AND user_id = ?
+                activate DB
+                DB-->>API: คืนค่าสถานะ order ปัจจุบัน
+                deactivate DB
+                alt order ไม่อยู่ในสถานะ 'pending'
+                    API-->>Client: HTTP 400 Bad Request (Order not in pending state)
+                    Client-->>Customer: แจ้งเตือนไม่สามารถแนบสลิปได้
+                else order สถานะ 'pending'
+                    API->>Storage: อัปโหลดรูปภาพสลิปไปยัง Cloud Storage (เช่น S3/Cloudinary)
+                    activate Storage
+                    Storage-->>API: คืนค่า URL ของรูปภาพสลิปโอนเงิน (slip_image_url)
+                    deactivate Storage
+                    API->>DB: UPDATE orders SET slip_image_url = ? WHERE id = ?
+                    activate DB
+                    DB-->>API: บันทึกและยืนยันการเปลี่ยนแปลงข้อมูล
+                    deactivate DB
+                    API-->>Client: HTTP 200 OK (Slip Uploaded)
+                    deactivate API
+                    Client-->>Customer: แสดงแจ้งเตือนอัปโหลดสลิปสำเร็จ & สเตตัสเปลี่ยนเป็น "รอตรวจสอบ"
+                end
+            end
             deactivate Client
         </div>
     </div>
@@ -773,24 +852,37 @@
             autonumber
             actor Staff as Staff (พนักงานคลังสินค้า)
             participant Client as React App (หน้าบ้าน)
+            participant AuthMW as Middleware (สิทธิ์)
             participant API as Express.js (หลังบ้าน)
             participant DB as MySQL (ฐานข้อมูล)
 
             Staff->>Client: เปิดหน้ารายการคำสั่งซื้อค้างตรวจสอบ (Pending Orders)
             activate Client
-            Client->>API: GET /api/orders/pending [Auth Header - Staff Role]
-            activate API
-            API->>DB: SELECT * FROM orders WHERE status = 'pending'
-            activate DB
-            DB-->>API: คืนค่ารายการคำสั่งซื้อและลิงก์รูปสลิป
-            deactivate DB
-            API-->>Client: HTTP 200 OK (Orders Array)
-            deactivate API
-            Client-->>Staff: แสดงรูปภาพสลิปเปรียบเทียบกับยอดเงินออเดอร์
-            
+            Client->>AuthMW: GET /api/orders/pending [Auth Header]
+            activate AuthMW
+            AuthMW->>AuthMW: ตรวจสอบ JWT Token และ role = 'staff' หรือ 'admin'
+            alt Token ไม่ถูกต้องหรือไม่มีสิทธิ์
+                AuthMW-->>Client: HTTP 403 Forbidden
+                Client-->>Staff: แสดงหน้าปฏิเสธสิทธิ์
+            else ผ่านการตรวจสอบ
+                AuthMW->>API: ส่ง request พร้อม role
+                deactivate AuthMW
+                activate API
+                API->>DB: SELECT o.*, u.name, o.slip_image_url FROM orders o JOIN users u ON o.user_id = u.id WHERE o.status = 'pending'
+                activate DB
+                DB-->>API: คืนค่ารายการคำสั่งซื้อและลิงก์รูปสลิป
+                deactivate DB
+                API-->>Client: HTTP 200 OK (Orders Array)
+                deactivate API
+                Client-->>Staff: แสดงรูปภาพสลิปเปรียบเทียบกับยอดเงินออเดอร์
+            end
+
             alt ข้อมูลสลิปถูกต้องยอดเงินครบ
                 Staff->>Client: คลิกอนุมัติ "ยืนยันยอดเงินสำเร็จ"
-                Client->>API: PUT /api/orders/:id/approve [Auth Header]
+                Client->>AuthMW: PUT /api/orders/:id/approve [Auth Header]
+                activate AuthMW
+                AuthMW->>API: ส่ง request พร้อม staff_id
+                deactivate AuthMW
                 activate API
                 API->>DB: UPDATE orders SET status = 'paid', verified_by = ? WHERE id = ?
                 activate DB
@@ -800,12 +892,23 @@
                 deactivate API
                 Client-->>Staff: อัปเดตสเตตัสออเดอร์เป็น "Paid (ชำระเงินแล้ว)" บนหน้าจอ
             else สลิปปลอมหรือยอดเงินไม่ตรง
-                Staff->>Client: คลิกปฏิเสธรายการระบุเหตุผล
-                Client->>API: PUT /api/orders/:id/reject (reason) [Auth Header]
+                Staff->>Client: คลิกปฏิเสธรายการพร้อมระบุเหตุผล
+                Client->>AuthMW: PUT /api/orders/:id/reject (reason) [Auth Header]
+                activate AuthMW
+                AuthMW->>API: ส่ง request พร้อม staff_id
+                deactivate AuthMW
                 activate API
+                API->>DB: SELECT oi.book_id, oi.quantity FROM order_items WHERE order_id = ?
+                activate DB
+                DB-->>API: คืนค่ารายการสินค้าในออเดอร์
+                deactivate DB
+                API->>DB: UPDATE books SET stock_qty = stock_qty + ? WHERE id = ? (คืนสต็อก)
+                activate DB
+                DB-->>API: Stock Restored
+                deactivate DB
                 API->>DB: UPDATE orders SET status = 'cancelled' WHERE id = ?
                 activate DB
-                DB-->>API: ยืนยันยกเลิกคำสั่งซื้อสำเร็จ
+                DB-->>API: ยืนยันคืนสต็อกและยกเลิกคำสั่งซื้อสำเร็จ
                 deactivate DB
                 API-->>Client: HTTP 200 OK (Order Cancelled)
                 deactivate API
@@ -814,7 +917,10 @@
 
             opt ขั้นตอนการจัดส่งสินค้า (UC10)
                 Staff->>Client: กรอกเลขพัสดุ (Tracking Number) สำหรับออเดอร์สเตตัส 'paid'
-                Client->>API: PUT /api/orders/:id/ship (tracking_number) [Auth Header]
+                Client->>AuthMW: PUT /api/orders/:id/ship (tracking_number) [Auth Header]
+                activate AuthMW
+                AuthMW->>API: ส่ง request ผ่าน Middleware
+                deactivate AuthMW
                 activate API
                 API->>DB: UPDATE orders SET status = 'shipped', tracking_number = ?, shipped_at = NOW() WHERE id = ?
                 activate DB
@@ -822,7 +928,7 @@
                 deactivate DB
                 API-->>Client: HTTP 200 OK (Order Shipped)
                 deactivate API
-                Client-->>Staff: แสดงสถานะการจัดส่งสำเร็จ
+                Client-->>Staff: แสดงสถานะการจัดส่งสำเร็จพร้อมเลขพัสดุ
                 deactivate Client
             end
         </div>
@@ -836,33 +942,88 @@
             autonumber
             actor Staff as Staff/Admin (พนักงานคลังสินค้า)
             participant Client as React App (หน้าบ้าน)
+            participant AuthMW as Middleware (สิทธิ์)
             participant API as Express.js (หลังบ้าน)
             participant DB as MySQL (ฐานข้อมูล)
             actor Discord as Discord/System Notification
 
-            Staff->>Client: กรอกข้อมูลปรับเพิ่ม/แก้ไขรายละเอียดหนังสือในสต็อก
-            activate Client
-            Client->>API: PUT /api/books/:id (title, price, stock_qty) [Auth Header]
-            activate API
-            API->>DB: UPDATE books SET stock_qty = ?, price = ? WHERE id = ?
-            activate DB
-            DB-->>API: อัปเดตแถวสินค้าในฐานข้อมูลสำเร็จ
-            deactivate DB
-
-            API->>DB: SELECT stock_qty, title FROM books WHERE id = ?
-            activate DB
-            DB-->>API: คืนค่าจำนวนสต็อกคงเหลือปัจจุบัน
-            deactivate DB
-            
-            alt สต็อกต่ำกว่าเกณฑ์ความปลอดภัย (เช่น stock_qty <= 5)
-                API->>Discord: ส่ง Webhook/Notification แจ้งเตือนระบบ "สินค้าสต็อกต่ำ!"
-                Discord-->>Staff: แสดงข้อความแจ้งเตือน "หนังสือ [Title] เหลือในคลังเพียง [Qty] เล่ม!"
+            opt เพิ่มหนังสือใหม่เข้าคลัง (Add New Book)
+                Staff->>Client: กรอกข้อมูลหนังสือใหม่ (ชื่อ, ผู้แต่ง, ISBN, ราคา, จำนวน)
+                activate Client
+                Client->>AuthMW: POST /api/books (book data) [Auth Header]
+                activate AuthMW
+                AuthMW->>AuthMW: ตรวจสอบ JWT Token และ role = 'staff' หรือ 'admin'
+                alt Token ไม่ถูกต้องหรือไม่มีสิทธิ์
+                    AuthMW-->>Client: HTTP 403 Forbidden
+                    Client-->>Staff: แสดงหน้าปฏิเสธสิทธิ์
+                else ผ่านการตรวจสอบ
+                    AuthMW->>API: ส่ง request พร้อม role
+                    deactivate AuthMW
+                    activate API
+                    API->>DB: SELECT id FROM books WHERE isbn = ?
+                    activate DB
+                    DB-->>API: ตรวจสอบ ISBN ซ้ำ
+                    deactivate DB
+                    alt ISBN ซ้ำกับหนังสือที่มีอยู่
+                        API-->>Client: HTTP 409 Conflict (ISBN already exists)
+                        Client-->>Staff: แจ้งเตือน ISBN ซ้ำ
+                    else ISBN ไม่ซ้ำ
+                        API->>DB: INSERT INTO books (title, author, isbn, price, stock_qty, category)
+                        activate DB
+                        DB-->>API: คืนค่า book_id ใหม่
+                        deactivate DB
+                        API-->>Client: HTTP 201 Created (New Book)
+                        deactivate API
+                        Client-->>Staff: แสดงผลหนังสือใหม่ในรายการคลังสินค้า
+                    end
+                end
+                deactivate Client
             end
 
-            API-->>Client: HTTP 200 OK (Book Updated Successfully)
-            deactivate API
-            Client-->>Staff: แสดงผลข้อมูลคลังหนังสือเวอร์ชันอัปเดตเรียบร้อย
-            deactivate Client
+            opt แก้ไขรายละเอียด/จำนวนสต็อกหนังสือ (Edit Book)
+                Staff->>Client: กรอกข้อมูลปรับเพิ่ม/แก้ไขรายละเอียดหนังสือในสต็อก
+                activate Client
+                Client->>AuthMW: PUT /api/books/:id (title, price, stock_qty) [Auth Header]
+                activate AuthMW
+                AuthMW->>AuthMW: ตรวจสอบ JWT Token และ role
+                AuthMW->>API: ส่ง request ผ่าน Middleware
+                deactivate AuthMW
+                activate API
+                API->>DB: UPDATE books SET stock_qty = ?, price = ?, title = ? WHERE id = ?
+                activate DB
+                DB-->>API: อัปเดตแถวสินค้าในฐานข้อมูลสำเร็จ
+                deactivate DB
+                API->>DB: SELECT stock_qty, title FROM books WHERE id = ?
+                activate DB
+                DB-->>API: คืนค่าจำนวนสต็อกคงเหลือปัจจุบัน
+                deactivate DB
+                alt สต็อกต่ำกว่าเกณฑ์ความปลอดภัย (stock_qty &lt;= 5)
+                    API->>Discord: ส่ง Webhook/Notification แจ้งเตือนระบบ "สินค้าสต็อกต่ำ!"
+                    Discord-->>Staff: แสดงข้อความแจ้งเตือน "หนังสือ [Title] เหลือในคลังเพียง [Qty] เล่ม!"
+                end
+                API-->>Client: HTTP 200 OK (Book Updated Successfully)
+                deactivate API
+                Client-->>Staff: แสดงผลข้อมูลคลังหนังสือเวอร์ชันอัปเดตเรียบร้อย
+                deactivate Client
+            end
+
+            opt ลบหนังสือออกจากคลัง (Delete Book)
+                Staff->>Client: คลิกปุ่มลบรายการหนังสือ
+                activate Client
+                Client->>AuthMW: DELETE /api/books/:id [Auth Header]
+                activate AuthMW
+                AuthMW->>API: ตรวจสอบสิทธิ์และส่ง request
+                deactivate AuthMW
+                activate API
+                API->>DB: DELETE FROM books WHERE id = ?
+                activate DB
+                DB-->>API: ยืนยันลบข้อมูลสำเร็จ
+                deactivate DB
+                API-->>Client: HTTP 200 OK (Book Deleted)
+                deactivate API
+                Client-->>Staff: ลบรายการหนังสือออกจากหน้าจอคลังสินค้า
+                deactivate Client
+            end
         </div>
     </div>
 
@@ -874,33 +1035,43 @@
             autonumber
             actor Admin as Admin (ผู้ดูแลระบบ)
             participant Client as React App (หน้าบ้าน)
+            participant AuthMW as Middleware (สิทธิ์)
             participant API as Express.js (หลังบ้าน)
             participant DB as MySQL (ฐานข้อมูล)
 
             Admin->>Client: คลิกหน้าเมนู "แผงสรุปรายงาน (Dashboard)"
             activate Client
-            Client->>API: GET /api/reports/dashboard [Auth Header - Admin Role]
-            activate API
-            
-            API->>DB: SELECT SUM(total_amount) FROM orders WHERE status = 'paid' OR status = 'shipped'
-            activate DB
-            DB-->>API: คืนค่ารายรับสะสมทั้งหมด
-            deactivate DB
-            
-            API->>DB: SELECT book_id, SUM(quantity) FROM order_items GROUP BY book_id ORDER BY SUM(quantity) DESC LIMIT 5
-            activate DB
-            DB-->>API: คืนค่ารายชื่อ 5 หนังสือยอดนิยม
-            deactivate DB
-            
-            API->>DB: SELECT DATE(order_date), SUM(total_amount) FROM orders WHERE order_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY DATE(order_date)
-            activate DB
-            DB-->>API: คืนค่าข้อมูลกราฟรายวัน
-            deactivate DB
-            
-            API-->>Client: HTTP 200 OK (JSON Payload)
-            deactivate API
-            Client->>Client: นำข้อมูลไปเรนเดอร์ในรูปแบบ Chart & Metrics
-            Client-->>Admin: แสดงผล BI Dashboard สวยงามบนหน้าจอแอดมิน
+            Client->>AuthMW: GET /api/reports/dashboard [Auth Header]
+            activate AuthMW
+            AuthMW->>AuthMW: ตรวจสอบ JWT Token และ role = 'admin'
+            alt Token ไม่ถูกต้องหรือไม่ใช่ Admin
+                AuthMW-->>Client: HTTP 403 Forbidden
+                Client-->>Admin: แสดงหน้าปฏิเสธสิทธิ์
+            else ผ่านการตรวจสอบ Admin
+                AuthMW->>API: ส่ง request พร้อม role
+                deactivate AuthMW
+                activate API
+                API->>DB: SELECT SUM(total_amount), COUNT(id) FROM orders WHERE status IN ('paid','shipped')
+                activate DB
+                DB-->>API: คืนค่ารายรับสะสมและจำนวนออเดอร์ทั้งหมด
+                deactivate DB
+                API->>DB: SELECT oi.book_id, b.title, SUM(oi.quantity) as total_sold FROM order_items oi JOIN books b ON oi.book_id = b.id GROUP BY oi.book_id ORDER BY total_sold DESC LIMIT 5
+                activate DB
+                DB-->>API: คืนค่ารายชื่อ 5 หนังสือยอดนิยม
+                deactivate DB
+                API->>DB: SELECT DATE(order_date), SUM(total_amount) FROM orders WHERE order_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) GROUP BY DATE(order_date)
+                activate DB
+                DB-->>API: คืนค่าข้อมูลกราฟยอดขายรายวัน
+                deactivate DB
+                API->>DB: SELECT COUNT(id) as total_users FROM users WHERE role = 'customer'
+                activate DB
+                DB-->>API: คืนค่าจำนวนสมาชิกทั้งหมด
+                deactivate DB
+                API-->>Client: HTTP 200 OK (JSON Payload ครบทุก Metric)
+                deactivate API
+                Client->>Client: นำข้อมูลไปเรนเดอร์ในรูปแบบ Chart & Metrics
+                Client-->>Admin: แสดงผล BI Dashboard สวยงามบนหน้าจอแอดมิน
+            end
             deactivate Client
         </div>
     </div>
