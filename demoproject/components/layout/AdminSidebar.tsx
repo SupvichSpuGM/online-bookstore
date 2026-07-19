@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BookOpen, LayoutDashboard, Users, LogOut,
+  BookOpen, LayoutDashboard, Users, LogOut, Tags
 } from "lucide-react";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/books", label: "จัดการหนังสือ", icon: BookOpen },
+  { href: "/admin/categories", label: "จัดการหมวดหมู่", icon: Tags },
   { href: "/admin/users", label: "จัดการผู้ใช้", icon: Users },
 ];
 

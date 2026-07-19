@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Bell, Eye, X } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import type { Order } from "@/lib/data";
+import { type Order, statusCfg } from "@/lib/data";
 
 const FILTERS = [["all","ทั้งหมด"],["pending","รอชำระ"],["payment_review","ตรวจสลิป"],["confirmed","ยืนยัน"],["shipping","จัดส่ง"],["delivered","สำเร็จ"]];
 const NEXT_STATUS: Record<string, string> = { pending:"payment_review", payment_review:"confirmed", confirmed:"shipping", shipping:"delivered" };
@@ -12,14 +12,47 @@ export function StaffOrdersView({ initialOrders }: { initialOrders: Order[] }) {
   const [orders, setOrders] = useState(initialOrders);
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState<Order | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ type: 'advance' | 'cancel', id: string, title: string, message: string } | null>(null);
 
   const shown = filter === "all" ? orders : orders.filter((o) => o.status === filter);
 
-  const advance = (id: string) =>
-    setOrders(orders.map((o) => o.id === id && NEXT_STATUS[o.status] ? { ...o, status: NEXT_STATUS[o.status] as Order["status"] } : o));
+  const advance = (id: string) => {
+    const order = orders.find(o => o.id === id);
+    if (!order || !NEXT_STATUS[order.status]) return;
+    const nextStatus = NEXT_STATUS[order.status];
+    const nextStatusLabel = statusCfg[nextStatus]?.label || nextStatus;
+    setConfirmAction({
+      type: 'advance',
+      id,
+      title: 'อัปเดตสถานะคำสั่งซื้อ',
+      message: `คุณต้องการปรับสถานะคำสั่งซื้อ ${id} เป็น "${nextStatusLabel}" ใช่หรือไม่?`
+    });
+  };
 
-  const cancel = (id: string) =>
-    setOrders(orders.map((o) => o.id === id ? { ...o, status: "cancelled" } : o));
+  const cancel = (id: string) => {
+    setConfirmAction({
+      type: 'cancel',
+      id,
+      title: 'ยกเลิกคำสั่งซื้อ',
+      message: `คุณต้องการยกเลิกคำสั่งซื้อ ${id} ใช่หรือไม่?`
+    });
+  };
+
+  const doConfirm = () => {
+    if (!confirmAction) return;
+    const { type, id } = confirmAction;
+    if (type === 'advance') {
+      const order = orders.find(o => o.id === id);
+      if (order && NEXT_STATUS[order.status]) {
+        setOrders(orders.map((o) => o.id === id ? { ...o, status: NEXT_STATUS[order.status] as Order["status"] } : o));
+      }
+    } else {
+      setOrders(orders.map((o) => o.id === id ? { ...o, status: "cancelled" } : o));
+    }
+    setConfirmAction(null);
+    if (selected?.id === id) setSelected(null);
+  };
+
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
@@ -107,11 +140,25 @@ export function StaffOrdersView({ initialOrders }: { initialOrders: Order[] }) {
             </div>
             <div className="flex gap-2 mt-5">
               {NEXT_STATUS[selected.status] && (
-                <button onClick={() => { advance(selected.id); setSelected(null); }} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-accent transition-colors">
+                <button onClick={() => advance(selected.id)} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-accent transition-colors">
                   {selected.status === "payment_review" ? "อนุมัติการชำระเงิน" : "อัปเดตสถานะ"}
                 </button>
               )}
               <button onClick={() => setSelected(null)} className="flex-1 py-2.5 border border-border rounded-lg text-sm hover:bg-secondary transition-colors">ปิด</button>
+            </div>
+          </div>
+        </div>
+      )}
+    {/* Confirm modal */}
+      {confirmAction && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200" onClick={() => setConfirmAction(null)}>
+          <div className="bg-card rounded-xl border border-border p-6 w-full max-w-sm shadow-xl flex flex-col items-center text-center animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+            <Bell className="w-12 h-12 text-primary mb-4 p-3 bg-primary/10 rounded-full" />
+            <h3 className="font-['Playfair_Display'] text-xl font-bold mb-2">{confirmAction.title}</h3>
+            <p className="text-sm text-muted-foreground mb-6">{confirmAction.message}</p>
+            <div className="flex gap-3 w-full">
+              <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-secondary transition-colors">ยกเลิก</button>
+              <button onClick={doConfirm} className={`flex-1 py-2.5 rounded-lg text-sm font-medium text-white transition-colors ${confirmAction.type === 'cancel' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary/90'}`}>ยืนยัน</button>
             </div>
           </div>
         </div>

@@ -9,11 +9,31 @@ export function InventoryView({ books: initialBooks }: { books: Book[] }) {
   const [books, setBooks] = useState(initialBooks.map((b) => ({ ...b })));
   const [editing, setEditing] = useState<number | null>(null);
   const [editVal, setEditVal] = useState("");
+  const [confirmAction, setConfirmAction] = useState<{ id: number, val: number, title: string, message: string } | null>(null);
   const lowStock = books.filter((b) => b.stock <= 10);
 
   const saveStock = (id: number) => {
     const val = parseInt(editVal);
-    if (!isNaN(val) && val >= 0) setBooks(books.map((b) => b.id === id ? { ...b, stock: val } : b));
+    if (!isNaN(val) && val >= 0) {
+      const book = books.find(b => b.id === id);
+      if (book && book.stock !== val) {
+        setConfirmAction({
+          id,
+          val,
+          title: "ยืนยันการแก้ไขสต็อก",
+          message: `คุณต้องการอัปเดตสต็อกของ "${book.title}" จาก ${book.stock} เป็น ${val} ใช่หรือไม่?`
+        });
+        return;
+      }
+    }
+    setEditing(null);
+  };
+
+  const doConfirm = () => {
+    if (!confirmAction) return;
+    const { id, val } = confirmAction;
+    setBooks(books.map((b) => b.id === id ? { ...b, stock: val } : b));
+    setConfirmAction(null);
     setEditing(null);
   };
 
@@ -84,6 +104,20 @@ export function InventoryView({ books: initialBooks }: { books: Book[] }) {
           </tbody>
         </table>
       </div>
+      {/* Confirm modal */}
+      {confirmAction && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200" onClick={() => setConfirmAction(null)}>
+          <div className="bg-card rounded-xl border border-border p-6 w-full max-w-sm shadow-xl flex flex-col items-center text-center animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+            <Check className="w-12 h-12 text-primary mb-4 p-3 bg-primary/10 rounded-full" />
+            <h3 className="font-['Playfair_Display'] text-xl font-bold mb-2">{confirmAction.title}</h3>
+            <p className="text-sm text-muted-foreground mb-6">{confirmAction.message}</p>
+            <div className="flex gap-3 w-full">
+              <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-secondary transition-colors">ยกเลิก</button>
+              <button onClick={doConfirm} className="flex-1 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">ยืนยัน</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
