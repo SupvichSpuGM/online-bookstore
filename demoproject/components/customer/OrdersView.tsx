@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { Order } from "@/lib/data";
@@ -22,9 +23,9 @@ export function OrdersView({ orders }: { orders: Order[] }) {
               <p className="text-sm text-muted-foreground">
                 ยอดรวม: <span className="font-semibold text-foreground font-['DM_Mono']">฿{o.total}</span>
               </p>
-              <button className="text-xs text-accent hover:underline flex items-center gap-1">
+              <Link href={`/orders/${o.id}`} className="text-xs text-accent hover:underline flex items-center gap-1">
                 รายละเอียด <ChevronRight className="w-3 h-3" />
-              </button>
+              </Link>
             </div>
           </div>
         ))}
