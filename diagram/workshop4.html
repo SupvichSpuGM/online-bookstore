@@ -593,20 +593,20 @@
             %% Relations
             User "1" --> "1" Cart : Owns
             User "1" --> "0..*" Order : Places
-            User "1" --> "0..*" Address : Manages (UC8)
-            User "0..1" --> "0..*" Order : Verifies (Staff)
-            User "1" --> "0..*" SalesReport : Generates (Admin)
+            User "1" --> "0..*" Address : Manages (UC3)
+            User "0..1" --> "0..*" Order : Verifies (UC9 - Staff)
+            User "1" --> "0..*" SalesReport : Generates (UC13 - Admin)
 
-            Address "1" --> "0..*" Order : UsedIn
+            Address "1" --> "0..*" Order : UsedIn (UC6)
 
-            Cart "1" *--> "0..*" CartItem : Contains
-            Book "1" --> "0..*" CartItem : Referenced
+            Cart "1" *--> "0..*" CartItem : Contains (UC5)
+            Book "1" --> "0..*" CartItem : Referenced (UC5)
 
-            Order "1" *--> "1..*" OrderItem : Comprises
-            Book "1" --> "0..*" OrderItem : Sold via
+            Order "1" *--> "1..*" OrderItem : Comprises (UC6)
+            Book "1" --> "0..*" OrderItem : Sold via (UC6)
 
             Book "1" --> "0..*" Notification : Triggers (UC12)
-            SalesReport "1" ..> "0..*" Order : Aggregates
+            SalesReport "1" ..> "0..*" Order : Aggregates (UC13)
             </div>
         </div>
 
@@ -615,8 +615,8 @@
             <strong>หน้าที่และความสำคัญ:</strong> แผนภาพจำลองตามลำดับกิจกรรมและทิศทางการส่งข้อมูลเมสเซจ (Messages
             Payload) ระหว่างวัตถุองค์ประกอบต่างๆ ของชิ้นงานตามลำดับเงื่อนไขของเวลา
         </p>
-    <h3>🔐 3.1 UC1 & UC2: การสมัครสมาชิกและการเข้าสู่ระบบเพื่อยืนยันตัวตน (Register & Login Flow)</h3>
-    <p>กระบวนการสมัครสมาชิก (Register) และการเข้าสู่ระบบ (Login) เพื่อรับสิทธิ์การใช้งานผ่าน JWT Token:</p>
+    <h3>🔐 3.1 UC1 & UC2: การสมัครสมาชิกและการเข้าสู่ระบบ (Register & Login Flow)</h3>
+    <p>กระบวนการ <strong>UC1: สมัครสมาชิกใหม่ (Register)</strong> และ <strong>UC2: เข้าสู่ระบบ (Login)</strong> เพื่อรับสิทธิ์การใช้งานผ่าน JWT Token:</p>
     <div class="diagram-box">
         <div class="mermaid">
         sequenceDiagram
@@ -660,8 +660,58 @@
         </div>
     </div>
 
-    <h3>🛒 3.2 UC3 & UC4: การค้นหาหนังสือและจัดการตะกร้าสินค้า (Search & Shopping Flow)</h3>
-    <p>ขั้นตอนที่ผู้ใช้ค้นหาหนังสือ, ดูรายการในตะกร้า และทำรายการใส่ตะกร้า พร้อมตรวจสอบ Auth และจำนวนคลังสินค้า:</p>
+    <h3>👤 3.2 UC3: การแก้ไขโปรไฟล์และที่อยู่จัดส่ง (Edit Profile & Address Flow)</h3>
+    <p>ขั้นตอน <strong>UC3: แก้ไขโปรไฟล์และที่อยู่จัดส่ง</strong> ที่ลูกค้าสามารถอัปเดตข้อมูลส่วนตัวและจัดการที่อยู่จัดส่งได้:</p>
+    <div class="diagram-box">
+        <div class="mermaid">
+        sequenceDiagram
+            autonumber
+            actor Customer as Customer (ลูกค้า)
+            participant Client as React App (หน้าบ้าน)
+            participant AuthMW as Middleware (สิทธิ์)
+            participant API as Express.js (หลังบ้าน)
+            participant DB as MySQL (ฐานข้อมูล)
+
+            Customer->>Client: เข้าหน้าโปรไฟล์การใช้งาน (My Profile)
+            Client->>AuthMW: GET /api/users/profile [Authorization Header]
+            AuthMW->>AuthMW: ตรวจสอบ JWT Token
+            alt Token ไม่ถูกต้อง
+                AuthMW-->>Client: HTTP 401 Unauthorized
+                Client-->>Customer: แสดงหน้าล็อกอิน
+            else Token ถูกต้อง
+                AuthMW->>API: ส่ง user_id ที่ถอดรหัสได้
+                API->>DB: SELECT id, name, email, phone FROM users WHERE id = ?
+                DB-->>API: คืนค่าข้อมูลโปรไฟล์และรายการที่อยู่
+                API->>DB: SELECT * FROM addresses WHERE user_id = ?
+                DB-->>API: คืนค่ารายการที่อยู่ทั้งหมด
+                API-->>Client: HTTP 200 OK (Profile + Addresses Array)
+                Client-->>Customer: แสดงหน้าโปรไฟล์และรายการที่อยู่
+            end
+
+            opt แก้ไขข้อมูลส่วนตัว (Edit Profile)
+                Customer->>Client: กรอกชื่อใหม่ / เบอร์โทรศัพท์
+                Client->>AuthMW: PUT /api/users/profile (name, phone) [Auth Header]
+                AuthMW->>API: ส่ง request พร้อม user_id
+                API->>DB: UPDATE users SET name = ?, phone = ? WHERE id = ?
+                DB-->>API: ยืนยันบันทึกสำเร็จ
+                API-->>Client: HTTP 200 OK (Profile Updated)
+                Client-->>Customer: แสดงผลสำเร็จการอัปเดตโปรไฟล์
+            end
+
+            opt เพิ่มที่อยู่ใหม่ (Add Address)
+                Customer->>Client: กรอกชื่อผู้รับ, เบอร์โทร, ที่อยู่, จังหวัด, รหัสไปรษณีย์
+                Client->>AuthMW: POST /api/addresses (address detail) [Auth Header]
+                AuthMW->>API: ส่ง request พร้อม user_id
+                API->>DB: INSERT INTO addresses (user_id, recipient_name, phone, address_line, province, postal_code)
+                DB-->>API: คืนค่า address_id ใหม่
+                API-->>Client: HTTP 201 Created (New Address)
+                Client-->>Customer: แสดงที่อยู่ใหม่ในรายการ
+            end
+        </div>
+    </div>
+
+    <h3>🛒 3.3 UC4 & UC5: การค้นหาหนังสือและจัดการตะกร้าสินค้า (Search & Cart Flow)</h3>
+    <p>ขั้นตอน <strong>UC4: ค้นหาและดูรายละเอียดหนังสือ</strong> และ <strong>UC5: เพิ่มหรือลบสินค้าในตะกร้า</strong> พร้อมตรวจสอบ Auth และจำนวนคลังสินค้า:</p>
     <div class="diagram-box">
         <div class="mermaid">
         sequenceDiagram
@@ -734,8 +784,8 @@
         </div>
     </div>
 
-    <h3>💳 3.3 UC5: การสั่งซื้อหนังสือพร้อม Pessimistic Locking (Checkout Flow)</h3>
-    <p>ขั้นตอนสั่งซื้อที่มีการล็อคข้อมูลจำนวนสต็อกในตารางเพื่อป้องกันสภาวะชิงข้อมูล (Race Condition):</p>
+    <h3>💳 3.4 UC6: การยืนยันสั่งซื้อหนังสือพร้อม Pessimistic Locking (Checkout Flow)</h3>
+    <p>ขั้นตอน <strong>UC6: กดยืนยันสั่งซื้อ</strong> ที่มีการล็อคข้อมูลจำนวนสต็อกในตารางเพื่อป้องกันสภาวะชิงข้อมูล (Race Condition):</p>
     <div class="diagram-box">
         <div class="mermaid">
         sequenceDiagram
@@ -810,8 +860,8 @@
         </div>
     </div>
 
-    <h3>📄 3.4 UC6: การแนบหลักฐานการชำระเงิน (Upload Payment Slip Flow)</h3>
-    <p>ขั้นตอนที่ลูกค้าอัปโหลดรูปภาพสลิปเงินเพื่อผูกกับใบสั่งซื้อค้างจ่าย:</p>
+    <h3>📄 3.5 UC7: การแนบหลักฐานการชำระเงิน (Upload Payment Slip Flow)</h3>
+    <p>ขั้นตอน <strong>UC7: แนบสลิปโอนเงิน</strong> ที่ลูกค้าอัปโหลดรูปภาพสลิปเงินเพื่อผูกกับใบสั่งซื้อค้างจ่าย:</p>
     <div class="diagram-box">
         <div class="mermaid">
         sequenceDiagram
@@ -860,8 +910,59 @@
         </div>
     </div>
 
-    <h3>📦 3.5 UC9 & UC10: การตรวจสอบสลิปและการจัดการจัดส่ง (Verify & Fulfillment Flow)</h3>
-    <p>ขั้นตอนการตรวจสอบและอนุมัติยอดโอนเงินโดยพนักงาน และการออกใบจัดส่งพร้อม tracking number:</p>
+    <h3>📦 3.6 UC8: ติดตามพัสดุและประวัติออเดอร์ (Order History & Tracking Flow)</h3>
+    <p>ขั้นตอน <strong>UC8: ติดตามพัสดุและประวัติออเดอร์</strong> ที่ลูกค้าสามารถดูสถานะและรายละเอียดใบสั่งซื้อทั้งหมด:</p>
+    <div class="diagram-box">
+        <div class="mermaid">
+        sequenceDiagram
+            autonumber
+            actor Customer as Customer (ลูกค้า)
+            participant Client as React App (หน้าบ้าน)
+            participant AuthMW as Middleware (สิทธิ์)
+            participant API as Express.js (หลังบ้าน)
+            participant DB as MySQL (ฐานข้อมูล)
+
+            Customer->>Client: คลิกเมนู "ประวัติการสั่งซื้อของฉัน"
+            activate Client
+            Client->>AuthMW: GET /api/orders [Authorization Header]
+            activate AuthMW
+            AuthMW->>AuthMW: ตรวจสอบ JWT Token
+            alt Token ไม่ถูกต้อง
+                AuthMW-->>Client: HTTP 401 Unauthorized
+                Client-->>Customer: แสดงหน้าล็อกอิน
+            else Token ถูกต้อง
+                AuthMW->>API: ส่ง user_id ที่ถอดรหัสได้
+                deactivate AuthMW
+                activate API
+                API->>DB: SELECT o.id, o.status, o.total_amount, o.tracking_number, o.order_date FROM orders o WHERE o.user_id = ? ORDER BY o.order_date DESC
+                activate DB
+                DB-->>API: คืนค่ารายการออเดอร์ทั้งหมดของลูกค้า
+                deactivate DB
+                API-->>Client: HTTP 200 OK (Orders Array)
+                deactivate API
+                Client-->>Customer: แสดงรายการออเดอร์ที่ผ่านมา พร้อมสถานะและเลขพัสดุ
+            end
+
+            opt ดูรายละเอียดออเดอร์ (View Order Detail)
+                Customer->>Client: คลิกออเดอร์เพื่อดูรายละเอียด
+                Client->>AuthMW: GET /api/orders/:id [Auth Header]
+                AuthMW->>API: ส่ง request พร้อม user_id
+                activate API
+                API->>DB: SELECT o.*, oi.book_id, oi.quantity, oi.price_per_unit, b.title FROM orders o JOIN order_items oi ON oi.order_id = o.id JOIN books b ON b.id = oi.book_id WHERE o.id = ? AND o.user_id = ?
+                activate DB
+                DB-->>API: คืนค่ารายละเอียดออเดอร์พร้อมสินค้าและเลขพัสดุ
+                deactivate DB
+                API-->>Client: HTTP 200 OK (Order Detail Object)
+                deactivate API
+                Client-->>Customer: แสดงสถานะออเดอร์และเลขติดตามพัสดุ
+            end
+            deactivate Client
+        </div>
+    </div>
+
+
+    <h3>📦 3.7 UC9 & UC10: การตรวจสอบสลิปและการบันทึกจัดส่ง (Verify Slip & Ship Order Flow)</h3>
+    <p>ขั้นตอน <strong>UC9: ตรวจสอบและอนุมัติสลิปโอนเงิน</strong> โดยพนักงาน และ <strong>UC10: บันทึกการจัดส่งและเลขพัสดุ</strong> พร้อม Tracking Number:</p>
     <div class="diagram-box">
         <div class="mermaid">
         sequenceDiagram
@@ -950,8 +1051,8 @@
         </div>
     </div>
 
-    <h3>⚙️ 3.6 UC11 & UC12: การบริหารคลังสินค้าและเตือนสต็อกต่ำ (Inventory & Alert Flow)</h3>
-    <p>การจัดการข้อมูลหนังสือและการรับรู้ระบบแจ้งเตือนอัตโนมัติเมื่อจำนวนสต็อกต่ำกว่าเกณฑ์:</p>
+    <h3>⚙️ 3.8 UC11 & UC12: การบริหารคลังสินค้าและแจ้งเตือนสต็อกต่ำ (Manage Catalog & Stock Alert Flow)</h3>
+    <p>ขั้นตอน <strong>UC11: เพิ่ม/แก้ไข/ลบหนังสือในคลัง</strong> โดยพนักงาน/แอดมิน และ <strong>UC12: แจ้งเตือนอัตโนมัติเมื่อสินค้าใกล้หมด</strong>:</p>
     <div class="diagram-box">
         <div class="mermaid">
         sequenceDiagram
@@ -1043,8 +1144,8 @@
         </div>
     </div>
 
-    <h3>📊 3.7 UC13: รายงานสรุปยอดขายสำหรับผู้ดูแลระบบ (BI Dashboard Summary Flow)</h3>
-    <p>การสรุปและคำนวณสถิติยอดขายเพื่อใช้ในการวิเคราะห์แบบเรียลไทม์:</p>
+    <h3>📊 3.9 UC13 & UC14: รายงานสรุปยอดขายและจัดการผู้ใช้สำหรับผู้ดูแลระบบ (Dashboard & User Management Flow)</h3>
+    <p>ขั้นตอน <strong>UC13: ดูรายงานยอดขายและสถิติ</strong> และ <strong>UC14: จัดการบัญชีพนักงานและสิทธิ์</strong> สำหรับผู้ดูแลระบบ:</p>
     <div class="diagram-box">
         <div class="mermaid">
         sequenceDiagram
@@ -1137,33 +1238,30 @@
         <div class="diagram-container">
             <div class="wireframe-mockup" style="border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); max-width: 500px;">
                 <div class="wf-header" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border-radius: 8px 8px 0 0; padding: 12px; font-size: 13px;">PROTOTYPE: หน้าแรกระบบร้านหนังสือออนไลน์ (Hi-Fi)</div>
-                <div class="wf-nav" style="border-bottom: 2px solid var(--primary-light); padding: 12px; margin-bottom: 12px; background: #fafafa;">
-                    <span style="font-weight: bold; color: var(--primary); font-size: 13px;">📚 BOOKSTORE</span>
-                    <span style="background: #f1f5f9; border-radius: 20px; padding: 4px 12px; font-size: 11px;">🔍 ค้นหา...</span>
-                    <span style="font-weight: 500; font-size: 11px; color: var(--text-main);">🛒 ตะกร้า (2) | Login</span>
-                </div>
-                <div class="wf-grid" style="padding: 10px;">
-                    <div class="wf-item" style="border: 1px solid #f1f5f9; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-radius: 8px;">
-                        <div class="wf-img" style="font-size: 24px; background: #e0f2fe; border-radius: 6px; padding: 8px;">📘</div>
-                        <div style="font-weight: 600; font-size: 11px; margin-top: 6px; color: var(--text-main);">Software Architecture</div>
-                        <div class="wf-price" style="color: #10b981; font-size: 12px; font-weight: 700;">฿250.00</div>
-                        <button class="wf-btn" style="background: var(--primary); border-radius: 6px; font-weight: 500; padding: 4px 8px;">+ ใส่ตะกร้า</button>
-                    </div>
-                    <div class="wf-item" style="border: 1px solid #f1f5f9; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-radius: 8px;">
-                        <div class="wf-img" style="font-size: 24px; background: #ffedd5; border-radius: 6px; padding: 8px;">📙</div>
-                        <div style="font-weight: 600; font-size: 11px; margin-top: 6px; color: var(--text-main);">MySQL & DB Design</div>
-                        <div class="wf-price" style="color: #10b981; font-size: 12px; font-weight: 700;">฿320.00</div>
-                        <button class="wf-btn" style="background: var(--primary); border-radius: 6px; font-weight: 500; padding: 4px 8px;">+ ใส่ตะกร้า</button>
-                    </div>
-                    <div class="wf-item" style="border: 1px solid #f1f5f9; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-radius: 8px;">
-                        <div class="wf-img" style="font-size: 24px; background: #dcfce7; border-radius: 6px; padding: 8px;">📗</div>
-                        <div style="font-weight: 600; font-size: 11px; margin-top: 6px; color: var(--text-main);">Tailwind CSS Mastery</div>
-                        <div class="wf-price" style="color: #10b981; font-size: 12px; font-weight: 700;">฿190.00</div>
-                        <button class="wf-btn" style="background: var(--primary); border-radius: 6px; font-weight: 500; padding: 4px 8px;">+ ใส่ตะกร้า</button>
+                <div class="wf-body" style="padding: 20px;">
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                        <div style="background: #e2e8f0; border-radius: 8px; padding: 12px; flex: 1; text-align: center;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">📘</div>
+                            <div style="font-size: 11px; font-weight: 600;">Software Architecture</div>
+                            <div style="font-size: 12px; color: #10b981; font-weight: 700; margin-top: 4px;">฿250.00</div>
+                            <button style="background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 500; padding: 4px 10px; font-size: 10px; margin-top: 8px;">+ ใส่ตะกร้า</button>
+                        </div>
+                        <div style="background: #e2e8f0; border-radius: 8px; padding: 12px; flex: 1; text-align: center;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">📙</div>
+                            <div style="font-size: 11px; font-weight: 600;">MySQL & DB Design</div>
+                            <div style="font-size: 12px; color: #10b981; font-weight: 700; margin-top: 4px;">฿320.00</div>
+                            <button style="background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 500; padding: 4px 10px; font-size: 10px; margin-top: 8px;">+ ใส่ตะกร้า</button>
+                        </div>
+                        <div style="background: #e2e8f0; border-radius: 8px; padding: 12px; flex: 1; text-align: center;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">📗</div>
+                            <div style="font-size: 11px; font-weight: 600;">Tailwind CSS Mastery</div>
+                            <div style="font-size: 12px; color: #10b981; font-weight: 700; margin-top: 4px;">฿190.00</div>
+                            <button style="background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 500; padding: 4px 10px; font-size: 10px; margin-top: 8px;">+ ใส่ตะกร้า</button>
+                        </div>
                     </div>
                 </div>
                 <div style="text-align: center; margin-top: 15px; font-size: 11px; color: var(--text-muted);">
-                    Figma Interactive Prototype Link: <a href="https://figma.com/file/online-bookstore-prototype" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">คลิกเพื่อเปิดทดลองใช้งานบน Figma</a>
+                    Figma Interactive Prototype Link: <a href="https://www.figma.com/make/9mt7DCRWyH1amQ0eQ7zWDO/E-Commerce-Bookstore-Wireframe--Copy-?t=UdLdaIbyvdSyNsVG-1" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">คลิกเพื่อเปิดทดลองใช้งานบน Figma</a>
                 </div>
             </div>
         </div>
