@@ -4,8 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BookOpen, Eye, RefreshCw, Check, X, User } from "lucide-react";
 import { useAuthStore } from "@/lib/stores/authStore";
-import { DEMO_ACCOUNTS } from "@/lib/data";
-import type { Role } from "@/lib/data";
+import type { Role } from "@/lib/types";
+
+const DEMO_ACCOUNTS = [
+  { name: "สมชาย วงศ์สุข",   email: "customer@booka.app", role: "customer" as Role, avatar: "SC" },
+  { name: "กิตติวัฒน์ กุดั่น", email: "staff@booka.app",   role: "staff"    as Role, avatar: "KK" },
+  { name: "ศิระเดช ศรีอ่ำ",   email: "admin@booka.app",   role: "admin"    as Role, avatar: "SR" },
+];
 
 const roleColor: Record<Role, string> = {
   customer: "border-amber-200 hover:border-amber-400 bg-amber-50/50",
@@ -29,19 +34,42 @@ export function LoginView() {
   const router = useRouter();
   const { login, setGuestMode } = useAuthStore();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    const acct = DEMO_ACCOUNTS.find((a) => a.email === email.trim());
-    if (!acct || password !== "demo1234") {
-      setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
-      return;
-    }
     setLoading(true);
-    setTimeout(() => {
-      login(acct);
-      router.push(roleRedirect[acct.role]);
-    }, 700);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error ?? "เกิดข้อผิดพลาด กรุณาลองใหม่");
+        setLoading(false);
+        return;
+      }
+
+      // บันทึก user ลง Zustand store
+      login({
+        name:    data.user.name,
+        email:   data.user.email,
+        role:    data.user.role,
+        phone:   data.user.phone ?? "",
+        address: "",
+        joined:  "",
+        avatar:  data.user.name.slice(0, 2).toUpperCase(),
+      });
+
+      router.push(roleRedirect[data.user.role as Role] ?? "/");
+    } catch {
+      setError("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
+      setLoading(false);
+    }
   };
 
   const handleGuestMode = () => {
@@ -134,7 +162,7 @@ export function LoginView() {
               {DEMO_ACCOUNTS.map((acct) => (
                 <button
                   key={acct.role} type="button"
-                  onClick={() => { setEmail(acct.email); setPassword("demo1234"); }}
+                  onClick={() => { setEmail(acct.email); setPassword("password123"); }}
                   className={`border rounded-lg px-3.5 py-2.5 text-left transition-all ${roleColor[acct.role]}`}
                 >
                   <div className="flex items-center gap-3">
@@ -152,7 +180,7 @@ export function LoginView() {
                 </button>
               ))}
             </div>
-            <p className="text-center text-xs text-muted-foreground mt-2.5 font-['DM_Mono']">password: demo1234</p>
+            <p className="text-center text-xs text-muted-foreground mt-2.5 font-['DM_Mono']">password: password123</p>
           </div>
 
           {/* Guest mode */}

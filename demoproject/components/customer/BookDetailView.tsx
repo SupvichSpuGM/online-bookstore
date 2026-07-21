@@ -8,7 +8,8 @@ import { Stars } from "@/components/ui/Stars";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useToastStore } from "@/lib/stores/toastStore";
-import type { Book } from "@/lib/data";
+import type { Book } from "@/lib/types";
+import { getBookImageUrl } from "@/lib/types";
 
 const REVIEWS = [
   { name: "สมชาย ว.", rating: 5, date: "10 ม.ค. 2568", text: "อ่านแล้วสะท้อนใจมาก เขียนได้ลึกซึ้งมาก แนะนำเลย" },
@@ -26,11 +27,25 @@ export function BookDetailView({ book }: { book: Book }) {
 
   const canBuy = !!user && !isGuest;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!user && !isGuest) { router.push("/login"); return; }
-    // Guest mode → แสดง toast เตือน
     if (isGuest) { showToast(); return; }
-    for (let i = 0; i < qty; i++) addItem(book);
+    // POST ไป API
+    try {
+      await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ book_id: book.id, quantity: qty }),
+      });
+    } catch { /* fail silently */ }
+    // Optimistic Zustand update
+    for (let i = 0; i < qty; i++) addItem({
+      id: book.id, title: book.title, author: book.author,
+      price: book.price, originalPrice: book.original_price,
+      category: book.category, rating: book.rating,
+      reviews: book.review_count, stock: book.stock_qty,
+      imgId: "", isbn: book.isbn ?? "", description: book.description ?? "",
+    } as Parameters<typeof addItem>[0]);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -45,7 +60,8 @@ export function BookDetailView({ book }: { book: Book }) {
         {/* Book cover */}
         <div>
           <div className="rounded-xl overflow-hidden shadow-lg aspect-[3/4] bg-muted">
-            <BookImg imgId={book.imgId} alt={book.title} className="w-full h-full" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={getBookImageUrl(book)} alt={book.title} className="w-full h-full object-cover" />
           </div>
         </div>
 
@@ -61,16 +77,16 @@ export function BookDetailView({ book }: { book: Book }) {
 
           <div className="flex items-center gap-3">
             <Stars rating={book.rating} />
-            <span className="text-sm font-['DM_Mono'] text-muted-foreground">{book.rating} ({book.reviews} รีวิว)</span>
+            <span className="text-sm font-['DM_Mono'] text-muted-foreground">{book.rating} ({book.review_count} รีวิว)</span>
           </div>
 
           <div className="flex items-baseline gap-3">
             <span className="font-['Playfair_Display'] text-3xl font-bold">฿{book.price}</span>
-            {book.originalPrice > book.price && (
+            {book.original_price > book.price && (
               <>
-                <span className="text-muted-foreground line-through text-lg">฿{book.originalPrice}</span>
+                <span className="text-muted-foreground line-through text-lg">฿{book.original_price}</span>
                 <span className="text-xs bg-accent/10 text-accent px-2 py-1 rounded font-medium">
-                  ประหยัด ฿{book.originalPrice - book.price}
+                  ประหยัด ฿{book.original_price - book.price}
                 </span>
               </>
             )}
@@ -79,7 +95,7 @@ export function BookDetailView({ book }: { book: Book }) {
           <p className="text-sm text-muted-foreground leading-relaxed border-t border-border pt-4">{book.description}</p>
 
           <div className="grid grid-cols-2 gap-3 text-sm">
-            {[["ISBN", book.isbn], ["คงเหลือ", `${book.stock} เล่ม`]].map(([k, v]) => (
+            {[["ISBN", book.isbn ?? "-"], ["คงเหลือ", `${book.stock_qty} เล่ม`]].map(([k, v]) => (
               <div key={k} className="bg-secondary rounded-lg p-3">
                 <p className="text-muted-foreground text-xs mb-0.5 font-['DM_Mono']">{k}</p>
                 <p className="font-medium">{v}</p>
@@ -93,7 +109,7 @@ export function BookDetailView({ book }: { book: Book }) {
               <div className="flex items-center border border-border rounded-lg overflow-hidden">
                 <button onClick={() => setQty(Math.max(1, qty - 1))} className="px-3 py-2.5 hover:bg-secondary transition-colors"><Minus className="w-4 h-4" /></button>
                 <span className="px-5 py-2.5 font-['DM_Mono'] text-sm border-x border-border">{qty}</span>
-                <button onClick={() => setQty(Math.min(book.stock, qty + 1))} className="px-3 py-2.5 hover:bg-secondary transition-colors"><Plus className="w-4 h-4" /></button>
+                <button onClick={() => setQty(Math.min(book.stock_qty, qty + 1))} className="px-3 py-2.5 hover:bg-secondary transition-colors"><Plus className="w-4 h-4" /></button>
               </div>
               <button onClick={handleAddToCart}
                 className={`flex-1 py-3 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 ${added ? "bg-green-600 text-white" : "bg-primary text-primary-foreground hover:bg-accent"}`}>
@@ -109,7 +125,7 @@ export function BookDetailView({ book }: { book: Book }) {
                 <div className="flex items-center border border-border rounded-lg overflow-hidden">
                   <button onClick={() => setQty(Math.max(1, qty - 1))} className="px-3 py-2.5 hover:bg-secondary transition-colors"><Minus className="w-4 h-4" /></button>
                   <span className="px-5 py-2.5 font-['DM_Mono'] text-sm border-x border-border">{qty}</span>
-                  <button onClick={() => setQty(Math.min(book.stock, qty + 1))} className="px-3 py-2.5 hover:bg-secondary transition-colors"><Plus className="w-4 h-4" /></button>
+                  <button onClick={() => setQty(Math.min(book.stock_qty, qty + 1))} className="px-3 py-2.5 hover:bg-secondary transition-colors"><Plus className="w-4 h-4" /></button>
                 </div>
                 <button
                   onClick={handleAddToCart}
