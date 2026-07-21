@@ -5,12 +5,11 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Search, ChevronRight } from "lucide-react";
 import { BookCard } from "@/components/ui/BookCard";
-import type { Book } from "@/lib/data";
+import type { Book } from "@/lib/types";
 
-const CATEGORIES = ["ทั้งหมด", "วรรณกรรมไทย", "Fiction", "Self-Help", "ธุรกิจ", "ประวัติศาสตร์"];
 const PRICE_RANGES = ["ต่ำกว่า ฿200", "฿200–350", "฿350–500", "มากกว่า ฿500"];
 
-export function BrowseView({ books }: { books: Book[] }) {
+export function BrowseView({ books, categories }: { books: Book[]; categories: string[] }) {
   const searchParams = useSearchParams();
   const [cat, setCat] = useState(searchParams.get("cat") ?? "ทั้งหมด");
   const [query, setQuery] = useState("");
@@ -29,7 +28,9 @@ export function BrowseView({ books }: { books: Book[] }) {
           b.author.toLowerCase().includes(query.toLowerCase()))
     )
     .sort((a, b) =>
-      sort === "price_asc" ? a.price - b.price : sort === "price_desc" ? b.price - a.price : b.reviews - a.reviews
+      sort === "price_asc" ? a.price - b.price
+      : sort === "price_desc" ? b.price - a.price
+      : b.review_count - a.review_count
     );
 
   return (
@@ -46,7 +47,7 @@ export function BrowseView({ books }: { books: Book[] }) {
         <aside className="w-52 shrink-0 hidden md:block">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3 font-['DM_Mono']">หมวดหมู่</p>
           <div className="flex flex-col gap-1">
-            {CATEGORIES.map((c) => (
+            {categories.map((c) => (
               <button key={c} onClick={() => setCat(c)}
                 className={`px-3 py-2 rounded-lg text-sm text-left transition-colors ${
                   cat === c ? "bg-primary text-primary-foreground font-medium" : "hover:bg-secondary text-muted-foreground"

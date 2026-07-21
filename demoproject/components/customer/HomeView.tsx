@@ -4,7 +4,8 @@ import Link from "next/link";
 import { BookOpen, ChevronRight, Truck, RefreshCw, ShoppingBag } from "lucide-react";
 import { BookCard } from "@/components/ui/BookCard";
 import { useAuthStore } from "@/lib/stores/authStore";
-import type { Book } from "@/lib/data";
+import type { Book } from "@/lib/types";
+import { getBookImageUrl } from "@/lib/types";
 
 const CATEGORIES_DISPLAY = ["ทั้งหมด", "วรรณกรรมไทย", "Fiction", "Self-Help", "ธุรกิจ", "ประวัติศาสตร์"];
 
@@ -52,7 +53,7 @@ export function HomeView({ books }: { books: Book[] }) {
             {featured.map((b) => (
               <div key={b.id} className="rounded-lg overflow-hidden shadow-lg aspect-[3/4] bg-muted">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`https://images.unsplash.com/${b.imgId}?w=300&h=420&fit=crop&auto=format`} alt={b.title} className="w-full h-full object-cover" />
+                <img src={getBookImageUrl(b)} alt={b.title} className="w-full h-full object-cover" />
               </div>
             ))}
           </div>

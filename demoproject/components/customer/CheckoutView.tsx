@@ -4,23 +4,79 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle, Upload, RefreshCw } from "lucide-react";
 import { useCartStore } from "@/lib/stores/cartStore";
+import { useAuthStore } from "@/lib/stores/authStore";
 
 type Step = 1 | 2 | 3;
+
+interface AddressForm {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  address: string;
+}
 
 export function CheckoutView() {
   const [step, setStep] = useState<Step>(1);
   const [fileName, setFileName] = useState("");
-  const [orderId] = useState(`ORD-2568-${Math.floor(1000 + Math.random() * 8999)}`);
+  const [orderId, setOrderId] = useState<string | number>("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [addressForm, setAddressForm] = useState<AddressForm>({
+    firstName: "สมชาย", lastName: "วงศ์สุข",
+    phone: "081-234-5678", address: "123 ถ.สุขุมวิท แขวงคลองเตย เขตคลองเตย",
+  });
+
   const { items, clearCart } = useCartStore();
+  const { user } = useAuthStore();
   const router = useRouter();
 
   const subtotal = items.reduce((s, i) => s + i.book.price * i.qty, 0);
   const shipping = subtotal >= 300 ? 0 : 50;
   const total = subtotal + shipping;
 
-  const handleConfirm = () => {
-    clearCart();
-    setStep(3);
+  const handleConfirm = async () => {
+    if (!fileName) return;
+    setLoading(true);
+    setError("");
+
+    try {
+      // 1. สร้าง Order จริงใน DB
+      const orderRes = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address_id: null }),
+      });
+
+      const orderData = await orderRes.json();
+
+      if (!orderRes.ok) {
+        setError(orderData.error ?? "ไม่สามารถสร้างคำสั่งซื้อได้");
+        setLoading(false);
+        return;
+      }
+
+      const newOrderId = orderData.order_id;
+
+      // 2. แนบ slip (ใช้ filename เป็น placeholder URL)
+      await fetch(`/api/orders/${newOrderId}/slip`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slip_image_url: `/uploads/slips/${fileName}` }),
+      });
+
+      // 3. ล้างตะกร้า Zustand local
+      clearCart();
+
+      // 4. ล้างตะกร้า DB ด้วย (เผื่อไม่ได้ล้างใน transaction)
+      await fetch("/api/cart", { method: "DELETE" });
+
+      setOrderId(`ORD-${String(newOrderId).padStart(6, "0")}`);
+      setStep(3);
+    } catch {
+      setError("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const steps = [{ n: 1, label: "ที่อยู่" }, { n: 2, label: "ชำระเงิน" }, { n: 3, label: "สำเร็จ" }];
@@ -46,11 +102,27 @@ export function CheckoutView() {
           <h2 className="font-['Playfair_Display'] text-xl font-semibold mb-5">ที่อยู่จัดส่ง</h2>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div><label className="text-xs text-muted-foreground mb-1.5 block">ชื่อ</label><input defaultValue="สมชาย" className="w-full px-3 py-2.5 rounded-lg bg-secondary border border-transparent focus:border-accent focus:outline-none text-sm" /></div>
-              <div><label className="text-xs text-muted-foreground mb-1.5 block">นามสกุล</label><input defaultValue="วงศ์สุข" className="w-full px-3 py-2.5 rounded-lg bg-secondary border border-transparent focus:border-accent focus:outline-none text-sm" /></div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1.5 block">ชื่อ</label>
+                <input value={addressForm.firstName} onChange={(e) => setAddressForm(f => ({ ...f, firstName: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-lg bg-secondary border border-transparent focus:border-accent focus:outline-none text-sm" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1.5 block">นามสกุล</label>
+                <input value={addressForm.lastName} onChange={(e) => setAddressForm(f => ({ ...f, lastName: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-lg bg-secondary border border-transparent focus:border-accent focus:outline-none text-sm" />
+              </div>
             </div>
-            <div><label className="text-xs text-muted-foreground mb-1.5 block">เบอร์โทรศัพท์</label><input defaultValue="081-234-5678" className="w-full px-3 py-2.5 rounded-lg bg-secondary border border-transparent focus:border-accent focus:outline-none text-sm" /></div>
-            <div><label className="text-xs text-muted-foreground mb-1.5 block">ที่อยู่</label><textarea defaultValue="123 ถ.สุขุมวิท แขวงคลองเตย เขตคลองเตย" rows={2} className="w-full px-3 py-2.5 rounded-lg bg-secondary border border-transparent focus:border-accent focus:outline-none text-sm resize-none" /></div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1.5 block">เบอร์โทรศัพท์</label>
+              <input value={addressForm.phone} onChange={(e) => setAddressForm(f => ({ ...f, phone: e.target.value }))}
+                className="w-full px-3 py-2.5 rounded-lg bg-secondary border border-transparent focus:border-accent focus:outline-none text-sm" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1.5 block">ที่อยู่</label>
+              <textarea value={addressForm.address} onChange={(e) => setAddressForm(f => ({ ...f, address: e.target.value }))}
+                rows={2} className="w-full px-3 py-2.5 rounded-lg bg-secondary border border-transparent focus:border-accent focus:outline-none text-sm resize-none" />
+            </div>
           </div>
           <button onClick={() => setStep(2)} className="w-full mt-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-accent transition-colors">
             ถัดไป: ชำระเงิน →
@@ -81,9 +153,14 @@ export function CheckoutView() {
                 <input type="file" className="hidden" onChange={(e) => setFileName(e.target.files?.[0]?.name || "")} />
               </div>
             </label>
-            <button onClick={handleConfirm} disabled={!fileName}
-              className="w-full mt-5 py-3 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-              ยืนยันการสั่งซื้อ
+            {error && (
+              <div className="mt-3 text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5 text-sm">
+                {error}
+              </div>
+            )}
+            <button onClick={handleConfirm} disabled={!fileName || loading}
+              className="w-full mt-5 py-3 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              {loading ? <><RefreshCw className="w-4 h-4 animate-spin" /> กำลังบันทึก…</> : "ยืนยันการสั่งซื้อ"}
             </button>
           </div>
           <button onClick={() => setStep(1)} className="w-full py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
