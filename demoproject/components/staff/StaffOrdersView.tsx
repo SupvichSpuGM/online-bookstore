@@ -3,15 +3,25 @@
 import { useState } from "react";
 import { Bell, Eye, X } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { type Order, statusCfg } from "@/lib/data";
+import { statusCfg } from "@/lib/data";
 
 const FILTERS = [["all","ทั้งหมด"],["pending","รอชำระ"],["payment_review","ตรวจสลิป"],["confirmed","ยืนยัน"],["shipping","จัดส่ง"],["delivered","สำเร็จ"]];
 const NEXT_STATUS: Record<string, string> = { pending:"payment_review", payment_review:"confirmed", confirmed:"shipping", shipping:"delivered" };
 
-export function StaffOrdersView({ initialOrders }: { initialOrders: Order[] }) {
-  const [orders, setOrders] = useState(initialOrders);
+export function StaffOrdersView({ initialOrders }: { initialOrders: any[] }) {
+  const [orders, setOrders] = useState<any[]>(
+    initialOrders.map((o) => ({
+      id: String(o.id),
+      customer: o.customer ?? o.customer_name ?? "ลูกค้า",
+      date: o.date ?? o.order_date ?? "",
+      total: o.total ?? o.total_amount ?? 0,
+      status: o.status,
+      items: o.items ?? 1,
+      address: o.address ?? "ที่อยู่จัดส่ง",
+    }))
+  );
   const [filter, setFilter] = useState("all");
-  const [selected, setSelected] = useState<Order | null>(null);
+  const [selected, setSelected] = useState<any | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ type: 'advance' | 'cancel', id: string, title: string, message: string } | null>(null);
 
   const shown = filter === "all" ? orders : orders.filter((o) => o.status === filter);
@@ -25,7 +35,7 @@ export function StaffOrdersView({ initialOrders }: { initialOrders: Order[] }) {
       type: 'advance',
       id,
       title: 'อัปเดตสถานะคำสั่งซื้อ',
-      message: `คุณต้องการปรับสถานะคำสั่งซื้อ ${id} เป็น "${nextStatusLabel}" ใช่หรือไม่?`
+      message: `คุณต้องการปรับสถานะคำสั่งซื้อ #${id} เป็น "${nextStatusLabel}" ใช่หรือไม่?`
     });
   };
 
@@ -34,21 +44,36 @@ export function StaffOrdersView({ initialOrders }: { initialOrders: Order[] }) {
       type: 'cancel',
       id,
       title: 'ยกเลิกคำสั่งซื้อ',
-      message: `คุณต้องการยกเลิกคำสั่งซื้อ ${id} ใช่หรือไม่?`
+      message: `คุณต้องการยกเลิกคำสั่งซื้อ #${id} ใช่หรือไม่?`
     });
   };
 
-  const doConfirm = () => {
+  const doConfirm = async () => {
     if (!confirmAction) return;
     const { type, id } = confirmAction;
-    if (type === 'advance') {
-      const order = orders.find(o => o.id === id);
-      if (order && NEXT_STATUS[order.status]) {
-        setOrders(orders.map((o) => o.id === id ? { ...o, status: NEXT_STATUS[order.status] as Order["status"] } : o));
+    const order = orders.find(o => o.id === id);
+    if (!order) return;
+
+    const newStatus = type === 'advance' ? NEXT_STATUS[order.status] : "cancelled";
+    if (!newStatus) return;
+
+    // Persist to API if numeric ID
+    if (!isNaN(Number(id))) {
+      try {
+        await fetch(`/api/orders/${id}/status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            status: newStatus,
+            tracking_number: newStatus === "shipping" ? "TH12345678" : undefined,
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to update order status", err);
       }
-    } else {
-      setOrders(orders.map((o) => o.id === id ? { ...o, status: "cancelled" } : o));
     }
+
+    setOrders(orders.map((o) => o.id === id ? { ...o, status: newStatus } : o));
     setConfirmAction(null);
     if (selected?.id === id) setSelected(null);
   };

@@ -1,17 +1,47 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { ArrowLeft, Package, MapPin, Receipt } from "lucide-react";
 import { ORDERS } from "@/lib/data";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return { title: `รายละเอียดคำสั่งซื้อ ${id} — Booka` };
+  return { title: `รายละเอียดคำสั่งซื้อ #${id} — Booka` };
+}
+
+async function getOrderFromApi(id: string) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("booka-token")?.value;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/orders/${id}`,
+      {
+        cache: "no-store",
+        headers: token ? { Cookie: `booka-token=${token}` } : {},
+      }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.order ? {
+      id: String(data.order.id),
+      customer: data.order.customer_name ?? "ลูกค้า",
+      date: data.order.order_date ?? "",
+      total: data.order.total_amount ?? 0,
+      status: data.order.status,
+      items: data.items?.length ?? 1,
+      address: "ที่อยู่ตามโปรไฟล์",
+    } : null;
+  } catch {
+    return null;
+  }
 }
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const order = ORDERS.find((o) => o.id === id);
+  const mockOrder = ORDERS.find((o) => o.id === id);
+  const apiOrder = !mockOrder ? await getOrderFromApi(id) : null;
+  const order = mockOrder ?? apiOrder;
 
   if (!order) {
     notFound();

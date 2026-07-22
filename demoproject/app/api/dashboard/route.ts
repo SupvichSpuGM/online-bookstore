@@ -18,9 +18,9 @@ export async function GET(request: NextRequest) {
     orders: number;
   }>>(
     `SELECT
-       DATE_FORMAT(order_date, '%b %Y') AS month,
-       ROUND(SUM(total_amount), 2)       AS revenue,
-       COUNT(*)                          AS orders
+       DATE_FORMAT(MIN(order_date), '%b %Y') AS month,
+       ROUND(SUM(total_amount), 2)            AS revenue,
+       COUNT(*)                               AS orders
      FROM orders
      WHERE status NOT IN ('cancelled')
        AND order_date >= DATE_SUB(NOW(), INTERVAL ? MONTH)
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
      JOIN books b ON b.id = oi.book_id
      JOIN orders o ON o.id = oi.order_id
      WHERE o.status NOT IN ('cancelled')
-     GROUP BY oi.book_id
+     GROUP BY oi.book_id, b.title, b.author
      ORDER BY total_sold DESC
      LIMIT 5`
   );

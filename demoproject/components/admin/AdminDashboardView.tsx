@@ -14,6 +14,13 @@ interface Summary {
   total_books: number;
 }
 
+interface SummaryData {
+  total_revenue?: number;
+  total_orders?: number;
+  total_customers?: number;
+  total_books?: number;
+}
+
 interface Props {
   salesData: SalesDataPoint[];
   orders: Order[];

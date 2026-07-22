@@ -5,8 +5,16 @@ import { AlertTriangle, Edit, Check, X } from "lucide-react";
 import { BookImg } from "@/components/ui/BookImg";
 import type { Book } from "@/lib/data";
 
-export function InventoryView({ books: initialBooks }: { books: Book[] }) {
-  const [books, setBooks] = useState(initialBooks.map((b) => ({ ...b })));
+export function InventoryView({ books: initialBooks }: { books: any[] }) {
+  const [books, setBooks] = useState<any[]>(
+    initialBooks.map((b) => ({
+      ...b,
+      stock: b.stock ?? b.stock_qty ?? 0,
+      originalPrice: b.originalPrice ?? b.original_price ?? b.price,
+      imgId: b.imgId ?? "photo-1512820790803-83ca734da794",
+      cover_image_url: b.cover_image_url ?? null,
+    }))
+  );
   const [editing, setEditing] = useState<number | null>(null);
   const [editVal, setEditVal] = useState("");
   const [confirmAction, setConfirmAction] = useState<{ id: number, val: number, title: string, message: string } | null>(null);
@@ -29,10 +37,21 @@ export function InventoryView({ books: initialBooks }: { books: Book[] }) {
     setEditing(null);
   };
 
-  const doConfirm = () => {
+  const doConfirm = async () => {
     if (!confirmAction) return;
     const { id, val } = confirmAction;
-    setBooks(books.map((b) => b.id === id ? { ...b, stock: val } : b));
+
+    try {
+      await fetch(`/api/books/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stock_qty: val }),
+      });
+    } catch (err) {
+      console.error("Failed to update stock via API", err);
+    }
+
+    setBooks(books.map((b) => b.id === id ? { ...b, stock: val, stock_qty: val } : b));
     setConfirmAction(null);
     setEditing(null);
   };
