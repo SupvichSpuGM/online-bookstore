@@ -423,7 +423,7 @@ sequenceDiagram
                     DB-->>API: คืนค่าจำนวนสต็อกล่าสุด
                 end
                 
-                alt สต็อกไม่พอ (Stock &lt; Qty)
+                alt สต็อกไม่พอ (Stock < Qty)
                     rect rgb(255, 247, 237)
                         note over API, DB: กรณีสต็อกไม่พอ ทำการ Rollback คืนค่าข้อมูล
                         API->>DB: ROLLBACK
@@ -432,7 +432,7 @@ sequenceDiagram
                         API-->>Client: HTTP 400 Bad Request
                         Client-->>Customer: แจ้งเตือนสินค้าไม่พอ
                     end
-                else สต็อกพอ (Stock &gt;= Qty)
+                else สต็อกพอ (Stock >= Qty)
                     rect rgb(240, 253, 244)
                         note over API, DB: บันทึกข้อมูลและยืนยันการทำรายการชำระเงินสำเร็จ
                         API->>DB: UPDATE books SET stock_qty = stock_qty - ? (หักลบสต็อก)
@@ -711,7 +711,7 @@ sequenceDiagram
                 activate DB
                 DB-->>API: คืนค่าจำนวนสต็อกคงเหลือปัจจุบัน
                 deactivate DB
-                alt สต็อกต่ำกว่าเกณฑ์ความปลอดภัย (stock_qty &lt;= 5)
+                alt สต็อกต่ำกว่าเกณฑ์ความปลอดภัย (stock_qty <= 5)
                     API->>Discord: ส่ง Webhook/Notification แจ้งเตือนระบบ "สินค้าสต็อกต่ำ!"
                     Discord-->>Staff: แสดงข้อความแจ้งเตือน "หนังสือ [Title] เหลือในคลังเพียง [Qty] เล่ม!"
                 end
