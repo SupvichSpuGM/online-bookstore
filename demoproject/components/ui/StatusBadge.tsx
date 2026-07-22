@@ -1,8 +1,8 @@
 // Server Component — pure display
-import { statusCfg } from "@/lib/data";
+import { statusCfg } from "@/lib/types";
 
 export function StatusBadge({ status }: { status: string }) {
-  const cfg = statusCfg[status] ?? {
+  const cfg = statusCfg[status as keyof typeof statusCfg] ?? {
     label: status,
     color: "text-gray-600 bg-gray-50 border-gray-200",
     dot: "bg-gray-400",
