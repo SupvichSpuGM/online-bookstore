@@ -25,14 +25,14 @@ export async function GET(request: NextRequest) {
   const offset = (page - 1) * limit;
 
   const whereClause = role ? "WHERE role = ?" : "";
-  const params: unknown[] = role ? [role, limit, offset] : [limit, offset];
+  const params: unknown[] = role ? [role] : [];
 
   const users = await query<UserRow[]>(
     `SELECT id, name, email, role, phone, created_at
      FROM users
      ${whereClause}
      ORDER BY created_at DESC
-     LIMIT ? OFFSET ?`,
+     LIMIT ${limit} OFFSET ${offset}`,
     params
   );
 

@@ -4,6 +4,7 @@
 -- ============================================================
 
 USE bookstore_db;
+SET NAMES utf8mb4;
 
 -- ─── Users (password = "password123" bcrypt hash) ──────────
 -- Hash สร้างจาก bcrypt rounds=10

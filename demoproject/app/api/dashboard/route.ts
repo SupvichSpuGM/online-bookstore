@@ -18,9 +18,9 @@ export async function GET(request: NextRequest) {
     orders: number;
   }>>(
     `SELECT
-       DATE_FORMAT(order_date, '%b %Y') AS month,
-       ROUND(SUM(total_amount), 2)       AS revenue,
-       COUNT(*)                          AS orders
+       DATE_FORMAT(MIN(order_date), '%b %Y') AS month,
+       ROUND(SUM(total_amount), 2)            AS revenue,
+       COUNT(*)                               AS orders
      FROM orders
      WHERE status NOT IN ('cancelled')
        AND order_date >= DATE_SUB(NOW(), INTERVAL ? MONTH)
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
      JOIN books b ON b.id = oi.book_id
      JOIN orders o ON o.id = oi.order_id
      WHERE o.status NOT IN ('cancelled')
-     GROUP BY oi.book_id
+     GROUP BY oi.book_id, b.title, b.author
      ORDER BY total_sold DESC
      LIMIT 5`
   );
@@ -70,10 +70,27 @@ export async function GET(request: NextRequest) {
        (SELECT COUNT(*) FROM books)                                                       AS total_books`
   );
 
+  // Recent orders
+  const orders = await query<Array<{
+    id: number;
+    customer: string;
+    date: string;
+    total: number;
+    status: string;
+  }>>(
+    `SELECT o.id, u.name AS customer, DATE_FORMAT(o.order_date, '%d %b %Y') AS date,
+            o.total_amount AS total, o.status
+     FROM orders o
+     JOIN users u ON u.id = o.user_id
+     ORDER BY o.order_date DESC
+     LIMIT 10`
+  );
+
   return NextResponse.json({
     summary,
     salesData,
     topBooks,
     statusCounts,
+    orders,
   });
 }

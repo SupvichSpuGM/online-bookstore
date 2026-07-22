@@ -53,8 +53,8 @@ export async function GET(request: NextRequest) {
      JOIN users u ON u.id = o.user_id
      ${where}
      ORDER BY o.order_date DESC
-     LIMIT ? OFFSET ?`,
-    [...params, limit, offset]
+     LIMIT ${limit} OFFSET ${offset}`,
+    params
   );
 
   const [{ total }] = await query<[{ total: number }]>(

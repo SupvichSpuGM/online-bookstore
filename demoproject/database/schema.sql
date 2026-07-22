@@ -9,6 +9,7 @@ CREATE DATABASE IF NOT EXISTS bookstore_db
   COLLATE utf8mb4_unicode_ci;
 
 USE bookstore_db;
+SET NAMES utf8mb4;
 
 -- ─── 1. Users ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users (

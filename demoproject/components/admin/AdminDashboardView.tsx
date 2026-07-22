@@ -7,29 +7,62 @@ import type { Order } from "@/lib/data";
 
 interface SalesDataPoint { month: string; revenue: number; orders: number; }
 
+interface SummaryData {
+  total_revenue?: number;
+  total_orders?: number;
+  total_customers?: number;
+  total_books?: number;
+}
+
 interface Props {
   salesData: SalesDataPoint[];
   orders: Order[];
+  summary?: SummaryData | null;
+  topBooks?: any[];
 }
 
-const KPIS = [
-  { label: "ยอดขายเดือนนี้", value: "฿53,400", change: "+11.7%", up: true, icon: BarChart2 },
-  { label: "คำสั่งซื้อทั้งหมด", value: "197", change: "+4.2%", up: true, icon: ShoppingBag },
-  { label: "หนังสือในสต็อก", value: "2,418", change: "-32 เล่ม", up: false, icon: Package },
-  { label: "ลูกค้าลงทะเบียน", value: "1,084", change: "+23 คน", up: true, icon: Users },
-];
+export function AdminDashboardView({ salesData, orders, summary }: Props) {
+  const kpis = [
+    {
+      label: "รายได้รวม",
+      value: summary?.total_revenue !== undefined ? `฿${Number(summary.total_revenue).toLocaleString()}` : "฿53,400",
+      change: "+11.7%",
+      up: true,
+      icon: BarChart2
+    },
+    {
+      label: "คำสั่งซื้อทั้งหมด",
+      value: summary?.total_orders !== undefined ? summary.total_orders.toLocaleString() : "197",
+      change: "+4.2%",
+      up: true,
+      icon: ShoppingBag
+    },
+    {
+      label: "หนังสือในสต็อก",
+      value: summary?.total_books !== undefined ? summary.total_books.toLocaleString() : "2,418",
+      change: "-32 เล่ม",
+      up: false,
+      icon: Package
+    },
+    {
+      label: "ลูกค้าลงทะเบียน",
+      value: summary?.total_customers !== undefined ? summary.total_customers.toLocaleString() : "1,084",
+      change: "+23 คน",
+      up: true,
+      icon: Users
+    },
+  ];
 
-export function AdminDashboardView({ salesData, orders }: Props) {
   return (
     <div className="p-6">
       <div className="mb-6">
         <h1 className="font-['Playfair_Display'] text-2xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground text-sm mt-1">ภาพรวมระบบ — 13 มกราคม 2568</p>
+        <p className="text-muted-foreground text-sm mt-1">ภาพรวมระบบ</p>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {KPIS.map(({ label, value, change, up, icon: Icon }) => (
+        {kpis.map(({ label, value, change, up, icon: Icon }) => (
           <div key={label} className="bg-card border border-border rounded-xl p-5">
             <div className="flex items-start justify-between mb-3">
               <p className="text-xs text-muted-foreground">{label}</p>
@@ -48,7 +81,6 @@ export function AdminDashboardView({ salesData, orders }: Props) {
         <div className="bg-card border border-border rounded-xl p-5">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-medium">รายได้รายเดือน (บาท)</h2>
-            <span className="text-xs text-muted-foreground font-['DM_Mono']">ส.ค. 2567 – ม.ค. 2568</span>
           </div>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={salesData}>
@@ -61,7 +93,7 @@ export function AdminDashboardView({ salesData, orders }: Props) {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,22,18,0.06)" />
               <XAxis dataKey="month" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `฿${(v / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v: number) => [`฿${v.toLocaleString()}`, "รายได้"]} />
+              <Tooltip formatter={(v: any) => [`฿${Number(v ?? 0).toLocaleString()}`, "รายได้"]} />
               <Area type="monotone" dataKey="revenue" stroke="#1A2E44" strokeWidth={2} fill="url(#revenueGrad)" />
             </AreaChart>
           </ResponsiveContainer>
@@ -73,7 +105,7 @@ export function AdminDashboardView({ salesData, orders }: Props) {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,22,18,0.06)" />
               <XAxis dataKey="month" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip formatter={(v: number) => [v, "คำสั่งซื้อ"]} />
+              <Tooltip formatter={(v: any) => [v, "คำสั่งซื้อ"]} />
               <Bar dataKey="orders" fill="#B45309" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

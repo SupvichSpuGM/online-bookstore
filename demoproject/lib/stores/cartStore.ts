@@ -52,7 +52,7 @@ export const useCartStore = create<CartStore>()(
     {
       name: "booka-cart",
       storage: createJSONStorage(() =>
-        typeof window !== "undefined" ? localStorage : ({ getItem: () => null, setItem: () => {}, removeItem: () => {} } as Storage)
+        typeof window !== "undefined" ? localStorage : ({ getItem: () => null, setItem: () => {}, removeItem: () => {} } as unknown as Storage)
       ),
       skipHydration: true,
     }

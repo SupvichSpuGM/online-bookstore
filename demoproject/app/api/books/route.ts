@@ -48,8 +48,8 @@ export async function GET(request: NextRequest) {
      FROM books
      ${where}
      ORDER BY id ASC
-     LIMIT ? OFFSET ?`,
-    [...params, limit, offset]
+     LIMIT ${limit} OFFSET ${offset}`,
+    params
   );
 
   const [{ total }] = await query<[{ total: number }]>(
