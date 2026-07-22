@@ -70,10 +70,25 @@ export async function GET(request: NextRequest) {
        (SELECT COUNT(*) FROM books)                                                       AS total_books`
   );
 
+  // Recent orders (10 รายการล่าสุด)
+  const orders = await query<Array<{
+    id: number; user_id: number; address_id: number | null; verified_by: number | null;
+    total_amount: number; status: string; slip_image_url: string | null;
+    tracking_number: string | null; order_date: string; shipped_at: string | null;
+    customer_name: string;
+  }>>(
+    `SELECT o.*, u.name AS customer_name
+     FROM orders o
+     JOIN users u ON u.id = o.user_id
+     ORDER BY o.order_date DESC
+     LIMIT 10`
+  );
+
   return NextResponse.json({
     summary,
     salesData,
     topBooks,
     statusCounts,
+    orders,
   });
 }
