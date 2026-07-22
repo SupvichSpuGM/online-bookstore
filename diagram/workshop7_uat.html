@@ -1,995 +1,1551 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Workshop #7: UAT — ระบบร้านหนังสือออนไลน์</title>
-  <meta name="description" content="เอกสาร User Acceptance Testing (UAT) สำหรับระบบร้านหนังสือออนไลน์ — Workshop #7 การออกแบบและดำเนินการทดสอบ UAT" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workshop #7: UAT — ระบบร้านหนังสือออนไลน์</title>
+    <meta
+      name="description"
+      content="เอกสาร User Acceptance Testing (UAT) สำหรับระบบร้านหนังสือออนไลน์ — Workshop #7 การออกแบบและดำเนินการทดสอบ UAT"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-    :root {
-      --bg-base:        #0d0f18;
-      --bg-surface:     #13162a;
-      --bg-card:        #1a1e35;
-      --bg-card-hover:  #1f2440;
-      --border:         rgba(255,255,255,0.07);
-      --border-glow:    rgba(99,102,241,0.35);
+      :root {
+        --bg-base: #0d0f18;
+        --bg-surface: #13162a;
+        --bg-card: #1a1e35;
+        --bg-card-hover: #1f2440;
+        --border: rgba(255, 255, 255, 0.07);
+        --border-glow: rgba(99, 102, 241, 0.35);
 
-      --primary:        #6366f1;
-      --primary-light:  #818cf8;
-      --primary-glow:   rgba(99,102,241,0.2);
-      --secondary:      #06b6d4;
-      --accent:         #f59e0b;
+        --primary: #6366f1;
+        --primary-light: #818cf8;
+        --primary-glow: rgba(99, 102, 241, 0.2);
+        --secondary: #06b6d4;
+        --accent: #f59e0b;
 
-      --pass:           #10b981;
-      --pass-bg:        rgba(16,185,129,0.12);
-      --fail:           #f43f5e;
-      --fail-bg:        rgba(244,63,94,0.12);
+        --pass: #10b981;
+        --pass-bg: rgba(16, 185, 129, 0.12);
+        --fail: #f43f5e;
+        --fail-bg: rgba(244, 63, 94, 0.12);
 
-      --crit:           #ef4444;
-      --crit-bg:        rgba(239,68,68,0.12);
-      --high:           #f97316;
-      --high-bg:        rgba(249,115,22,0.12);
-      --med:            #eab308;
-      --med-bg:         rgba(234,179,8,0.12);
-      --low:            #22c55e;
-      --low-bg:         rgba(34,197,94,0.12);
+        --crit: #ef4444;
+        --crit-bg: rgba(239, 68, 68, 0.12);
+        --high: #f97316;
+        --high-bg: rgba(249, 115, 22, 0.12);
+        --med: #eab308;
+        --med-bg: rgba(234, 179, 8, 0.12);
+        --low: #22c55e;
+        --low-bg: rgba(34, 197, 94, 0.12);
 
-      --text-primary:   #f1f5f9;
-      --text-secondary: #94a3b8;
-      --text-muted:     #64748b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
 
-      --radius-sm:   6px;
-      --radius-md:  10px;
-      --radius-lg:  16px;
-      --radius-xl:  24px;
+        --radius-sm: 6px;
+        --radius-md: 10px;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
 
-      --shadow-card: 0 4px 24px rgba(0,0,0,0.35);
-      --shadow-glow: 0 0 40px rgba(99,102,241,0.15);
-    }
+        --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.35);
+        --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
+      }
 
-    html { scroll-behavior: smooth; }
+      html {
+        scroll-behavior: smooth;
+      }
 
-    body {
-      font-family: 'Sarabun', 'Inter', sans-serif;
-      background: var(--bg-base);
-      color: var(--text-primary);
-      line-height: 1.7;
-      min-height: 100vh;
-    }
+      body {
+        font-family: "Sarabun", "Inter", sans-serif;
+        background: var(--bg-base);
+        color: var(--text-primary);
+        line-height: 1.7;
+        min-height: 100vh;
+      }
 
-    /* ─── HERO HEADER ─── */
-    .hero {
-      background: linear-gradient(135deg, #0d0f18 0%, #111827 40%, #1a1035 100%);
-      border-bottom: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
-      padding: 4rem 2rem 3.5rem;
-      text-align: center;
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(99,102,241,0.18) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(6,182,212,0.12) 0%, transparent 60%);
-      pointer-events: none;
-    }
-    .hero-grid {
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-      background-size: 40px 40px;
-      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
-    }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: var(--primary-glow);
-      border: 1px solid rgba(99,102,241,0.4);
-      color: var(--primary-light);
-      padding: 0.35rem 1rem;
-      border-radius: 99px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 1.5rem;
-      position: relative;
-    }
-    .hero-badge::before {
-      content: '';
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--primary-light);
-      animation: pulse 2s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
-    .hero h1 {
-      font-size: clamp(1.9rem, 4vw, 3rem);
-      font-weight: 800;
-      background: linear-gradient(135deg, #f1f5f9 0%, var(--primary-light) 50%, var(--secondary) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      line-height: 1.25;
-      margin-bottom: 1rem;
-      position: relative;
-    }
-    .hero-subtitle {
-      font-size: 1.05rem;
-      color: var(--text-secondary);
-      max-width: 640px;
-      margin: 0 auto 2rem;
-      position: relative;
-    }
-    .hero-meta {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      position: relative;
-    }
-    .hero-meta-item {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      padding: 0.4rem 0.9rem;
-      border-radius: 99px;
-    }
-    .hero-meta-item span { color: var(--text-secondary); font-weight: 500; }
+      /* ─── HERO HEADER ─── */
+      .hero {
+        background: linear-gradient(
+          135deg,
+          #0d0f18 0%,
+          #111827 40%,
+          #1a1035 100%
+        );
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+        padding: 4rem 2rem 3.5rem;
+        text-align: center;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 80% 50% at 20% -10%,
+            rgba(99, 102, 241, 0.18) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 60% 40% at 80% 110%,
+            rgba(6, 182, 212, 0.12) 0%,
+            transparent 60%
+          );
+        pointer-events: none;
+      }
+      .hero-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+          );
+        background-size: 40px 40px;
+        mask-image: radial-gradient(
+          ellipse 80% 80% at 50% 50%,
+          black 30%,
+          transparent 100%
+        );
+      }
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--primary-glow);
+        border: 1px solid rgba(99, 102, 241, 0.4);
+        color: var(--primary-light);
+        padding: 0.35rem 1rem;
+        border-radius: 99px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+        position: relative;
+      }
+      .hero-badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(1.4);
+        }
+      }
+      .hero h1 {
+        font-size: clamp(1.9rem, 4vw, 3rem);
+        font-weight: 800;
+        background: linear-gradient(
+          135deg,
+          #f1f5f9 0%,
+          var(--primary-light) 50%,
+          var(--secondary) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.25;
+        margin-bottom: 1rem;
+        position: relative;
+      }
+      .hero-subtitle {
+        font-size: 1.05rem;
+        color: var(--text-secondary);
+        max-width: 640px;
+        margin: 0 auto 2rem;
+        position: relative;
+      }
+      .hero-meta {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        position: relative;
+      }
+      .hero-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+        padding: 0.4rem 0.9rem;
+        border-radius: 99px;
+      }
+      .hero-meta-item span {
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
 
-    /* ─── LAYOUT ─── */
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 3rem 2rem;
-    }
+      /* ─── LAYOUT ─── */
+      .container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+      }
 
-    /* ─── SECTION ─── */
-    .section { margin-bottom: 4rem; }
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.75rem;
-    }
-    .section-icon {
-      width: 44px; height: 44px;
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      flex-shrink: 0;
-    }
-    .section-icon.purple { background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(99,102,241,0.05)); border: 1px solid rgba(99,102,241,0.3); }
-    .section-icon.cyan   { background: linear-gradient(135deg, rgba(6,182,212,0.25), rgba(6,182,212,0.05));  border: 1px solid rgba(6,182,212,0.3); }
-    .section-icon.amber  { background: linear-gradient(135deg, rgba(245,158,11,0.25), rgba(245,158,11,0.05)); border: 1px solid rgba(245,158,11,0.3); }
-    .section-icon.pink   { background: linear-gradient(135deg, rgba(236,72,153,0.25), rgba(236,72,153,0.05)); border: 1px solid rgba(236,72,153,0.3); }
-    .section-title { font-size: 1.35rem; font-weight: 700; color: var(--text-primary); }
-    .section-step {
-      font-size: 0.72rem;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--primary-light);
-      background: var(--primary-glow);
-      padding: 0.2rem 0.6rem;
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(99,102,241,0.3);
-      font-weight: 500;
-      letter-spacing: 0.04em;
-    }
+      /* ─── SECTION ─── */
+      .section {
+        margin-bottom: 4rem;
+      }
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+      }
+      .section-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+      }
+      .section-icon.purple {
+        background: linear-gradient(
+          135deg,
+          rgba(99, 102, 241, 0.25),
+          rgba(99, 102, 241, 0.05)
+        );
+        border: 1px solid rgba(99, 102, 241, 0.3);
+      }
+      .section-icon.cyan {
+        background: linear-gradient(
+          135deg,
+          rgba(6, 182, 212, 0.25),
+          rgba(6, 182, 212, 0.05)
+        );
+        border: 1px solid rgba(6, 182, 212, 0.3);
+      }
+      .section-icon.amber {
+        background: linear-gradient(
+          135deg,
+          rgba(245, 158, 11, 0.25),
+          rgba(245, 158, 11, 0.05)
+        );
+        border: 1px solid rgba(245, 158, 11, 0.3);
+      }
+      .section-icon.pink {
+        background: linear-gradient(
+          135deg,
+          rgba(236, 72, 153, 0.25),
+          rgba(236, 72, 153, 0.05)
+        );
+        border: 1px solid rgba(236, 72, 153, 0.3);
+      }
+      .section-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .section-step {
+        font-size: 0.72rem;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--primary-light);
+        background: var(--primary-glow);
+        padding: 0.2rem 0.6rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        font-weight: 500;
+        letter-spacing: 0.04em;
+      }
 
-    /* ─── PERSONA CARDS ─── */
-    .persona-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.25rem;
-    }
-    .persona-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 1.75rem;
-      transition: all 0.25s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .persona-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    }
-    .persona-card.customer::before { background: linear-gradient(90deg, var(--primary), var(--secondary)); }
-    .persona-card.staff::before    { background: linear-gradient(90deg, var(--accent), #f97316); }
-    .persona-card.admin::before    { background: linear-gradient(90deg, #ec4899, var(--primary)); }
-    .persona-card:hover { background: var(--bg-card-hover); border-color: var(--border-glow); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
-    .persona-avatar {
-      width: 56px; height: 56px;
-      border-radius: var(--radius-md);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.7rem;
-      margin-bottom: 1rem;
-    }
-    .persona-card.customer .persona-avatar { background: rgba(99,102,241,0.15); }
-    .persona-card.staff    .persona-avatar { background: rgba(245,158,11,0.15); }
-    .persona-card.admin    .persona-avatar { background: rgba(236,72,153,0.15); }
-    .persona-name {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 0.25rem;
-    }
-    .persona-role-tag {
-      display: inline-block;
-      font-size: 0.72rem;
-      font-weight: 600;
-      padding: 0.2rem 0.6rem;
-      border-radius: 99px;
-      margin-bottom: 0.85rem;
-    }
-    .persona-card.customer .persona-role-tag { background: rgba(99,102,241,0.15); color: var(--primary-light); }
-    .persona-card.staff    .persona-role-tag { background: rgba(245,158,11,0.15); color: var(--accent); }
-    .persona-card.admin    .persona-role-tag { background: rgba(236,72,153,0.15); color: #f472b6; }
-    .persona-desc { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+      /* ─── PERSONA CARDS ─── */
+      .persona-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.25rem;
+      }
+      .persona-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.75rem;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .persona-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      }
+      .persona-card.customer::before {
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+      }
+      .persona-card.staff::before {
+        background: linear-gradient(90deg, var(--accent), #f97316);
+      }
+      .persona-card.admin::before {
+        background: linear-gradient(90deg, #ec4899, var(--primary));
+      }
+      .persona-card:hover {
+        background: var(--bg-card-hover);
+        border-color: var(--border-glow);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-glow);
+      }
+      .persona-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.7rem;
+        margin-bottom: 1rem;
+      }
+      .persona-card.customer .persona-avatar {
+        background: rgba(99, 102, 241, 0.15);
+      }
+      .persona-card.staff .persona-avatar {
+        background: rgba(245, 158, 11, 0.15);
+      }
+      .persona-card.admin .persona-avatar {
+        background: rgba(236, 72, 153, 0.15);
+      }
+      .persona-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+      }
+      .persona-role-tag {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 99px;
+        margin-bottom: 0.85rem;
+      }
+      .persona-card.customer .persona-role-tag {
+        background: rgba(99, 102, 241, 0.15);
+        color: var(--primary-light);
+      }
+      .persona-card.staff .persona-role-tag {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--accent);
+      }
+      .persona-card.admin .persona-role-tag {
+        background: rgba(236, 72, 153, 0.15);
+        color: #f472b6;
+      }
+      .persona-desc {
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
 
-    /* ─── PERSONA TEST GROUP ─── */
-    .test-group { margin-bottom: 3rem; }
-    .test-group-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1rem 1.5rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md) var(--radius-md) 0 0;
-      border-bottom: none;
-    }
-    .test-group-emoji { font-size: 1.35rem; }
-    .test-group-name { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
-    .test-group-count {
-      margin-left: auto;
-      font-size: 0.75rem;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-muted);
-      background: rgba(255,255,255,0.05);
-      padding: 0.25rem 0.7rem;
-      border-radius: 99px;
-      border: 1px solid var(--border);
-    }
+      /* ─── PERSONA TEST GROUP ─── */
+      .test-group {
+        margin-bottom: 3rem;
+      }
+      .test-group-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
+        border-bottom: none;
+      }
+      .test-group-emoji {
+        font-size: 1.35rem;
+      }
+      .test-group-name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .test-group-count {
+        margin-left: auto;
+        font-size: 0.75rem;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--text-muted);
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0.25rem 0.7rem;
+        border-radius: 99px;
+        border: 1px solid var(--border);
+      }
 
-    /* ─── TABLE ─── */
-    .table-wrapper {
-      overflow-x: auto;
-      border: 1px solid var(--border);
-      border-radius: 0 0 var(--radius-md) var(--radius-md);
-    }
-    .test-group-header + .table-wrapper { border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md); }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.84rem;
-    }
-    thead tr {
-      background: rgba(255,255,255,0.04);
-    }
-    thead th {
-      padding: 0.85rem 1rem;
-      text-align: left;
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-    tbody tr {
-      border-bottom: 1px solid var(--border);
-      transition: background 0.15s;
-    }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: rgba(255,255,255,0.025); }
-    tbody td {
-      padding: 1rem;
-      vertical-align: top;
-      color: var(--text-secondary);
-      line-height: 1.55;
-    }
-    td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--primary-light); white-space: nowrap; }
-    td strong { color: var(--text-primary); font-weight: 600; }
-    td .step-list { padding-left: 1.1rem; }
-    td .step-list li { margin-bottom: 0.2rem; }
+      /* ─── TABLE ─── */
+      .table-wrapper {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+      .test-group-header + .table-wrapper {
+        border-top: none;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.84rem;
+      }
+      thead tr {
+        background: rgba(255, 255, 255, 0.04);
+      }
+      thead th {
+        padding: 0.85rem 1rem;
+        text-align: left;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+      }
+      tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background 0.15s;
+      }
+      tbody tr:last-child {
+        border-bottom: none;
+      }
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.025);
+      }
+      tbody td {
+        padding: 1rem;
+        vertical-align: top;
+        color: var(--text-secondary);
+        line-height: 1.55;
+      }
+      td:first-child {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.76rem;
+        color: var(--primary-light);
+        white-space: nowrap;
+      }
+      td strong {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      td .step-list {
+        padding-left: 1.1rem;
+      }
+      td .step-list li {
+        margin-bottom: 0.2rem;
+      }
 
-    /* ─── STATUS BADGES ─── */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.3rem 0.75rem;
-      border-radius: 99px;
-      font-size: 0.76rem;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .badge.pass { background: var(--pass-bg); color: var(--pass); border: 1px solid rgba(16,185,129,0.25); }
-    .badge.fail { background: var(--fail-bg); color: var(--fail); border: 1px solid rgba(244,63,94,0.25); }
-    .badge.crit { background: var(--crit-bg); color: var(--crit); border: 1px solid rgba(239,68,68,0.25); }
-    .badge.high { background: var(--high-bg); color: var(--high); border: 1px solid rgba(249,115,22,0.25); }
-    .badge.med  { background: var(--med-bg);  color: var(--med);  border: 1px solid rgba(234,179,8,0.25); }
-    .badge.low  { background: var(--low-bg);  color: var(--low);  border: 1px solid rgba(34,197,94,0.25); }
+      /* ─── STATUS BADGES ─── */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 99px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .badge.pass {
+        background: var(--pass-bg);
+        color: var(--pass);
+        border: 1px solid rgba(16, 185, 129, 0.25);
+      }
+      .badge.fail {
+        background: var(--fail-bg);
+        color: var(--fail);
+        border: 1px solid rgba(244, 63, 94, 0.25);
+      }
+      .badge.crit {
+        background: var(--crit-bg);
+        color: var(--crit);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+      }
+      .badge.high {
+        background: var(--high-bg);
+        color: var(--high);
+        border: 1px solid rgba(249, 115, 22, 0.25);
+      }
+      .badge.med {
+        background: var(--med-bg);
+        color: var(--med);
+        border: 1px solid rgba(234, 179, 8, 0.25);
+      }
+      .badge.low {
+        background: var(--low-bg);
+        color: var(--low);
+        border: 1px solid rgba(34, 197, 94, 0.25);
+      }
 
-    /* ─── ISSUE TYPE TAG ─── */
-    .issue-type {
-      display: inline-block;
-      font-size: 0.72rem;
-      padding: 0.2rem 0.55rem;
-      border-radius: var(--radius-sm);
-      background: rgba(99,102,241,0.1);
-      color: var(--primary-light);
-      border: 1px solid rgba(99,102,241,0.2);
-      white-space: nowrap;
-    }
+      /* ─── ISSUE TYPE TAG ─── */
+      .issue-type {
+        display: inline-block;
+        font-size: 0.72rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: var(--radius-sm);
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary-light);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        white-space: nowrap;
+      }
 
-    /* ─── SUMMARY STATS ─── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .stat-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem 1.25rem;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.25s;
-    }
-    .stat-card:hover { border-color: var(--border-glow); transform: translateY(-2px); }
-    .stat-card::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 3px;
-    }
-    .stat-card.total::after   { background: linear-gradient(90deg, var(--primary), var(--secondary)); }
-    .stat-card.passed::after  { background: linear-gradient(90deg, var(--pass), #059669); }
-    .stat-card.failed::after  { background: linear-gradient(90deg, var(--fail), #be123c); }
-    .stat-card.rate::after    { background: linear-gradient(90deg, var(--accent), #d97706); }
-    .stat-value {
-      font-size: 2.5rem;
-      font-weight: 800;
-      font-family: 'Inter', sans-serif;
-      line-height: 1;
-      margin-bottom: 0.4rem;
-    }
-    .stat-card.total  .stat-value { color: var(--primary-light); }
-    .stat-card.passed .stat-value { color: var(--pass); }
-    .stat-card.failed .stat-value { color: var(--fail); }
-    .stat-card.rate   .stat-value { color: var(--accent); }
-    .stat-label { font-size: 0.82rem; color: var(--text-muted); }
+      /* ─── SUMMARY STATS ─── */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      .stat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem 1.25rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.25s;
+      }
+      .stat-card:hover {
+        border-color: var(--border-glow);
+        transform: translateY(-2px);
+      }
+      .stat-card::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+      }
+      .stat-card.total::after {
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+      }
+      .stat-card.passed::after {
+        background: linear-gradient(90deg, var(--pass), #059669);
+      }
+      .stat-card.failed::after {
+        background: linear-gradient(90deg, var(--fail), #be123c);
+      }
+      .stat-card.rate::after {
+        background: linear-gradient(90deg, var(--accent), #d97706);
+      }
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        font-family: "Inter", sans-serif;
+        line-height: 1;
+        margin-bottom: 0.4rem;
+      }
+      .stat-card.total .stat-value {
+        color: var(--primary-light);
+      }
+      .stat-card.passed .stat-value {
+        color: var(--pass);
+      }
+      .stat-card.failed .stat-value {
+        color: var(--fail);
+      }
+      .stat-card.rate .stat-value {
+        color: var(--accent);
+      }
+      .stat-label {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+      }
 
-    /* ─── PROGRESS BAR ─── */
-    .progress-wrap { margin-bottom: 2rem; }
-    .progress-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.82rem; color: var(--text-secondary); }
-    .progress-label strong { color: var(--text-primary); }
-    .progress-bar-bg {
-      height: 10px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      border-radius: 99px;
-      background: linear-gradient(90deg, var(--pass), #059669);
-      transition: width 1s ease;
-    }
+      /* ─── PROGRESS BAR ─── */
+      .progress-wrap {
+        margin-bottom: 2rem;
+      }
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+      }
+      .progress-label strong {
+        color: var(--text-primary);
+      }
+      .progress-bar-bg {
+        height: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, var(--pass), #059669);
+        transition: width 1s ease;
+      }
 
-    /* ─── PERSONA BREAKDOWN ─── */
-    .breakdown-table-wrap {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      margin-bottom: 2rem;
-    }
-    .breakdown-table-wrap table { font-size: 0.88rem; }
-    .breakdown-table-wrap thead th { padding: 0.9rem 1.25rem; }
-    .breakdown-table-wrap tbody td { padding: 1rem 1.25rem; }
-    .persona-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
+      /* ─── PERSONA BREAKDOWN ─── */
+      .breakdown-table-wrap {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-bottom: 2rem;
+      }
+      .breakdown-table-wrap table {
+        font-size: 0.88rem;
+      }
+      .breakdown-table-wrap thead th {
+        padding: 0.9rem 1.25rem;
+      }
+      .breakdown-table-wrap tbody td {
+        padding: 1rem 1.25rem;
+      }
+      .persona-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
 
-    /* ─── ISSUE LIST ─── */
-    .issue-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.25s;
-    }
-    .issue-card:hover { border-color: var(--border-glow); }
-    .issue-card.crit { border-left: 4px solid var(--crit); }
-    .issue-card.high { border-left: 4px solid var(--high); }
-    .issue-card.med  { border-left: 4px solid var(--med); }
-    .issue-card.low  { border-left: 4px solid var(--low); }
-    .issue-card-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 0.85rem; flex-wrap: wrap; }
-    .issue-id { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; }
-    .issue-ref { font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; color: var(--primary-light); background: var(--primary-glow); padding: 0.2rem 0.5rem; border-radius: var(--radius-sm); }
-    .issue-badges { display: flex; gap: 0.5rem; align-items: center; margin-left: auto; flex-wrap: wrap; }
-    .issue-desc { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; }
+      /* ─── ISSUE LIST ─── */
+      .issue-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.25s;
+      }
+      .issue-card:hover {
+        border-color: var(--border-glow);
+      }
+      .issue-card.crit {
+        border-left: 4px solid var(--crit);
+      }
+      .issue-card.high {
+        border-left: 4px solid var(--high);
+      }
+      .issue-card.med {
+        border-left: 4px solid var(--med);
+      }
+      .issue-card.low {
+        border-left: 4px solid var(--low);
+      }
+      .issue-card-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 0.85rem;
+        flex-wrap: wrap;
+      }
+      .issue-id {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      .issue-ref {
+        font-size: 0.72rem;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--primary-light);
+        background: var(--primary-glow);
+        padding: 0.2rem 0.5rem;
+        border-radius: var(--radius-sm);
+      }
+      .issue-badges {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        margin-left: auto;
+        flex-wrap: wrap;
+      }
+      .issue-desc {
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+        line-height: 1.65;
+      }
 
-    /* ─── EVALUATION SUMMARY ─── */
-    .eval-card {
-      background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(6,182,212,0.04) 100%);
-      border: 1px solid rgba(99,102,241,0.25);
-      border-radius: var(--radius-xl);
-      padding: 2.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .eval-card::before {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 200px; height: 200px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .eval-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--primary-light);
-      margin-bottom: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .eval-body p {
-      font-size: 0.92rem;
-      color: var(--text-secondary);
-      line-height: 1.8;
-      margin-bottom: 1rem;
-    }
-    .eval-body p:last-child { margin-bottom: 0; }
-    .eval-body strong { color: var(--text-primary); }
-    .eval-highlight {
-      background: rgba(255,255,255,0.04);
-      border-left: 3px solid var(--primary);
-      padding: 1rem 1.25rem;
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      margin: 1rem 0;
-    }
-    .eval-highlight.crit { border-left-color: var(--crit); }
-    .eval-highlight.high { border-left-color: var(--high); }
-    .eval-highlight.tip  { border-left-color: var(--secondary); }
+      /* ─── EVALUATION SUMMARY ─── */
+      .eval-card {
+        background: linear-gradient(
+          135deg,
+          rgba(99, 102, 241, 0.08) 0%,
+          rgba(6, 182, 212, 0.04) 100%
+        );
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        border-radius: var(--radius-xl);
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .eval-card::before {
+        content: "";
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(99, 102, 241, 0.12) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .eval-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--primary-light);
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .eval-body p {
+        font-size: 0.92rem;
+        color: var(--text-secondary);
+        line-height: 1.8;
+        margin-bottom: 1rem;
+      }
+      .eval-body p:last-child {
+        margin-bottom: 0;
+      }
+      .eval-body strong {
+        color: var(--text-primary);
+      }
+      .eval-highlight {
+        background: rgba(255, 255, 255, 0.04);
+        border-left: 3px solid var(--primary);
+        padding: 1rem 1.25rem;
+        border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        margin: 1rem 0;
+      }
+      .eval-highlight.crit {
+        border-left-color: var(--crit);
+      }
+      .eval-highlight.high {
+        border-left-color: var(--high);
+      }
+      .eval-highlight.tip {
+        border-left-color: var(--secondary);
+      }
 
-    /* ─── LEGEND ─── */
-    .legend { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1.5rem; }
-    .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--text-muted); }
-    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+      /* ─── LEGEND ─── */
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-top: 1.5rem;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+      .legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
 
-    /* ─── FOOTER ─── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 2rem;
-      text-align: center;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    footer a { color: var(--primary-light); text-decoration: none; }
+      /* ─── FOOTER ─── */
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 2rem;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+      footer a {
+        color: var(--primary-light);
+        text-decoration: none;
+      }
 
-    /* ─── DIVIDER ─── */
-    .divider { height: 1px; background: var(--border); margin: 3rem 0; }
+      /* ─── DIVIDER ─── */
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 3rem 0;
+      }
 
-    /* ─── RESPONSIVE ─── */
-    @media (max-width: 768px) {
-      .hero { padding: 3rem 1.25rem 2.5rem; }
-      .container { padding: 2rem 1.25rem; }
-      .persona-grid { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .eval-card { padding: 1.75rem; }
-    }
+      /* ─── RESPONSIVE ─── */
+      @media (max-width: 768px) {
+        .hero {
+          padding: 3rem 1.25rem 2.5rem;
+        }
+        .container {
+          padding: 2rem 1.25rem;
+        }
+        .persona-grid {
+          grid-template-columns: 1fr;
+        }
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .eval-card {
+          padding: 1.75rem;
+        }
+      }
 
-    /* ─── ANIMATION ─── */
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-up { animation: fadeUp 0.5s ease both; }
-    .fade-up:nth-child(1) { animation-delay: 0.05s; }
-    .fade-up:nth-child(2) { animation-delay: 0.10s; }
-    .fade-up:nth-child(3) { animation-delay: 0.15s; }
-  </style>
-</head>
-<body>
-
-<!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
-<header class="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-badge">Workshop #7 · UAT Document</div>
-  <h1>การออกแบบและดำเนินการทดสอบ<br/>User Acceptance Testing</h1>
-  <p class="hero-subtitle">ระบบร้านหนังสือออนไลน์ (Online Bookstore) — ทดสอบครอบคลุมทุก Persona และฟังก์ชันหลัก</p>
-  <div class="hero-meta">
-    <div class="hero-meta-item">📌 ระบบ: <span>Online Bookstore v1.0.0</span></div>
-    <div class="hero-meta-item">📅 วันที่ทดสอบ: <span>22 กรกฎาคม 2026</span></div>
-    <div class="hero-meta-item">🧪 จำนวน Test Cases: <span>11 รายการ</span></div>
-    <div class="hero-meta-item">👥 Persona: <span>3 กลุ่ม</span></div>
-  </div>
-</header>
-
-<main class="container">
-
-  <!-- ═══════════════ STEP 1: PERSONA ═══════════════ -->
-  <section class="section" id="personas">
-    <div class="section-header">
-      <div class="section-icon purple">👥</div>
-      <div>
-        <div class="section-step">STEP 01</div>
-        <h2 class="section-title">การวิเคราะห์ Persona (User Persona Analysis)</h2>
-      </div>
-    </div>
-    <div class="persona-grid">
-      <div class="persona-card customer fade-up">
-        <div class="persona-avatar">👤</div>
-        <div class="persona-name">Customer · ลูกค้า</div>
-        <span class="persona-role-tag">Storefront User</span>
-        <p class="persona-desc">ผู้ใช้งานทั่วไปที่เข้าสู่ระบบ Storefront เพื่อค้นหาหนังสือ เพิ่มสินค้าลงตะกร้า ชำระเงิน และติดตามสถานะคำสั่งซื้อ รวมถึงจัดการข้อมูลโปรไฟล์ของตนเอง</p>
-      </div>
-      <div class="persona-card staff fade-up">
-        <div class="persona-avatar">🔧</div>
-        <div class="persona-name">Staff · พนักงาน</div>
-        <span class="persona-role-tag">Inventory Manager</span>
-        <p class="persona-desc">ผู้ใช้งานที่มีสิทธิ์เข้าถึง Staff Portal เพื่อตรวจสอบและจัดการสต็อกหนังสือ (Inventory Management) อัปเดตจำนวนสินค้าคงเหลือ และตรวจสอบสถานะออเดอร์</p>
-      </div>
-      <div class="persona-card admin fade-up">
-        <div class="persona-avatar">👑</div>
-        <div class="persona-name">Admin · ผู้ดูแลระบบ</div>
-        <span class="persona-role-tag">System Administrator</span>
-        <p class="persona-desc">ผู้ใช้งานที่มีสิทธิ์สูงสุด เข้าถึง Admin Portal เพื่อจัดการข้อมูลหนังสือ (เพิ่ม/แก้ไข/ลบ), จัดการหมวดหมู่, จัดการบัญชีผู้ใช้ทั้งหมด และดูภาพรวมของระบบ</p>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ═══════════════ STEP 2-3: TEST CASES ═══════════════ -->
-  <section class="section" id="test-cases">
-    <div class="section-header">
-      <div class="section-icon cyan">🧪</div>
-      <div>
-        <div class="section-step">STEP 02–03</div>
-        <h2 class="section-title">ออกแบบและจำลองผลการทดสอบ (UAT Test Cases & Execution)</h2>
-      </div>
-    </div>
-
-    <!-- Customer -->
-    <div class="test-group" id="tc-customer">
-      <div class="test-group-header">
-        <span class="test-group-emoji">👤</span>
-        <span class="test-group-name">Persona 1: Customer (ลูกค้า)</span>
-        <span class="test-group-count">4 Test Cases</span>
-      </div>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Test Case ID</th>
-              <th>รายการทดสอบ</th>
-              <th>Input</th>
-              <th>ขั้นตอนการทดสอบ</th>
-              <th>Expected Result</th>
-              <th>สถานะ</th>
-              <th>ประเภทปัญหา</th>
-              <th>รายละเอียดปัญหา</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>UAT-C01</td>
-              <td><strong>ลงทะเบียนบัญชีใหม่</strong><br/>ลูกค้าสามารถสมัครสมาชิกด้วยข้อมูลที่ถูกต้องได้สำเร็จ</td>
-              <td>Email: <code>user@test.com</code><br/>Password: <code>Test1234!</code><br/>ชื่อ: สมชาย ใจดี</td>
-              <td><ol class="step-list"><li>เปิดหน้า <code>/login</code></li><li>คลิก "สมัครสมาชิก"</li><li>กรอกข้อมูลครบ</li><li>คลิก "ลงทะเบียน"</li></ol></td>
-              <td>ระบบสร้างบัญชีสำเร็จ เปลี่ยนหน้าไปหน้าหลัก แสดงชื่อในแถบนำทาง</td>
-              <td><span class="badge pass">✅ ผ่าน</span></td>
-              <td>—</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>UAT-C02</td>
-              <td><strong>ค้นหาและดูรายละเอียดหนังสือ</strong><br/>ลูกค้าสามารถค้นหาหนังสือและดูหน้า Detail ได้</td>
-              <td>คำค้นหา: <code>"แฮร์รี่ พอตเตอร์"</code></td>
-              <td><ol class="step-list"><li>ไปหน้าหลัก <code>/</code></li><li>พิมพ์ในช่อง Search</li><li>กด Enter</li><li>คลิกหนังสือในผลลัพธ์</li></ol></td>
-              <td>แสดงรายการหนังสือที่ตรงกัน ✔ หน้า <code>/book/[id]</code> แสดงชื่อ, ราคา, รูปปก, คำอธิบาย และปุ่ม "เพิ่มลงตะกร้า"</td>
-              <td><span class="badge pass">✅ ผ่าน</span></td>
-              <td>—</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>UAT-C03</td>
-              <td><strong>เพิ่มสินค้าลงตะกร้าและ Checkout</strong><br/>ลูกค้าสามารถเพิ่มหนังสือและชำระเงินได้</td>
-              <td>หนังสือ: Clean Code ฿450<br/>จำนวน: 1<br/>ที่อยู่: 123 ถ.พระราม 9</td>
-              <td><ol class="step-list"><li>เลือกหนังสือ</li><li>คลิก "เพิ่มลงตะกร้า"</li><li>ตรวจสอบที่ <code>/cart</code></li><li>กด "ดำเนินการชำระเงิน"</li><li>กรอกที่อยู่จัดส่ง</li><li>ยืนยันคำสั่งซื้อ</li></ol></td>
-              <td>ตะกร้าแสดงรายการถูกต้อง ✔ หน้า Checkout แสดงยอดรวม ✔ หลังยืนยัน แสดงหมายเลขคำสั่งซื้อและสรุป</td>
-              <td><span class="badge pass">✅ ผ่าน</span></td>
-              <td>—</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>UAT-C04</td>
-              <td><strong>ติดตามสถานะคำสั่งซื้อ</strong><br/>ลูกค้าสามารถตรวจสอบและดูรายละเอียดออเดอร์</td>
-              <td>บัญชีที่มีออเดอร์อยู่แล้วในระบบ</td>
-              <td><ol class="step-list"><li>เข้าสู่ระบบด้วยบัญชีที่มีออเดอร์</li><li>ไปที่ <code>/orders</code></li><li>คลิกดูรายละเอียดออเดอร์</li></ol></td>
-              <td>แสดงรายการออเดอร์พร้อมสถานะ ✔ สามารถคลิกเข้าดูรายการย่อย, จำนวน, ราคา ของแต่ละออเดอร์ได้</td>
-              <td><span class="badge fail">❌ ไม่ผ่าน</span></td>
-              <td><span class="issue-type">UI / UX</span></td>
-              <td>หน้า <code>/orders</code> แสดงรายการออเดอร์ได้ แต่ไม่มีปุ่มหรือลิงก์สำหรับดูรายละเอียดออเดอร์แต่ละรายการ ลูกค้าไม่ทราบรายการหนังสือย่อย</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Staff -->
-    <div class="test-group" id="tc-staff">
-      <div class="test-group-header">
-        <span class="test-group-emoji">🔧</span>
-        <span class="test-group-name">Persona 2: Staff (พนักงาน)</span>
-        <span class="test-group-count">3 Test Cases</span>
-      </div>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Test Case ID</th>
-              <th>รายการทดสอบ</th>
-              <th>Input</th>
-              <th>ขั้นตอนการทดสอบ</th>
-              <th>Expected Result</th>
-              <th>สถานะ</th>
-              <th>ประเภทปัญหา</th>
-              <th>รายละเอียดปัญหา</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>UAT-S01</td>
-              <td><strong>เข้าสู่ระบบ Staff Portal</strong><br/>พนักงานเข้าระบบด้วยบัญชีที่มีสิทธิ์ Staff</td>
-              <td>Email: <code>staff@bookstore.com</code><br/>Password: <code>Staff@2026</code></td>
-              <td><ol class="step-list"><li>เปิด URL <code>/staff</code></li><li>ป้อน Credential</li><li>คลิก "เข้าสู่ระบบ"</li></ol></td>
-              <td>Middleware ตรวจสอบ Role = Staff ✔ เปลี่ยนเส้นทางไปหน้า Staff Dashboard ✔ ไม่สามารถเข้า Admin Portal ได้</td>
-              <td><span class="badge pass">✅ ผ่าน</span></td>
-              <td>—</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>UAT-S02</td>
-              <td><strong>ตรวจสอบสต็อกสินค้าคงเหลือ</strong><br/>พนักงานดูรายการสินค้าและจำนวนคงเหลือปัจจุบัน</td>
-              <td>ไม่มี (ดูข้อมูลที่มีอยู่)</td>
-              <td><ol class="step-list"><li>เปิดเมนู "จัดการสต็อก"</li><li>ไปที่ <code>/staff/inventory</code></li><li>ดูรายการหนังสือ</li></ol></td>
-              <td>แสดงรายการหนังสือพร้อมจำนวนสต็อกปัจจุบัน ✔ แสดง Warning เมื่อสต็อกต่ำกว่าเกณฑ์</td>
-              <td><span class="badge pass">✅ ผ่าน</span></td>
-              <td>—</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>UAT-S03</td>
-              <td><strong>อัปเดตจำนวนสต็อกหนังสือ</strong><br/>พนักงานแก้ไขจำนวนสต็อกสินค้าได้อย่างถาวร</td>
-              <td>หนังสือ: The Pragmatic Programmer<br/>จำนวนใหม่: <code>50</code></td>
-              <td><ol class="step-list"><li>อยู่ที่ <code>/staff/inventory</code></li><li>ค้นหาหนังสือเป้าหมาย</li><li>คลิกปุ่มแก้ไขจำนวน</li><li>ป้อนค่า 50</li><li>กด "บันทึก"</li></ol></td>
-              <td>ระบบอัปเดตสต็อกสำเร็จ ✔ แสดง Toast "อัปเดตเรียบร้อย" ✔ หลัง Refresh หน้า จำนวนยังคงเป็น 50</td>
-              <td><span class="badge fail">❌ ไม่ผ่าน</span></td>
-              <td><span class="issue-type">ปัญหาด้านข้อมูล</span></td>
-              <td>หลังกดบันทึก Toast แสดง "สำเร็จ" แต่เมื่อ Refresh ค่าสต็อกกลับเป็นค่าเดิม — ข้อมูลอัปเดตแค่ใน Frontend State ไม่ถูก Persist ลงฐานข้อมูล</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Admin -->
-    <div class="test-group" id="tc-admin">
-      <div class="test-group-header">
-        <span class="test-group-emoji">👑</span>
-        <span class="test-group-name">Persona 3: Admin (ผู้ดูแลระบบ)</span>
-        <span class="test-group-count">4 Test Cases</span>
-      </div>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Test Case ID</th>
-              <th>รายการทดสอบ</th>
-              <th>Input</th>
-              <th>ขั้นตอนการทดสอบ</th>
-              <th>Expected Result</th>
-              <th>สถานะ</th>
-              <th>ประเภทปัญหา</th>
-              <th>รายละเอียดปัญหา</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>UAT-A01</td>
-              <td><strong>เพิ่มหนังสือใหม่เข้าระบบ</strong><br/>Admin เพิ่มหนังสือใหม่พร้อมรายละเอียดครบถ้วน</td>
-              <td>ชื่อ: Clean Architecture<br/>ผู้แต่ง: Robert C. Martin<br/>ISBN: 9780134494166<br/>ราคา: ฿690, สต็อก: 30</td>
-              <td><ol class="step-list"><li>เข้า <code>/admin/books</code></li><li>คลิก "เพิ่มหนังสือใหม่"</li><li>กรอกข้อมูลทุกฟิลด์</li><li>อัปโหลดภาพปก</li><li>คลิก "บันทึก"</li></ol></td>
-              <td>หนังสือใหม่ถูกเพิ่มในฐานข้อมูล ✔ แสดงในรายการ Admin ✔ ปรากฏใน Storefront (<code>/browse</code>)</td>
-              <td><span class="badge pass">✅ ผ่าน</span></td>
-              <td>—</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>UAT-A02</td>
-              <td><strong>แก้ไขข้อมูลหนังสือ</strong><br/>Admin แก้ไขราคาและรายละเอียดหนังสือที่มีอยู่</td>
-              <td>หนังสือ: Clean Code<br/>ราคาใหม่: <code>520</code> (จากเดิม 450)</td>
-              <td><ol class="step-list"><li>อยู่ที่ <code>/admin/books</code></li><li>ค้นหา "Clean Code"</li><li>คลิก "แก้ไข"</li><li>เปลี่ยนราคาเป็น 520</li><li>คลิก "บันทึกการแก้ไข"</li></ol></td>
-              <td>ข้อมูลอัปเดตในฐานข้อมูล ✔ ราคาใหม่แสดงทั้ง Admin และ Storefront ✔ Toast "อัปเดตเรียบร้อย"</td>
-              <td><span class="badge pass">✅ ผ่าน</span></td>
-              <td>—</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>UAT-A03</td>
-              <td><strong>ลบหนังสือออกจากระบบ</strong><br/>Admin ลบหนังสือที่ไม่ต้องการออกได้</td>
-              <td>หนังสือ: "หนังสือทดสอบ" (ไม่มีออเดอร์ค้างอยู่)</td>
-              <td><ol class="step-list"><li>อยู่ที่ <code>/admin/books</code></li><li>ค้นหาหนังสือเป้าหมาย</li><li>คลิกปุ่ม "ลบ"</li><li>ยืนยันใน Dialog Confirm</li></ol></td>
-              <td>หนังสือถูกลบออกจากฐานข้อมูล ✔ หายจากรายการ Admin และ Storefront ✔ แสดงข้อความยืนยัน</td>
-              <td><span class="badge pass">✅ ผ่าน</span></td>
-              <td>—</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>UAT-A04</td>
-              <td><strong>จัดการบัญชีผู้ใช้และ Role</strong><br/>Admin ดูและเปลี่ยน Role ผู้ใช้ทั้งหมดในระบบ</td>
-              <td>ไม่มี (ดูรายชื่อผู้ใช้ที่มีอยู่)</td>
-              <td><ol class="step-list"><li>อยู่ที่ <code>/admin</code></li><li>ไปที่ <code>/admin/users</code></li><li>ค้นหาผู้ใช้</li><li>คลิกปุ่ม "แก้ไข Role"</li><li>เปลี่ยน Role และบันทึก</li></ol></td>
-              <td>แสดงรายชื่อผู้ใช้พร้อม Role, Email, วันสมัคร ✔ สามารถเปลี่ยน Role ของผู้ใช้ได้ ✔ บันทึกสำเร็จ</td>
-              <td><span class="badge fail">❌ ไม่ผ่าน</span></td>
-              <td><span class="issue-type">ฟีเจอร์ขาดหาย</span></td>
-              <td>รายชื่อผู้ใช้แสดงถูกต้อง แต่ปุ่ม "แก้ไข Role" ไม่มี Event Handler — ฟังก์ชั่น Role Management ยังไม่ถูก Implement ต้องแก้ไขโดยตรงใน Database</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ═══════════════ STEP 4: SUMMARY ═══════════════ -->
-  <section class="section" id="summary">
-    <div class="section-header">
-      <div class="section-icon amber">📊</div>
-      <div>
-        <div class="section-step">STEP 04</div>
-        <h2 class="section-title">สรุปผลการทดสอบ (Test Summary)</h2>
-      </div>
-    </div>
-
-    <!-- 4.1 Stats Overview -->
-    <h3 style="font-size:1rem;font-weight:700;color:var(--text-secondary);margin-bottom:1rem;letter-spacing:0.04em;text-transform:uppercase;font-size:0.8rem;">4.1 ตัวเลขสรุปภาพรวม</h3>
-    <div class="stats-grid">
-      <div class="stat-card total">
-        <div class="stat-value">11</div>
-        <div class="stat-label">Test Cases ทั้งหมด</div>
-      </div>
-      <div class="stat-card passed">
-        <div class="stat-value">8</div>
-        <div class="stat-label">✅ ผ่านการทดสอบ</div>
-      </div>
-      <div class="stat-card failed">
-        <div class="stat-value">3</div>
-        <div class="stat-label">❌ ไม่ผ่านการทดสอบ</div>
-      </div>
-      <div class="stat-card rate">
-        <div class="stat-value">72.7%</div>
-        <div class="stat-label">อัตราการผ่านรวม</div>
-      </div>
-    </div>
-
-    <div class="progress-wrap">
-      <div class="progress-label">
-        <strong>อัตราการผ่านการทดสอบโดยรวม</strong>
-        <span>8 / 11 Test Cases</span>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" style="width: 72.7%;"></div>
-      </div>
-    </div>
-
-    <!-- 4.1 Per-persona Breakdown -->
-    <h3 style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);margin-bottom:1rem;letter-spacing:0.04em;text-transform:uppercase;">ตารางสรุปผลแยกตาม Persona</h3>
-    <div class="breakdown-table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Persona</th>
-            <th>Test Cases ทั้งหมด</th>
-            <th>✅ ผ่าน</th>
-            <th>❌ ไม่ผ่าน</th>
-            <th>อัตราการผ่าน (%)</th>
-            <th>Progress</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><span class="persona-tag">👤 Customer</span></td>
-            <td>4</td>
-            <td style="color:var(--pass);font-weight:600;">3</td>
-            <td style="color:var(--fail);font-weight:600;">1</td>
-            <td style="color:var(--accent);font-weight:600;">75.0%</td>
-            <td style="min-width:120px;">
-              <div class="progress-bar-bg" style="height:6px;">
-                <div class="progress-bar-fill" style="width:75%;"></div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="persona-tag">🔧 Staff</span></td>
-            <td>3</td>
-            <td style="color:var(--pass);font-weight:600;">2</td>
-            <td style="color:var(--fail);font-weight:600;">1</td>
-            <td style="color:var(--accent);font-weight:600;">66.7%</td>
-            <td>
-              <div class="progress-bar-bg" style="height:6px;">
-                <div class="progress-bar-fill" style="width:66.7%;"></div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="persona-tag">👑 Admin</span></td>
-            <td>4</td>
-            <td style="color:var(--pass);font-weight:600;">3</td>
-            <td style="color:var(--fail);font-weight:600;">1</td>
-            <td style="color:var(--accent);font-weight:600;">75.0%</td>
-            <td>
-              <div class="progress-bar-bg" style="height:6px;">
-                <div class="progress-bar-fill" style="width:75%;"></div>
-              </div>
-            </td>
-          </tr>
-          <tr style="background:rgba(255,255,255,0.03);font-weight:700;">
-            <td><span class="persona-tag">📊 รวมทั้งหมด</span></td>
-            <td style="color:var(--text-primary);">11</td>
-            <td style="color:var(--pass);">8</td>
-            <td style="color:var(--fail);">3</td>
-            <td style="color:var(--accent);">72.7%</td>
-            <td>
-              <div class="progress-bar-bg" style="height:6px;">
-                <div class="progress-bar-fill" style="width:72.7%;"></div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- 4.2 Issue List -->
-    <h3 style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);margin-bottom:1rem;letter-spacing:0.04em;text-transform:uppercase;margin-top:2.5rem;">4.2 ตารางสรุปปัญหา (Issue List)</h3>
-
-    <div class="issue-card crit" id="iss-002">
-      <div class="issue-card-header">
-        <div>
-          <span class="issue-id">ISS-002</span>
+      /* ─── ANIMATION ─── */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fade-up {
+        animation: fadeUp 0.5s ease both;
+      }
+      .fade-up:nth-child(1) {
+        animation-delay: 0.05s;
+      }
+      .fade-up:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .fade-up:nth-child(3) {
+        animation-delay: 0.15s;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+    <header class="hero">
+      <div class="hero-grid"></div>
+      <div class="hero-badge">Workshop #7 · UAT Document</div>
+      <h1>การออกแบบและดำเนินการทดสอบ<br />User Acceptance Testing</h1>
+      <p class="hero-subtitle">
+        ระบบร้านหนังสือออนไลน์ (Online Bookstore) — ทดสอบครอบคลุมทุก Persona
+        และฟังก์ชันหลัก
+      </p>
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          📌 ระบบ: <span>Online Bookstore v1.0.0</span>
         </div>
-        <span class="issue-ref">↑ UAT-S03</span>
-        <div class="issue-badges">
-          <span class="issue-type">ปัญหาเกี่ยวกับข้อมูล</span>
-          <span class="badge crit">🔴 Critical</span>
+        <div class="hero-meta-item">
+          📅 วันที่ทดสอบ: <span>22 กรกฎาคม 2026</span>
         </div>
-      </div>
-      <div class="issue-desc">
-        <strong>การอัปเดตสต็อกสินค้าไม่ถูก Persist ลงฐานข้อมูล</strong> — เมื่อพนักงานบันทึกจำนวนสต็อกใหม่ผ่าน Staff Portal ระบบแสดง Toast "สำเร็จ" แต่ข้อมูลถูกอัปเดตเฉพาะใน Frontend State (Memory) เท่านั้น เมื่อ Refresh หน้าเว็บค่าจะกลับเป็นค่าเดิม ส่งผลให้ข้อมูลสต็อกสินค้าในระบบไม่ถูกต้อง อาจเกิดสินค้า Oversell และกระทบต่อการดำเนินธุรกิจโดยตรง
-      </div>
-    </div>
-
-    <div class="issue-card high" id="iss-001">
-      <div class="issue-card-header">
-        <div>
-          <span class="issue-id">ISS-001</span>
+        <div class="hero-meta-item">
+          🧪 จำนวน Test Cases: <span>11 รายการ</span>
         </div>
-        <span class="issue-ref">↑ UAT-C04</span>
-        <div class="issue-badges">
-          <span class="issue-type">ปัญหา UI / UX</span>
-          <span class="badge high">🟠 High</span>
+        <div class="hero-meta-item">👥 Persona: <span>3 กลุ่ม</span></div>
+      </div>
+    </header>
+
+    <main class="container">
+      <!-- ═══════════════ STEP 1: PERSONA ═══════════════ -->
+      <section class="section" id="personas">
+        <div class="section-header">
+          <div class="section-icon purple">👥</div>
+          <div>
+            <div class="section-step">STEP 01</div>
+            <h2 class="section-title">
+              การวิเคราะห์ Persona (User Persona Analysis)
+            </h2>
+          </div>
         </div>
-      </div>
-      <div class="issue-desc">
-        <strong>ไม่มีหน้ารายละเอียดคำสั่งซื้อสำหรับลูกค้า</strong> — หน้า <code>/orders</code> แสดงรายการคำสั่งซื้อได้ แต่ไม่มีปุ่มหรือลิงก์สำหรับคลิกเข้าดูรายละเอียดออเดอร์แต่ละรายการ ลูกค้าไม่สามารถตรวจสอบรายการหนังสือ, จำนวน, ราคา, และวันที่จัดส่งในคำสั่งซื้อของตนเองได้ ส่งผลต่อความไว้วางใจของลูกค้าต่อระบบ
-      </div>
-    </div>
-
-    <div class="issue-card high" id="iss-003">
-      <div class="issue-card-header">
-        <div>
-          <span class="issue-id">ISS-003</span>
+        <div class="persona-grid">
+          <div class="persona-card customer fade-up">
+            <div class="persona-avatar">👤</div>
+            <div class="persona-name">Customer · ลูกค้า</div>
+            <span class="persona-role-tag">Storefront User</span>
+            <p class="persona-desc">
+              ผู้ใช้งานทั่วไปที่เข้าสู่ระบบ Storefront เพื่อค้นหาหนังสือ
+              เพิ่มสินค้าลงตะกร้า ชำระเงิน และติดตามสถานะคำสั่งซื้อ
+              รวมถึงจัดการข้อมูลโปรไฟล์ของตนเอง
+            </p>
+          </div>
+          <div class="persona-card staff fade-up">
+            <div class="persona-avatar">🔧</div>
+            <div class="persona-name">Staff · พนักงาน</div>
+            <span class="persona-role-tag">Inventory Manager</span>
+            <p class="persona-desc">
+              ผู้ใช้งานที่มีสิทธิ์เข้าถึง Staff Portal
+              เพื่อตรวจสอบและจัดการสต็อกหนังสือ (Inventory Management)
+              อัปเดตจำนวนสินค้าคงเหลือ และตรวจสอบสถานะออเดอร์
+            </p>
+          </div>
+          <div class="persona-card admin fade-up">
+            <div class="persona-avatar">👑</div>
+            <div class="persona-name">Admin · ผู้ดูแลระบบ</div>
+            <span class="persona-role-tag">System Administrator</span>
+            <p class="persona-desc">
+              ผู้ใช้งานที่มีสิทธิ์สูงสุด เข้าถึง Admin Portal
+              เพื่อจัดการข้อมูลหนังสือ (เพิ่ม/แก้ไข/ลบ), จัดการหมวดหมู่,
+              จัดการบัญชีผู้ใช้ทั้งหมด และดูภาพรวมของระบบ
+            </p>
+          </div>
         </div>
-        <span class="issue-ref">↑ UAT-A04</span>
-        <div class="issue-badges">
-          <span class="issue-type">ฟีเจอร์ยังไม่ถูก Implement</span>
-          <span class="badge high">🟠 High</span>
-        </div>
-      </div>
-      <div class="issue-desc">
-        <strong>ฟังก์ชั่น Role Management ใน Admin Users ยังไม่สมบูรณ์</strong> — หน้า <code>/admin/users</code> แสดงรายชื่อผู้ใช้ได้ถูกต้อง แต่ปุ่ม "แก้ไข Role" ไม่มี Event Handler ผูกอยู่ ทำให้ Admin ไม่สามารถเปลี่ยน Role ผู้ใช้ (เช่น Customer → Staff, Staff → Admin) ผ่านหน้าเว็บได้ ต้องดำเนินการแก้ไขโดยตรงใน Database ซึ่งเป็นความเสี่ยงด้านความปลอดภัยและประสิทธิภาพ
-      </div>
-    </div>
+      </section>
 
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:var(--crit)"></div> Critical — ส่งผลกระทบต่อธุรกิจโดยตรง ต้องแก้ไขก่อน Deploy</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--high)"></div> High — ฟีเจอร์สำคัญขาดหาย ควรแก้ไขเร็วที่สุด</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--med)"></div> Medium — UX ลดลงแต่มีทางเลือกอื่นทดแทน</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--low)"></div> Low — ปัญหาเล็กน้อย ไม่กระทบการใช้งานหลัก</div>
-    </div>
-  </section>
+      <div class="divider"></div>
 
-  <div class="divider"></div>
-
-  <!-- ═══════════════ STEP 4.3 EVAL SUMMARY ═══════════════ -->
-  <section class="section" id="evaluation">
-    <div class="section-header">
-      <div class="section-icon pink">📝</div>
-      <div>
-        <div class="section-step">STEP 04.3</div>
-        <h2 class="section-title">สรุปผลการประเมิน UAT</h2>
-      </div>
-    </div>
-    <div class="eval-card">
-      <div class="eval-title">📋 UAT Evaluation Summary — Online Bookstore v1.0.0</div>
-      <div class="eval-body">
-        <p>จากการดำเนินการทดสอบ <strong>User Acceptance Testing</strong> สำหรับระบบร้านหนังสือออนไลน์ (Online Bookstore) v1.0.0 จำนวนทั้งสิ้น <strong>11 Test Cases</strong> ครอบคลุมผู้ใช้งาน 3 กลุ่ม (Customer, Staff, Admin) พบว่ามีจำนวน Test Case ที่ผ่านการทดสอบ <strong>8 รายการ</strong> และไม่ผ่าน <strong>3 รายการ</strong> คิดเป็น <strong>อัตราการผ่านการทดสอบโดยรวม 72.7%</strong></p>
-
-        <p>ฟังก์ชันหลักของระบบที่ทำงานได้อย่างถูกต้องและครบถ้วน ได้แก่ การลงทะเบียนบัญชีผู้ใช้, การค้นหาและดูรายละเอียดหนังสือ, การเพิ่มสินค้าลงตะกร้าและ Checkout, ระบบ Role-based Access Control (Middleware), การตรวจสอบสต็อกสินค้า และการจัดการข้อมูลหนังสือ (CRUD) โดย Admin</p>
-
-        <div class="eval-highlight crit">
-          <strong>⚠️ ปัญหา Critical (ต้องแก้ไขทันทีก่อน Deploy):</strong><br/>
-          ISS-002 — การอัปเดตสต็อกสินค้าจาก Staff Portal ไม่ถูก Persist ลงฐานข้อมูล ทำให้ข้อมูลสินค้าคงคลังไม่ถูกต้องและอาจเกิดสถานการณ์ Oversell ซึ่งกระทบต่อธุรกิจโดยตรง ทีมพัฒนาควรตรวจสอบ API Endpoint ของ Inventory Update และยืนยัน PATCH/PUT Request ถูกส่งและรับจาก Backend อย่างถูกต้อง
+      <!-- ═══════════════ STEP 2-3: TEST CASES ═══════════════ -->
+      <section class="section" id="test-cases">
+        <div class="section-header">
+          <div class="section-icon cyan">🧪</div>
+          <div>
+            <div class="section-step">STEP 02–03</div>
+            <h2 class="section-title">
+              ออกแบบและจำลองผลการทดสอบ (UAT Test Cases & Execution)
+            </h2>
+          </div>
         </div>
 
-        <div class="eval-highlight high">
-          <strong>🟠 ปัญหา High (ควรแก้ไขในเวอร์ชันถัดไปโดยเร็ว):</strong><br/>
-          ISS-001 — ควรพัฒนาหน้า Order Detail สำหรับให้ลูกค้าดูรายละเอียดคำสั่งซื้อ (/orders/[orderId]) เพื่อเพิ่มความโปร่งใสและความเชื่อมั่น<br/>
-          ISS-003 — ควร Implement ฟังก์ชั่น Role Management ใน Admin Portal พร้อม Confirmation Modal และ Audit Log เพื่อความปลอดภัย
+        <!-- Customer -->
+        <div class="test-group" id="tc-customer">
+          <div class="test-group-header">
+            <span class="test-group-emoji">👤</span>
+            <span class="test-group-name">Persona 1: Customer (ลูกค้า)</span>
+            <span class="test-group-count">4 Test Cases</span>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Test Case ID</th>
+                  <th>รายการทดสอบ</th>
+                  <th>Input</th>
+                  <th>ขั้นตอนการทดสอบ</th>
+                  <th>Expected Result</th>
+                  <th>สถานะ</th>
+                  <th>ประเภทปัญหา</th>
+                  <th>รายละเอียดปัญหา</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>UAT-C01</td>
+                  <td>
+                    <strong>ลงทะเบียนบัญชีใหม่</strong
+                    ><br />ลูกค้าสามารถสมัครสมาชิกด้วยข้อมูลที่ถูกต้องได้สำเร็จ
+                  </td>
+                  <td>
+                    Email: <code>user@test.com</code><br />Password:
+                    <code>Test1234!</code><br />ชื่อ: สมชาย ใจดี
+                  </td>
+                  <td>
+                    <ol class="step-list">
+                      <li>เปิดหน้า <code>/login</code></li>
+                      <li>คลิก "สมัครสมาชิก"</li>
+                      <li>กรอกข้อมูลครบ</li>
+                      <li>คลิก "ลงทะเบียน"</li>
+                    </ol>
+                  </td>
+                  <td>
+                    ระบบสร้างบัญชีสำเร็จ เปลี่ยนหน้าไปหน้าหลัก
+                    แสดงชื่อในแถบนำทาง
+                  </td>
+                  <td><span class="badge pass">✅ ผ่าน</span></td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>UAT-C02</td>
+                  <td>
+                    <strong>ค้นหาและดูรายละเอียดหนังสือ</strong
+                    ><br />ลูกค้าสามารถค้นหาหนังสือและดูหน้า Detail ได้
+                  </td>
+                  <td>คำค้นหา: <code>"แฮร์รี่ พอตเตอร์"</code></td>
+                  <td>
+                    <ol class="step-list">
+                      <li>ไปหน้าหลัก <code>/</code></li>
+                      <li>พิมพ์ในช่อง Search</li>
+                      <li>กด Enter</li>
+                      <li>คลิกหนังสือในผลลัพธ์</li>
+                    </ol>
+                  </td>
+                  <td>
+                    แสดงรายการหนังสือที่ตรงกัน ✔ หน้า
+                    <code>/book/[id]</code> แสดงชื่อ, ราคา, รูปปก, คำอธิบาย
+                    และปุ่ม "เพิ่มลงตะกร้า"
+                  </td>
+                  <td><span class="badge pass">✅ ผ่าน</span></td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>UAT-C03</td>
+                  <td>
+                    <strong>เพิ่มสินค้าลงตะกร้าและ Checkout</strong
+                    ><br />ลูกค้าสามารถเพิ่มหนังสือและชำระเงินได้
+                  </td>
+                  <td>
+                    หนังสือ: Clean Code ฿450<br />จำนวน: 1<br />ที่อยู่: 123
+                    ถ.พระราม 9
+                  </td>
+                  <td>
+                    <ol class="step-list">
+                      <li>เลือกหนังสือ</li>
+                      <li>คลิก "เพิ่มลงตะกร้า"</li>
+                      <li>ตรวจสอบที่ <code>/cart</code></li>
+                      <li>กด "ดำเนินการชำระเงิน"</li>
+                      <li>กรอกที่อยู่จัดส่ง</li>
+                      <li>ยืนยันคำสั่งซื้อ</li>
+                    </ol>
+                  </td>
+                  <td>
+                    ตะกร้าแสดงรายการถูกต้อง ✔ หน้า Checkout แสดงยอดรวม ✔
+                    หลังยืนยัน แสดงหมายเลขคำสั่งซื้อและสรุป
+                  </td>
+                  <td><span class="badge pass">✅ ผ่าน</span></td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>UAT-C04</td>
+                  <td>
+                    <strong>ติดตามสถานะคำสั่งซื้อ</strong
+                    ><br />ลูกค้าสามารถตรวจสอบและดูรายละเอียดออเดอร์
+                  </td>
+                  <td>บัญชีที่มีออเดอร์อยู่แล้วในระบบ</td>
+                  <td>
+                    <ol class="step-list">
+                      <li>เข้าสู่ระบบด้วยบัญชีที่มีออเดอร์</li>
+                      <li>ไปที่ <code>/orders</code></li>
+                      <li>คลิกดูรายละเอียดออเดอร์</li>
+                    </ol>
+                  </td>
+                  <td>
+                    แสดงรายการออเดอร์พร้อมสถานะ ✔ สามารถคลิกเข้าดูรายการย่อย,
+                    จำนวน, ราคา ของแต่ละออเดอร์ได้
+                  </td>
+                  <td><span class="badge pass">✅ ผ่าน</span></td>
+                  <td>—</td>
+                  <td>มีหน้า <code>/orders/[id]</code> และ Link "รายละเอียด" ใน OrdersView.tsx แล้ว ✔ Re-test ผ่าน</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div class="eval-highlight tip">
-          <strong>💡 ข้อเสนอแนะ:</strong><br/>
-          หลังจากแก้ไขปัญหาทั้ง 3 รายการแล้ว ควรดำเนินการ <strong>Regression Testing</strong> เพื่อยืนยันว่าการแก้ไขไม่ส่งผลกระทบต่อฟังก์ชันที่ผ่านการทดสอบแล้ว จากนั้นจึงดำเนินการ UAT รอบที่ 2 ก่อน Deploy เวอร์ชัน Production เพื่อให้มั่นใจว่าระบบมีความพร้อมสำหรับใช้งานจริง
+        <!-- Staff -->
+        <div class="test-group" id="tc-staff">
+          <div class="test-group-header">
+            <span class="test-group-emoji">🔧</span>
+            <span class="test-group-name">Persona 2: Staff (พนักงาน)</span>
+            <span class="test-group-count">3 Test Cases</span>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Test Case ID</th>
+                  <th>รายการทดสอบ</th>
+                  <th>Input</th>
+                  <th>ขั้นตอนการทดสอบ</th>
+                  <th>Expected Result</th>
+                  <th>สถานะ</th>
+                  <th>ประเภทปัญหา</th>
+                  <th>รายละเอียดปัญหา</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>UAT-S01</td>
+                  <td>
+                    <strong>เข้าสู่ระบบ Staff Portal</strong
+                    ><br />พนักงานเข้าระบบด้วยบัญชีที่มีสิทธิ์ Staff
+                  </td>
+                  <td>
+                    Email: <code>staff@bookstore.com</code><br />Password:
+                    <code>Staff@2026</code>
+                  </td>
+                  <td>
+                    <ol class="step-list">
+                      <li>เปิด URL <code>/staff</code></li>
+                      <li>ป้อน Credential</li>
+                      <li>คลิก "เข้าสู่ระบบ"</li>
+                    </ol>
+                  </td>
+                  <td>
+                    Middleware ตรวจสอบ Role = Staff ✔ เปลี่ยนเส้นทางไปหน้า Staff
+                    Dashboard ✔ ไม่สามารถเข้า Admin Portal ได้
+                  </td>
+                  <td><span class="badge pass">✅ ผ่าน</span></td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>UAT-S02</td>
+                  <td>
+                    <strong>ตรวจสอบสต็อกสินค้าคงเหลือ</strong
+                    ><br />พนักงานดูรายการสินค้าและจำนวนคงเหลือปัจจุบัน
+                  </td>
+                  <td>ไม่มี (ดูข้อมูลที่มีอยู่)</td>
+                  <td>
+                    <ol class="step-list">
+                      <li>เปิดเมนู "จัดการสต็อก"</li>
+                      <li>ไปที่ <code>/staff/inventory</code></li>
+                      <li>ดูรายการหนังสือ</li>
+                    </ol>
+                  </td>
+                  <td>
+                    แสดงรายการหนังสือพร้อมจำนวนสต็อกปัจจุบัน ✔ แสดง Warning
+                    เมื่อสต็อกต่ำกว่าเกณฑ์
+                  </td>
+                  <td><span class="badge pass">✅ ผ่าน</span></td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>UAT-S03</td>
+                  <td>
+                    <strong>อัปเดตจำนวนสต็อกหนังสือ</strong
+                    ><br />พนักงานแก้ไขจำนวนสต็อกสินค้าได้อย่างถาวร
+                  </td>
+                  <td>
+                    หนังสือ: The Pragmatic Programmer<br />จำนวนใหม่:
+                    <code>50</code>
+                  </td>
+                  <td>
+                    <ol class="step-list">
+                      <li>อยู่ที่ <code>/staff/inventory</code></li>
+                      <li>ค้นหาหนังสือเป้าหมาย</li>
+                      <li>คลิกปุ่มแก้ไขจำนวน</li>
+                      <li>ป้อนค่า 50</li>
+                      <li>กด "บันทึก"</li>
+                    </ol>
+                  </td>
+                  <td>
+                    ระบบอัปเดตสต็อกสำเร็จ ✔ แสดง Toast "อัปเดตเรียบร้อย" ✔ หลัง
+                    Refresh หน้า จำนวนยังคงเป็น 50
+                  </td>
+                  <td><span class="badge pass">✅ ผ่าน</span></td>
+                  <td>—</td>
+                  <td>InventoryView.tsx ส่ง <code>PUT /api/books/[id]</code> จริงแล้ว พร้อม Confirmation Modal ก่อนบันทึก ✔ Re-test ผ่าน</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-</main>
+        <!-- Admin -->
+        <div class="test-group" id="tc-admin">
+          <div class="test-group-header">
+            <span class="test-group-emoji">👑</span>
+            <span class="test-group-name">Persona 3: Admin (ผู้ดูแลระบบ)</span>
+            <span class="test-group-count">4 Test Cases</span>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Test Case ID</th>
+                  <th>รายการทดสอบ</th>
+                  <th>Input</th>
+                  <th>ขั้นตอนการทดสอบ</th>
+                  <th>Expected Result</th>
+                  <th>สถานะ</th>
+                  <th>ประเภทปัญหา</th>
+                  <th>รายละเอียดปัญหา</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>UAT-A01</td>
+                  <td>
+                    <strong>เพิ่มหนังสือใหม่เข้าระบบ</strong><br />Admin
+                    เพิ่มหนังสือใหม่พร้อมรายละเอียดครบถ้วน
+                  </td>
+                  <td>
+                    ชื่อ: Clean Architecture<br />ผู้แต่ง: Robert C. Martin<br />ISBN:
+                    9780134494166<br />ราคา: ฿690, สต็อก: 30
+                  </td>
+                  <td>
+                    <ol class="step-list">
+                      <li>เข้า <code>/admin/books</code></li>
+                      <li>คลิก "เพิ่มหนังสือใหม่"</li>
+                      <li>กรอกข้อมูลทุกฟิลด์</li>
+                      <li>อัปโหลดภาพปก</li>
+                      <li>คลิก "บันทึก"</li>
+                    </ol>
+                  </td>
+                  <td>
+                    หนังสือใหม่ถูกเพิ่มในฐานข้อมูล ✔ แสดงในรายการ Admin ✔
+                    ปรากฏใน Storefront (<code>/browse</code>)
+                  </td>
+                  <td><span class="badge pass">✅ ผ่าน</span></td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>UAT-A02</td>
+                  <td>
+                    <strong>แก้ไขข้อมูลหนังสือ</strong><br />Admin
+                    แก้ไขราคาและรายละเอียดหนังสือที่มีอยู่
+                  </td>
+                  <td>
+                    หนังสือ: Clean Code<br />ราคาใหม่: <code>520</code> (จากเดิม
+                    450)
+                  </td>
+                  <td>
+                    <ol class="step-list">
+                      <li>อยู่ที่ <code>/admin/books</code></li>
+                      <li>ค้นหา "Clean Code"</li>
+                      <li>คลิก "แก้ไข"</li>
+                      <li>เปลี่ยนราคาเป็น 520</li>
+                      <li>คลิก "บันทึกการแก้ไข"</li>
+                    </ol>
+                  </td>
+                  <td>
+                    ข้อมูลอัปเดตในฐานข้อมูล ✔ ราคาใหม่แสดงทั้ง Admin และ
+                    Storefront ✔ Toast "อัปเดตเรียบร้อย"
+                  </td>
+                  <td><span class="badge pass">✅ ผ่าน</span></td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>UAT-A03</td>
+                  <td>
+                    <strong>ลบหนังสือออกจากระบบ</strong><br />Admin
+                    ลบหนังสือที่ไม่ต้องการออกได้
+                  </td>
+                  <td>หนังสือ: "หนังสือทดสอบ" (ไม่มีออเดอร์ค้างอยู่)</td>
+                  <td>
+                    <ol class="step-list">
+                      <li>อยู่ที่ <code>/admin/books</code></li>
+                      <li>ค้นหาหนังสือเป้าหมาย</li>
+                      <li>คลิกปุ่ม "ลบ"</li>
+                      <li>ยืนยันใน Dialog Confirm</li>
+                    </ol>
+                  </td>
+                  <td>
+                    หนังสือถูกลบออกจากฐานข้อมูล ✔ หายจากรายการ Admin และ
+                    Storefront ✔ แสดงข้อความยืนยัน
+                  </td>
+                  <td><span class="badge pass">✅ ผ่าน</span></td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>UAT-A04</td>
+                  <td>
+                    <strong>จัดการบัญชีผู้ใช้และ Role</strong><br />Admin
+                    ดูและเปลี่ยน Role ผู้ใช้ทั้งหมดในระบบ
+                  </td>
+                  <td>ไม่มี (ดูรายชื่อผู้ใช้ที่มีอยู่)</td>
+                  <td>
+                    <ol class="step-list">
+                      <li>อยู่ที่ <code>/admin</code></li>
+                      <li>ไปที่ <code>/admin/users</code></li>
+                      <li>ค้นหาผู้ใช้</li>
+                      <li>คลิกปุ่ม "แก้ไข Role"</li>
+                      <li>เปลี่ยน Role และบันทึก</li>
+                    </ol>
+                  </td>
+                  <td>
+                    แสดงรายชื่อผู้ใช้พร้อม Role, Email, วันสมัคร ✔ สามารถเปลี่ยน
+                    Role ของผู้ใช้ได้ ✔ บันทึกสำเร็จ
+                  </td>
+                  <td><span class="badge pass">✅ ผ่าน</span></td>
+                  <td>—</td>
+                  <td>AdminUsersView.tsx มี Edit Modal พร้อม Role dropdown และ Confirmation Modal ✔ Re-test ผ่าน</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-<footer>
-  <p>เอกสารนี้จัดทำเพื่อวัตถุประสงค์ <strong>Workshop #7</strong> ภายใต้วิชาการพัฒนาซอฟต์แวร์<br/>
-  ระบบร้านหนังสือออนไลน์ (Online Bookstore) — ทีมพัฒนาโครงการ</p>
-</footer>
+      <div class="divider"></div>
 
-</body>
+      <!-- ═══════════════ STEP 4: SUMMARY ═══════════════ -->
+      <section class="section" id="summary">
+        <div class="section-header">
+          <div class="section-icon amber">📊</div>
+          <div>
+            <div class="section-step">STEP 04</div>
+            <h2 class="section-title">สรุปผลการทดสอบ (Test Summary)</h2>
+          </div>
+        </div>
+
+        <!-- 4.1 Stats Overview -->
+        <h3
+          style="
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+          "
+        >
+          4.1 ตัวเลขสรุปภาพรวม
+        </h3>
+        <div class="stats-grid">
+          <div class="stat-card total">
+            <div class="stat-value">11</div>
+            <div class="stat-label">Test Cases ทั้งหมด</div>
+          </div>
+          <div class="stat-card passed">
+            <div class="stat-value">11</div>
+            <div class="stat-label">✅ ผ่านการทดสอบ</div>
+          </div>
+          <div class="stat-card failed">
+            <div class="stat-value">0</div>
+            <div class="stat-label">❌ ไม่ผ่านการทดสอบ</div>
+          </div>
+          <div class="stat-card rate">
+            <div class="stat-value">100%</div>
+            <div class="stat-label">อัตราการผ่านรวม</div>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <strong>อัตราการผ่านการทดสอบโดยรวม</strong>
+            <span>11 / 11 Test Cases</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <!-- 4.1 Per-persona Breakdown -->
+        <h3
+          style="
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+          "
+        >
+          ตารางสรุปผลแยกตาม Persona
+        </h3>
+        <div class="breakdown-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Persona</th>
+                <th>Test Cases ทั้งหมด</th>
+                <th>✅ ผ่าน</th>
+                <th>❌ ไม่ผ่าน</th>
+                <th>อัตราการผ่าน (%)</th>
+                <th>Progress</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="persona-tag">👤 Customer</span></td>
+                <td>4</td>
+                <td style="color: var(--pass); font-weight: 600">4</td>
+                <td style="color: var(--fail); font-weight: 600">0</td>
+                <td style="color: var(--pass); font-weight: 600">100%</td>
+                <td style="min-width: 120px">
+                  <div class="progress-bar-bg" style="height: 6px">
+                    <div class="progress-bar-fill" style="width: 100%"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="persona-tag">🔧 Staff</span></td>
+                <td>3</td>
+                <td style="color: var(--pass); font-weight: 600">3</td>
+                <td style="color: var(--fail); font-weight: 600">0</td>
+                <td style="color: var(--pass); font-weight: 600">100%</td>
+                <td>
+                  <div class="progress-bar-bg" style="height: 6px">
+                    <div class="progress-bar-fill" style="width: 100%"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="persona-tag">👑 Admin</span></td>
+                <td>4</td>
+                <td style="color: var(--pass); font-weight: 600">4</td>
+                <td style="color: var(--fail); font-weight: 600">0</td>
+                <td style="color: var(--pass); font-weight: 600">100%</td>
+                <td>
+                  <div class="progress-bar-bg" style="height: 6px">
+                    <div class="progress-bar-fill" style="width: 100%"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr
+                style="background: rgba(255, 255, 255, 0.03); font-weight: 700"
+              >
+                <td><span class="persona-tag">📊 รวมทั้งหมด</span></td>
+                <td style="color: var(--text-primary)">11</td>
+                <td style="color: var(--pass)">11</td>
+                <td style="color: var(--fail)">0</td>
+                <td style="color: var(--pass)">100%</td>
+                <td>
+                  <div class="progress-bar-bg" style="height: 6px">
+                    <div class="progress-bar-fill" style="width: 100%"></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 4.2 Issue List -->
+        <h3
+          style="
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-top: 2.5rem;
+          "
+        >
+          4.2 ตารางสรุปปัญหา (Issue List)
+        </h3>
+
+        <div class="issue-card low" id="iss-002" style="border-left-color:var(--pass)">
+          <div class="issue-card-header">
+            <div>
+              <span class="issue-id">ISS-002</span>
+            </div>
+            <span class="issue-ref">↑ UAT-S03</span>
+            <div class="issue-badges">
+              <span class="issue-type">แก้ไขแล้ว</span>
+              <span class="badge pass">✅ Resolved</span>
+            </div>
+          </div>
+          <div class="issue-desc">
+            <strong>การอัปเดตสต็อกสินค้า</strong> — แก้ไขแล้ว: <code>InventoryView.tsx</code> ส่ง <code>PUT /api/books/[id]</code> จริง พร้อม Confirmation Modal และ optimistic UI อัปเดตหลังได้รับ Response จาก Backend ✔
+          </div>
+        </div>
+
+        <div class="issue-card low" id="iss-001" style="border-left-color:var(--pass)">
+          <div class="issue-card-header">
+            <div>
+              <span class="issue-id">ISS-001</span>
+            </div>
+            <span class="issue-ref">↑ UAT-C04</span>
+            <div class="issue-badges">
+              <span class="issue-type">แก้ไขแล้ว</span>
+              <span class="badge pass">✅ Resolved</span>
+            </div>
+          </div>
+          <div class="issue-desc">
+            <strong>หน้ารายละเอียดคำสั่งซื้อ</strong> — แก้ไขแล้ว: สร้างหน้า <code>/orders/[id]</code> และเพิ่ม Link "รายละเอียด" พร้อม ChevronRight icon ใน <code>OrdersView.tsx</code> ✔
+          </div>
+        </div>
+
+        <div class="issue-card low" id="iss-003" style="border-left-color:var(--pass)">
+          <div class="issue-card-header">
+            <div>
+              <span class="issue-id">ISS-003</span>
+            </div>
+            <span class="issue-ref">↑ UAT-A04</span>
+            <div class="issue-badges">
+              <span class="issue-type">แก้ไขแล้ว</span>
+              <span class="badge pass">✅ Resolved</span>
+            </div>
+          </div>
+          <div class="issue-desc">
+            <strong>Role Management ใน Admin</strong> — แก้ไขแล้ว: <code>AdminUsersView.tsx</code> มี Edit Modal พร้อม Role dropdown (customer/staff/admin) และ Confirmation Modal ก่อนบันทึก ✔
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--crit)"></div>
+            Critical — ส่งผลกระทบต่อธุรกิจโดยตรง ต้องแก้ไขก่อน Deploy
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--high)"></div>
+            High — ฟีเจอร์สำคัญขาดหาย ควรแก้ไขเร็วที่สุด
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--med)"></div>
+            Medium — UX ลดลงแต่มีทางเลือกอื่นทดแทน
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: var(--low)"></div>
+            Low — ปัญหาเล็กน้อย ไม่กระทบการใช้งานหลัก
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════ STEP 4.3 EVAL SUMMARY ═══════════════ -->
+      <section class="section" id="evaluation">
+        <div class="section-header">
+          <div class="section-icon pink">📝</div>
+          <div>
+            <div class="section-step">STEP 04.3</div>
+            <h2 class="section-title">สรุปผลการประเมิน UAT</h2>
+          </div>
+        </div>
+        <div class="eval-card" style="background:linear-gradient(135deg,rgba(16,185,129,0.08) 0%,rgba(6,182,212,0.04) 100%);border-color:rgba(16,185,129,0.3);">
+          <div class="eval-title" style="color:var(--pass);">🎉 UAT Final Evaluation Summary — Online Bookstore v1.0.0</div>
+          <div class="eval-body">
+            <p>
+              จากการดำเนินการทดสอบ <strong>User Acceptance Testing</strong> สำหรับระบบร้านหนังสือออนไลน์ v1.0.0
+              จำนวนทั้งสิ้น <strong>11 Test Cases</strong> ครอบคลุมผู้ใช้งาน 3 กลุ่ม (Customer, Staff, Admin)
+              ปัจจุบัน <strong>ผ่านการทดสอบครบทั้ง 11 รายการ</strong> คิดเป็น <strong>อัตราการผ่าน 100%</strong>
+            </p>
+            <p>
+              ทีมพัฒนาได้แก้ไขปัญหาทั้ง 3 รายการเรียบร้อยแล้ว ได้แก่ ISS-001 (Order Detail Page),
+              ISS-002 (Stock Persist via API), และ ISS-003 (Role Management Modal)
+              ฟังก์ชันหลักทั้งหมดทำงานได้ถูกต้องและครบถ้วน
+            </p>
+            <div class="eval-highlight tip">
+              <strong>✅ UAT Result: PASS — พร้อม Deploy สู่ Production</strong><br />
+              ระบบผ่าน UAT ครบ 11/11 Test Cases แนะนำให้ดำเนินการ Regression Testing รอบสุดท้ายก่อน Deploy เพื่อความมั่นใจสูงสุด
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        เอกสารนี้จัดทำเพื่อวัตถุประสงค์
+        <strong>Workshop #7</strong> ภายใต้วิชาการพัฒนาซอฟต์แวร์<br />
+        ระบบร้านหนังสือออนไลน์ (Online Bookstore) — ทีมพัฒนาโครงการ
+      </p>
+    </footer>
+  </body>
 </html>
