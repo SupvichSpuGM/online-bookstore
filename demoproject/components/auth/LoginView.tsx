@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { BookOpen, Eye, RefreshCw, Check, X, User } from "lucide-react";
+import Link from "next/link";
+import { BookOpen, Eye, RefreshCw, Check, X, User, UserPlus } from "lucide-react";
 import { useAuthStore } from "@/lib/stores/authStore";
 import type { Role } from "@/lib/types";
 
@@ -197,6 +198,21 @@ export function LoginView() {
               <User className="w-4 h-4" /> เข้าชมร้านก่อน (ไม่ต้องล็อกอิน)
             </button>
             <p className="text-xs text-muted-foreground mt-2 text-center">สามารถดูหนังสือได้ แต่ไม่สามารถสั่งซื้อได้</p>
+          </div>
+
+          {/* Register link */}
+          <div className="mt-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-xs text-muted-foreground">ยังไม่มีบัญชี?</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+            <Link
+              href="/register"
+              className="w-full py-2.5 border border-accent/40 rounded-lg text-sm text-accent hover:bg-accent/5 hover:border-accent transition-all flex items-center justify-center gap-2 font-medium"
+            >
+              <UserPlus className="w-4 h-4" /> สมัครสมาชิกใหม่
+            </Link>
           </div>
         </div>
       </div>
