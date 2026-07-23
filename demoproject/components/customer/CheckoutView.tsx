@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { CheckCircle, Upload, RefreshCw } from "lucide-react";
 import { useCartStore } from "@/lib/stores/cartStore";
 
+function isDataUrl(value: string) {
+  return value.startsWith("data:image/");
+}
+
 type Step = 1 | 2 | 3;
 
 interface AddressForm {
@@ -70,11 +74,15 @@ export function CheckoutView() {
 
       const newOrderId = orderData.order_id;
 
-      // 2. แนบ slip (ส่ง Base64 Data URL จริงเข้า DB)
+      // 2. แนบ slip โดยส่ง path สั้นลง DB และไม่เก็บ Data URL ขนาดใหญ่
+      const slipPayload = isDataUrl(slipDataUrl)
+        ? { slip_image_url: slipDataUrl }
+        : { slip_image_url: slipDataUrl || `/uploads/slips/${fileName}` };
+
       await fetch(`/api/orders/${newOrderId}/slip`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slip_image_url: slipDataUrl || `/uploads/slips/${fileName}` }),
+        body: JSON.stringify(slipPayload),
       });
 
       // 3. ล้างตะกร้า Zustand local
