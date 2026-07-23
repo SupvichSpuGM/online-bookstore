@@ -1,4 +1,4 @@
-﻿# 📝 Workshop #4: Theoretical Assessment (8 คะแนน)
+﻿# Workshop #4: Theoretical Assessment (8 คะแนน)
 > วิชา CSI204 ดิจิทัลแพลตฟอร์มสำหรับพัฒนาซอฟต์แวร์ • โครงงานระบบร้านหนังสือออนไลน์
 
 ---
@@ -7,27 +7,27 @@
 
 ในการบริหารและดำเนินงานพัฒนาโครงการกลุ่ม "ระบบร้านหนังสือออนไลน์ (Online Book Store)" ภายใต้กรอบเวลา 4 สัปดาห์ โดยคณะทำงาน 3 คน แบ่งบทบาทตามระดับผู้ใช้งาน ได้แก่ Customer System, Admin System และ Super Admin System ได้คัดเลือกและประยุกต์ใช้เครื่องมือซอฟต์แวร์ดังนี้
 
-### 📌 1. Planning (การวางแผน)
+### 1. Planning (การวางแผน)
 * **เครื่องมือ:** GitHub Projects
 * **เหตุผล:** เพื่อให้ทำงานร่วมกับระบบเก็บ Source Code ได้ทันที ทีมงานใช้บอร์ดในรูปแบบ Kanban เพื่อแจกจ่ายตารางงานและติดตามสถานะชิ้นงานของสมาชิกฝั่ง Frontend และ Backend
 * **การใช้งานจริง:** การสร้างการ์ดกิจกรรมงาน (Task Cards) เช่น "Implement ตะกร้าสินค้า", "ออกแบบโครงสร้าง Database หนังสือ" และระบุผู้รับผิดชอบพร้อมกำหนด Timeline ชัดเจน
 
-### 📐 2. Analysis & Design
+### 2. Analysis & Design
 * **เครื่องมือ:** Mermaid.js / Figma
 * **เหตุผล:** เพื่อให้นักพัฒนาในทีมสร้างเอกสารข้อกำหนดทางเทคนิค (Specification Documentation) และแบบแปลนสถาปัตยกรรมชุดเดียวกันก่อนเริ่มลงมือเขียนโปรแกรม
 * **การใช้งานจริง:** ร่วมกันกำหนดขอบเขตฟังก์ชันผ่าน Use Case Diagram และกำหนด Object-Oriented Schema เพื่อแปลงไปเป็น Database Model บนระบบจัดการฐานข้อมูลหลัก
 
-### 💻 3. Development (การพัฒนา)
+### 3. Development (การพัฒนา)
 * **เครื่องมือ:** Visual Studio Code & Git / GitHub
 * **เหตุผล:** เป็นแพลตฟอร์มหลักที่ทีมคุ้นเคย และมี Git เป็นระบบควบคุมเวอร์ชัน (Version Control) เพื่อจัดการประวัติการแก้ไขและป้องกันซอร์สโค้ดเขียนชนทับกัน
 * **การใช้งานจริง:** ทุกคนดึงรหัสต้นฉบับจากคลังกลาง แตกกิ่งสายพัฒนา (Feature Branching) เช่น `feature/book-catalog` และส่ง Pull Request เพื่อทำ Code Review ก่อนรวมโค้ด
 
-### 🧪 4. Testing (การทดสอบ)
+### 4. Testing (การทดสอบ)
 * **เครื่องมือ:** Postman
 * **เหตุผล:** ชิ้นงานระบบร้านหนังสือมีการแลกเปลี่ยนข้อมูลผ่าน HTTP REST API การใช้ Postman ช่วยให้ Tester สามารถตรวจสอบความเสถียรและความถูกต้องของการรับส่ง Data Payload ได้แม่นยำ
 * **การใช้งานจริง:** ส่งคำขอจำลอง Request จริงตรวจสอบ API Endpoint เช่น `GET /api/books` เพื่อดูว่าเซิร์ฟเวอร์ส่งคืนข้อมูลหนังสือ ราคา และจำนวนสต็อกถูกต้องตามสเปกหรือไม่
 
-### 🚀 5. Deployment (การนำระบบขึ้นใช้งาน)
+### 5. Deployment (การนำระบบขึ้นใช้งาน)
 * **เครื่องมือ:** Vercel และ Render (แพลตฟอร์มคลาวด์สำหรับเว็บแอปพลิเคชัน)
 * **เหตุผล:** รองรับท่อส่งมอบงานอัตโนมัติ (Automated CI/CD Pipelines) เมื่อมีการบันทึกโค้ดขึ้นระบบคลาวด์ แพลตฟอร์มจะทำการ Build และทดสอบความเรียบร้อย แล้วเปิดบริการขึ้นอินเทอร์เน็ตให้ทันทีโดยอัตโนมัติ
 * **การใช้งานจริง:** เมื่อซอร์สโค้ดผ่านกระบวนการตรวจสอบและรวมโค้ดเข้าสู่สายหลัก (Branch: main) ระบบจะแปลงสภาพชิ้นงานเวอร์ชันล่าสุดและเปิด URL ให้คณาจารย์และผู้ใช้อื่นเข้าทดสอบระบบได้ทันที
@@ -38,182 +38,198 @@
 
 สถาปัตยกรรมทางวิศวกรรมซอฟต์แวร์ของชิ้นงานระบบร้านหนังสือออนไลน์ ได้รับการสื่อสารผ่านแผนภาพและแบบจำลองโครงสร้างดังต่อไปนี้
 
-### 💡 1. Use Case Diagram
+### 1. Use Case Diagram
 
 **หน้าที่และความสำคัญ:** แผนภาพที่ใช้สรุปและระบุขอบเขตของระบบ (System Boundary) เพื่อระบุว่ามีผู้ใช้งานกลุ่มใดบ้าง (Actors) และพวกเขาสามารถทำฟังก์ชันงานใดบนแพลตฟอร์มดิจิทัลนี้ได้บ้าง
 
 ```mermaid
 graph LR
-    Customer["👤 ลูกค้า"]
-    Staff["🧑‍💼 พนักงาน"]
-    Admin["⚙️ ผู้ดูแลระบบ"]
+  Customer["ลูกค้า"]
+  Staff["พนักงาน"]
+  Admin["ผู้ดูแลระบบ"]
 
-    subgraph System ["📦 ระบบร้านหนังสือออนไลน์"]
-        subgraph G1 ["🔐 การสมัครและจัดการบัญชีผู้ใช้"]
-            UC_Register(["สมัครสมาชิกใหม่"])
-            UC_Auth(["เข้าสู่ระบบ"])
-            UC_Profile(["แก้ไขโปรไฟล์และที่อยู่จัดส่ง"])
-        end
-        subgraph G2 ["🛒 การค้นหาและสั่งซื้อหนังสือ"]
-            UC_Search(["ค้นหาและดูรายละเอียดหนังสือ"])
-            UC_Cart(["เพิ่มหรือลบสินค้าในตะกร้า"])
-            UC_Checkout(["กดยืนยันสั่งซื้อ ⚠️ ต้องล็อกอินก่อน"])
-            UC_UploadSlip(["แนบสลิปโอนเงิน ✅ ทำต่อจากการสั่งซื้อ"])
-            UC_OrderHistory(["ติดตามพัสดุและประวัติออเดอร์ ⚠️ ต้องล็อกอินก่อน"])
-        end
-        subgraph G3 ["🧑‍💼 งานพนักงานหลังบ้าน"]
-            UC_VerifySlip(["ตรวจสอบและอนุมัติสลิปโอนเงิน ⚠️ ต้องล็อกอินก่อน"])
-            UC_ShipOrder(["บันทึกการจัดส่งและเลขพัสดุ ⚠️ ต้องล็อกอินก่อน"])
-            UC_ManageCatalog(["เพิ่ม/แก้ไข/ลบหนังสือในคลัง ⚠️ ต้องล็อกอินก่อน"])
-            UC_StockAlert(["แจ้งเตือนอัตโนมัติเมื่อสินค้าใกล้หมด ✅ เชื่อมกับการจัดการคลัง"])
-        end
-        subgraph G4 ["📊 การวิเคราะห์และจัดการระบบ"]
-            UC_Dashboard(["ดูรายงานยอดขายและสถิติ ⚠️ ต้องล็อกอินก่อน"])
-            UC_ManageUsers(["จัดการบัญชีพนักงานและสิทธิ์ ⚠️ ต้องล็อกอินก่อน"])
-        end
+  subgraph System ["ระบบร้านหนังสือออนไลน์"]
+    subgraph G1 ["การสมัครและจัดการบัญชีผู้ใช้"]
+      UC_Register(["สมัครสมาชิกใหม่"])
+      UC_Auth(["เข้าสู่ระบบ"])
+      UC_Profile(["แก้ไขโปรไฟล์และที่อยู่จัดส่ง"])
     end
+    subgraph G2 ["การค้นหาและสั่งซื้อหนังสือ"]
+      UC_Search(["ค้นหาและดูรายละเอียดหนังสือ"])
+      UC_Cart(["เพิ่มหรือลบสินค้าในตะกร้า"])
+      UC_Checkout(["กดยืนยันสั่งซื้อ - ต้องล็อกอินก่อน"])
+      UC_UploadSlip(["แนบสลิปโอนเงิน - ทำต่อจากการสั่งซื้อ"])
+      UC_OrderHistory(["ติดตามพัสดุและประวัติออเดอร์ - ต้องล็อกอินก่อน"])
+    end
+    subgraph G3 ["งานพนักงานหลังบ้าน"]
+      UC_VerifySlip(["ตรวจสอบและอนุมัติสลิปโอนเงิน - ต้องล็อกอินก่อน"])
+      UC_ShipOrder(["บันทึกการจัดส่งและเลขพัสดุ - ต้องล็อกอินก่อน"])
+      UC_ManageCatalog(["เพิ่ม/แก้ไข/ลบหนังสือในคลัง - ต้องล็อกอินก่อน"])
+      UC_StockAlert(["แจ้งเตือนอัตโนมัติเมื่อสินค้าใกล้หมด - เชื่อมกับการจัดการคลัง"])
+    end
+    subgraph G4 ["การวิเคราะห์และจัดการระบบ"]
+      UC_Dashboard(["ดูรายงานยอดขายและสถิติ - ต้องล็อกอินก่อน"])
+      UC_ManageUsers(["จัดการบัญชีพนักงานและสิทธิ์ - ต้องล็อกอินก่อน"])
+    end
+  end
 
-    Customer --- UC_Register
-    Customer --- UC_Auth
-    Customer --- UC_Search
-    Customer --- UC_Cart
-    Customer --- UC_Checkout
-    Customer --- UC_UploadSlip
-    Customer --- UC_OrderHistory
-    Customer --- UC_Profile
+  Customer --- UC_Register
+  Customer --- UC_Auth
+  Customer --- UC_Search
+  Customer --- UC_Cart
+  Customer --- UC_Checkout
+  Customer --- UC_UploadSlip
+  Customer --- UC_OrderHistory
+  Customer --- UC_Profile
 
-    Staff --- UC_Auth
-    Staff --- UC_VerifySlip
-    Staff --- UC_ShipOrder
-    Staff --- UC_ManageCatalog
+  Staff --- UC_Auth
+  Staff --- UC_VerifySlip
+  Staff --- UC_ShipOrder
+  Staff --- UC_ManageCatalog
 
-    Admin --- UC_Auth
-    Admin --- UC_ManageCatalog
-    Admin --- UC_Dashboard
-    Admin --- UC_ManageUsers
+  Admin --- UC_Auth
+  Admin --- UC_ManageCatalog
+  Admin --- UC_Dashboard
+  Admin --- UC_ManageUsers
 
 ```
 
-### 💡 2. Class Diagram
+### 2. Class Diagram
 
 **หน้าที่และความสำคัญ:** แผนภาพโครงสร้างเชิงสถิต (Static Diagram) ที่ระบุคุณลักษณะ (Attributes) วิธีการทำงาน (Methods) รวมถึงตรรกะความสัมพันธ์เชื่อมโยงของข้อมูลวัตถุ (Entities Relationship)
 
 ```mermaid
 classDiagram
-    class User {
-        -int id
-        -string name
-        -string email
-        -string password_hash
-        -string role
-        +register(name, email, password) bool
-        +login(email, password) string
-        +getProfile() User
-        +updateProfile(name, phone) bool
-        +verifyToken(token) User$
-    }
-    class Address {
-        -int id
-        -int user_id
-        -string recipient_name
-        -string phone
-        -string address_line
-        -string province
-        -string postal_code
-        -bool is_default
-        +addAddress(user_id, detail) bool
-        +editAddress(id, detail) bool
-        +deleteAddress(id) bool
-        +setDefault(id) bool
-    }
-    class Book {
-        -int id
-        -string title
-        -string author
-        -string isbn
-        -decimal price
-        -int stock_qty
-        -string category
-        -string cover_image_url
-        +updateStock(qty) bool
-        +isAvailable() bool
-        +search(query, category) List~Book~$
-        +addBook(title, author, isbn, price, qty, category) bool$
-        +editBook(id, title, author, price, qty, category) bool$
-        +deleteBook(id) bool$
-        +checkLowStockAlert() bool
-    }
-    class Notification {
-        -int id
-        -string type
-        -string message
-        -int book_id
-        -timestamp sent_at
-        +sendLowStockAlert(book_id, qty) bool$
-        +sendWebhook(payload) bool$
-    }
-    class SalesReport {
-        -timestamp generated_at
-        -decimal total_sales
-        -int total_orders
-        +getWeeklySales() SalesReport$
-        +getMonthlySales() SalesReport$
-        +getTopSellers() List~Book~$
-        +getDailyRevenue(days) List~Object~$
-    }
-    class Cart {
-        -int id
-        -int user_id
-        +addItem(book_id, qty) bool
-        +removeItem(book_id) bool
-        +updateItemQty(book_id, qty) bool
-        +getItems() List~CartItem~
-        +clear() bool
-    }
-    class Order {
-        -int id
-        -int user_id
-        -int address_id
-        -int verified_by
-        -decimal total_amount
-        -string status
-        -string slip_image_url
-        -string tracking_number
-        -timestamp order_date
-        -timestamp shipped_at
-        +createOrder(user_id, address_id) int
-        +attachSlip(order_id, url) bool
-        +approvePayment(order_id, staff_id) bool
-        +rejectOrder(order_id, reason) bool
-        +shipOrder(order_id, tracking_number) bool
-        +getOrderHistory(user_id) List~Order~
-    }
-    class CartItem {
-        -int id
-        -int cart_id
-        -int book_id
-        -int quantity
-    }
-    class OrderItem {
-        -int id
-        -int order_id
-        -int book_id
-        -int quantity
-        -decimal price_per_unit
-    }
+  %% Core Entities (Master Data)
+  class User {
+    -int id
+    -string name
+    -string email
+    -string password_hash
+    -string role
+    -string phone
+    -timestamp created_at
+    -timestamp updated_at
+    +register(name, email, password) bool
+    +login(email, password) string
+    +getProfile() User
+    +updateProfile(name, phone) bool
+    +verifyToken(token) User$
+  }
+  class Address {
+    -int id
+    -int user_id
+    -string recipient_name
+    -string phone
+    -string address_line
+    -string province
+    -string postal_code
+    -bool is_default
+    -timestamp created_at
+    +addAddress(user_id, detail) bool
+    +editAddress(id, detail) bool
+    +deleteAddress(id) bool
+    +setDefault(id) bool
+  }
+  class Book {
+    -int id
+    -string title
+    -string author
+    -string isbn
+    -decimal price
+    -decimal original_price
+    -int stock_qty
+    -string category
+    -string cover_image_url
+    -string description
+    -decimal rating
+    -int review_count
+    -timestamp created_at
+    -timestamp updated_at
+    +updateStock(qty) bool
+    +isAvailable() bool
+    +search(query, category) List~Book~$
+    +addBook(title, author, isbn, price, qty, category) bool$
+    +editBook(id, title, author, price, qty, category) bool$
+    +deleteBook(id) bool$
+    +checkLowStockAlert() bool
+  }
+  class Notification {
+    -int id
+    -string type
+    -string message
+    -int book_id
+    -timestamp sent_at
+    +sendLowStockAlert(book_id, qty) bool$
+    +sendWebhook(payload) bool$
+  }
+  class SalesReport {
+    -timestamp generated_at
+    -decimal total_sales
+    -int total_orders
+    +getWeeklySales() SalesReport$
+    +getMonthlySales() SalesReport$
+    +getTopSellers() List~Book~$
+    +getDailyRevenue(days) List~Object~$
+  }
+  %% Transactional Entities (Operations)
+  class Cart {
+    -int id
+    -int user_id
+    -timestamp created_at
+    +addItem(book_id, qty) bool
+    +removeItem(book_id) bool
+    +updateItemQty(book_id, qty) bool
+    +getItems() List~CartItem~
+    +clear() bool
+  }
+  class Order {
+    -int id
+    -int user_id
+    -int address_id
+    -int verified_by
+    -decimal total_amount
+    -string status
+    -string slip_image_url
+    -string tracking_number
+    -timestamp order_date
+    -timestamp shipped_at
+    -timestamp updated_at
+    +createOrder(user_id, address_id) int
+    +attachSlip(order_id, url) bool
+    +approvePayment(order_id, staff_id) bool
+    +rejectOrder(order_id, reason) bool
+    +shipOrder(order_id, tracking_number) bool
+    +getOrderHistory(user_id) List~Order~
+  }
+  %% Detail Entities (Sub-transactions)
+  class CartItem {
+    -int id
+    -int cart_id
+    -int book_id
+    -int quantity
+    -timestamp added_at
+  }
+  class OrderItem {
+    -int id
+    -int order_id
+    -int book_id
+    -int quantity
+    -decimal price_per_unit
+  }
 
-    User "1" --> "1" Cart : Owns
-    User "1" --> "0..*" Order : Places
-    User "1" --> "0..*" Address : Manages (UC8)
-    User "0..1" --> "0..*" Order : Verifies (Staff)
-    User "1" --> "0..*" SalesReport : Generates (Admin)
-    Address "1" --> "0..*" Order : UsedIn
-    Cart "1" *--> "0..*" CartItem : Contains
-    Book "1" --> "0..*" CartItem : Referenced
-    Order "1" *--> "1..*" OrderItem : Comprises
-    Book "1" --> "0..*" OrderItem : Sold via
-    Book "1" --> "0..*" Notification : Triggers (UC12)
-    SalesReport "1" ..> "0..*" Order : Aggregates
+  User "1" --> "1" Cart : Owns
+  User "1" --> "0..*" Order : Places
+  User "1" --> "0..*" Address : Manages (UC8)
+  User "0..1" --> "0..*" Order : Verifies (Staff)
+  User "1" --> "0..*" SalesReport : Generates (Admin)
+  Address "1" --> "0..*" Order : UsedIn
+  Cart "1" *--> "0..*" CartItem : Contains
+  Book "1" --> "0..*" CartItem : Referenced
+  Order "1" *--> "1..*" OrderItem : Comprises
+  Book "1" --> "0..*" OrderItem : Sold via
+  Book "1" --> "0..*" Notification : Triggers (UC12)
+  SalesReport "1" ..> "0..*" Order : Aggregates
 ```
 
 ### 3. Sequence Diagram
@@ -237,43 +253,43 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor User as ผู้ใช้งาน
-    participant Web as หน้าเว็บ
-    participant Auth as ระบบตรวจสอบตัวตน
-    participant DB as ฐานข้อมูล
+  autonumber
+  actor User as ผู้ใช้งาน
+  participant Web as หน้าเว็บ
+  participant Auth as ระบบตรวจสอบตัวตน
+  participant DB as ฐานข้อมูล
 
-    opt กรณีผู้ใช้ใหม่ — สมัครสมาชิก
-        User->>Web: กรอกชื่อ, อีเมล และรหัสผ่าน แล้วกดสมัคร
-        Web->>Auth: ส่งข้อมูลการสมัครไปยังระบบ
-        Auth->>DB: ตรวจสอบว่าอีเมลนี้มีผู้ใช้แล้วหรือไม่
-        DB-->>Auth: แจ้งผลการตรวจสอบ
-        alt อีเมลนี้มีผู้ใช้งานอยู่แล้ว
-            Auth-->>Web: แจ้งว่าอีเมลนี้ถูกใช้ไปแล้ว
-            Web-->>User: แสดงข้อความแจ้งเตือน — กรุณาใช้อีเมลอื่น
-        else อีเมลยังไม่เคยใช้
-            Auth->>Auth: เข้ารหัสรหัสผ่านไว้อย่างปลอดภัย
-            Auth->>DB: บันทึกบัญชีผู้ใช้ใหม่ลงในระบบ
-            DB-->>Auth: ยืนยันการบันทึกสำเร็จ
-            Auth-->>Web: แจ้งว่าสมัครสมาชิกสำเร็จ
-            Web-->>User: สมัครสมาชิกสำเร็จ — พาไปหน้าเข้าสู่ระบบ
-        end
+  opt กรณีผู้ใช้ใหม่ — สมัครสมาชิก
+    User->>Web: กรอกชื่อ, อีเมล และรหัสผ่าน แล้วกดสมัคร
+    Web->>Auth: ส่งข้อมูลการสมัครไปยังระบบ
+    Auth->>DB: ตรวจสอบว่าอีเมลนี้มีผู้ใช้แล้วหรือไม่
+    DB-->>Auth: แจ้งผลการตรวจสอบ
+    alt อีเมลนี้มีผู้ใช้งานอยู่แล้ว
+      Auth-->>Web: แจ้งว่าอีเมลนี้ถูกใช้ไปแล้ว
+      Web-->>User: แสดงข้อความแจ้งเตือน — กรุณาใช้อีเมลอื่น
+    else อีเมลยังไม่เคยใช้
+      Auth->>Auth: เข้ารหัสรหัสผ่านไว้อย่างปลอดภัย
+      Auth->>DB: บันทึกบัญชีผู้ใช้ใหม่ลงในระบบ
+      DB-->>Auth: ยืนยันการบันทึกสำเร็จ
+      Auth-->>Web: แจ้งว่าสมัครสมาชิกสำเร็จ
+      Web-->>User: สมัครสมาชิกสำเร็จ — พาไปหน้าเข้าสู่ระบบ
     end
+  end
 
-    Note over User, DB: ขั้นตอนเข้าสู่ระบบ (ใช้ได้ทั้ง ลูกค้า / พนักงาน / แอดมิน)
-    User->>Web: กรอกอีเมลและรหัสผ่าน แล้วกดเข้าสู่ระบบ
-    Web->>Auth: ส่งข้อมูลล็อกอินเพื่อยืนยัน
-    Auth->>DB: ค้นหาบัญชีผู้ใช้จากอีเมลที่กรอก
-    DB-->>Auth: ส่งข้อมูลบัญชีกลับมา
-    alt อีเมลไม่พบ หรือ รหัสผ่านไม่ถูกต้อง
-        Auth-->>Web: แจ้งว่าข้อมูลไม่ถูกต้อง
-        Web-->>User: อีเมลหรือรหัสผ่านไม่ถูกต้อง — กรุณาลองใหม่
-    else ข้อมูลถูกต้องทั้งหมด
-        Auth->>Auth: ออกบัตรผ่านดิจิทัล (Token) สำหรับเซสชันนี้
-        Auth-->>Web: ส่งบัตรผ่านและข้อมูลผู้ใช้กลับมา
-        Web->>Web: จดจำบัตรผ่านไว้ในเบราว์เซอร์
-        Web-->>User: เข้าสู่ระบบสำเร็จ — พาไปหน้าหลักตามสิทธิ์ของท่าน
-    end
+  Note over User, DB: ขั้นตอนเข้าสู่ระบบ (ใช้ได้ทั้ง ลูกค้า / พนักงาน / แอดมิน)
+  User->>Web: กรอกอีเมลและรหัสผ่าน แล้วกดเข้าสู่ระบบ
+  Web->>Auth: ส่งข้อมูลล็อกอินเพื่อยืนยัน
+  Auth->>DB: ค้นหาบัญชีผู้ใช้จากอีเมลที่กรอก
+  DB-->>Auth: ส่งข้อมูลบัญชีกลับมา
+  alt อีเมลไม่พบ หรือ รหัสผ่านไม่ถูกต้อง
+    Auth-->>Web: แจ้งว่าข้อมูลไม่ถูกต้อง
+    Web-->>User: อีเมลหรือรหัสผ่านไม่ถูกต้อง — กรุณาลองใหม่
+  else ข้อมูลถูกต้องทั้งหมด
+    Auth->>Auth: ออกบัตรผ่านดิจิทัล (Token) สำหรับเซสชันนี้
+    Auth-->>Web: ส่งบัตรผ่านและข้อมูลผู้ใช้กลับมา
+    Web->>Web: จดจำบัตรผ่านไว้ในเบราว์เซอร์
+    Web-->>User: เข้าสู่ระบบสำเร็จ — พาไปหน้าหลักตามสิทธิ์ของท่าน
+  end
 ```
 
 ### 3.2 UC3: การแก้ไขโปรไฟล์และที่อยู่จัดส่ง
@@ -282,48 +298,48 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Customer as ลูกค้า
-    participant Web as หน้าเว็บ
-    participant Guard as ระบบตรวจสอบสิทธิ์
-    participant App as ระบบหลังบ้าน
-    participant DB as ฐานข้อมูล
+  autonumber
+  actor Customer as ลูกค้า
+  participant Web as หน้าเว็บ
+  participant Guard as ระบบตรวจสอบสิทธิ์
+  participant App as ระบบหลังบ้าน
+  participant DB as ฐานข้อมูล
 
-    Customer->>Web: คลิกเมนูโปรไฟล์ของฉัน
-    Web->>Guard: ขอดึงข้อมูลโปรไฟล์ (พร้อมบัตรผ่านล็อกอิน)
-    Guard->>Guard: ตรวจสอบบัตรผ่าน
-    alt บัตรผ่านไม่ถูกต้องหรือหมดอายุ
-        Guard-->>Web: ปฏิเสธการเข้าถึง
-        Web-->>Customer: กรุณาเข้าสู่ระบบก่อน
-    else บัตรผ่านถูกต้อง
-        Guard->>App: อนุญาตให้ดึงข้อมูล พร้อมระบุรหัสลูกค้า
-        App->>DB: ดึงข้อมูลชื่อ, อีเมล, เบอร์โทร ของลูกค้า
-        DB-->>App: ส่งข้อมูลโปรไฟล์กลับมา
-        App->>DB: ดึงรายการที่อยู่จัดส่งทั้งหมดของลูกค้า
-        DB-->>App: ส่งรายการที่อยู่กลับมา
-        App-->>Web: ส่งข้อมูลโปรไฟล์และรายการที่อยู่
-        Web-->>Customer: แสดงหน้าโปรไฟล์พร้อมรายการที่อยู่จัดส่ง
-    end
+  Customer->>Web: คลิกเมนูโปรไฟล์ของฉัน
+  Web->>Guard: ขอดึงข้อมูลโปรไฟล์ (พร้อมบัตรผ่านล็อกอิน)
+  Guard->>Guard: ตรวจสอบบัตรผ่าน
+  alt บัตรผ่านไม่ถูกต้องหรือหมดอายุ
+    Guard-->>Web: ปฏิเสธการเข้าถึง
+    Web-->>Customer: กรุณาเข้าสู่ระบบก่อน
+  else บัตรผ่านถูกต้อง
+    Guard->>App: อนุญาตให้ดึงข้อมูล พร้อมระบุรหัสลูกค้า
+    App->>DB: ดึงข้อมูลชื่อ, อีเมล, เบอร์โทร ของลูกค้า
+    DB-->>App: ส่งข้อมูลโปรไฟล์กลับมา
+    App->>DB: ดึงรายการที่อยู่จัดส่งทั้งหมดของลูกค้า
+    DB-->>App: ส่งรายการที่อยู่กลับมา
+    App-->>Web: ส่งข้อมูลโปรไฟล์และรายการที่อยู่
+    Web-->>Customer: แสดงหน้าโปรไฟล์พร้อมรายการที่อยู่จัดส่ง
+  end
 
-    opt ลูกค้าต้องการแก้ไขข้อมูลส่วนตัว
-        Customer->>Web: แก้ไขชื่อหรือเบอร์โทร แล้วกดบันทึก
-        Web->>Guard: ส่งข้อมูลที่แก้ไข (พร้อมบัตรผ่าน)
-        Guard->>App: ส่งต่อให้ระบบบันทึก
-        App->>DB: อัปเดตชื่อและเบอร์โทรในระบบ
-        DB-->>App: ยืนยันการบันทึกสำเร็จ
-        App-->>Web: แจ้งว่าอัปเดตสำเร็จ
-        Web-->>Customer: บันทึกข้อมูลเรียบร้อยแล้ว
-    end
+  opt ลูกค้าต้องการแก้ไขข้อมูลส่วนตัว
+    Customer->>Web: แก้ไขชื่อหรือเบอร์โทร แล้วกดบันทึก
+    Web->>Guard: ส่งข้อมูลที่แก้ไข (พร้อมบัตรผ่าน)
+    Guard->>App: ส่งต่อให้ระบบบันทึก
+    App->>DB: อัปเดตชื่อและเบอร์โทรในระบบ
+    DB-->>App: ยืนยันการบันทึกสำเร็จ
+    App-->>Web: แจ้งว่าอัปเดตสำเร็จ
+    Web-->>Customer: บันทึกข้อมูลเรียบร้อยแล้ว
+  end
 
-    opt ลูกค้าต้องการเพิ่มที่อยู่จัดส่งใหม่
-        Customer->>Web: กรอกชื่อผู้รับ, เบอร์โทร, ที่อยู่, จังหวัด, รหัสไปรษณีย์ แล้วกดบันทึก
-        Web->>Guard: ส่งข้อมูลที่อยู่ใหม่ (พร้อมบัตรผ่าน)
-        Guard->>App: ส่งต่อให้ระบบบันทึก
-        App->>DB: บันทึกที่อยู่ใหม่ลงในระบบ
-        DB-->>App: ยืนยันการบันทึกและส่งรหัสที่อยู่กลับมา
-        App-->>Web: แจ้งว่าเพิ่มที่อยู่สำเร็จ
-        Web-->>Customer: ที่อยู่ใหม่ปรากฏในรายการแล้ว
-    end
+  opt ลูกค้าต้องการเพิ่มที่อยู่จัดส่งใหม่
+    Customer->>Web: กรอกชื่อผู้รับ, เบอร์โทร, ที่อยู่, จังหวัด, รหัสไปรษณีย์ แล้วกดบันทึก
+    Web->>Guard: ส่งข้อมูลที่อยู่ใหม่ (พร้อมบัตรผ่าน)
+    Guard->>App: ส่งต่อให้ระบบบันทึก
+    App->>DB: บันทึกที่อยู่ใหม่ลงในระบบ
+    DB-->>App: ยืนยันการบันทึกและส่งรหัสที่อยู่กลับมา
+    App-->>Web: แจ้งว่าเพิ่มที่อยู่สำเร็จ
+    Web-->>Customer: ที่อยู่ใหม่ปรากฏในรายการแล้ว
+  end
 ```
 
 ### 3.3 UC4 & UC5: การค้นหาหนังสือและจัดการตะกร้าสินค้า
@@ -332,72 +348,72 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Customer as ลูกค้า
-    participant Web as หน้าเว็บ
-    participant Guard as ระบบตรวจสอบสิทธิ์
-    participant App as ระบบหลังบ้าน
-    participant DB as ฐานข้อมูล
+  autonumber
+  actor Customer as ลูกค้า
+  participant Web as หน้าเว็บ
+  participant Guard as ระบบตรวจสอบสิทธิ์
+  participant App as ระบบหลังบ้าน
+  participant DB as ฐานข้อมูล
 
-    Note over Customer, DB: ค้นหาหนังสือ — ไม่ต้องล็อกอิน
-    Customer->>Web: พิมพ์ชื่อหนังสือ / เลือกหมวดหมู่
-    Web->>App: ส่งคำค้นหาไปยังระบบ
-    App->>DB: ค้นหาหนังสือจากชื่อหรือหมวดหมู่ที่ระบุ
-    DB-->>App: ส่งรายการหนังสือที่พบกลับมา
-    App-->>Web: ส่งรายการผลการค้นหา
-    Web-->>Customer: แสดงรายการหนังสือที่ตรงกับคำค้นหา
+  Note over Customer, DB: ค้นหาหนังสือ — ไม่ต้องล็อกอิน
+  Customer->>Web: พิมพ์ชื่อหนังสือ / เลือกหมวดหมู่
+  Web->>App: ส่งคำค้นหาไปยังระบบ
+  App->>DB: ค้นหาหนังสือจากชื่อหรือหมวดหมู่ที่ระบุ
+  DB-->>App: ส่งรายการหนังสือที่พบกลับมา
+  App-->>Web: ส่งรายการผลการค้นหา
+  Web-->>Customer: แสดงรายการหนังสือที่ตรงกับคำค้นหา
 
-    opt ลูกค้าต้องการดูรายละเอียดหนังสือ
-        Customer->>Web: คลิกที่ปกหนังสือ
-        Web->>App: ขอข้อมูลรายละเอียดหนังสือเล่มนั้น
-        App->>DB: ดึงข้อมูลหนังสือ (ชื่อ, ผู้แต่ง, ราคา, จำนวนคงเหลือ)
-        DB-->>App: ส่งข้อมูลหนังสือกลับมา
-        App-->>Web: ส่งรายละเอียดทั้งหมด
-        Web-->>Customer: แสดงหน้ารายละเอียดหนังสือพร้อมปุ่ม "ใส่ตะกร้า"
+  opt ลูกค้าต้องการดูรายละเอียดหนังสือ
+    Customer->>Web: คลิกที่ปกหนังสือ
+    Web->>App: ขอข้อมูลรายละเอียดหนังสือเล่มนั้น
+    App->>DB: ดึงข้อมูลหนังสือ (ชื่อ, ผู้แต่ง, ราคา, จำนวนคงเหลือ)
+    DB-->>App: ส่งข้อมูลหนังสือกลับมา
+    App-->>Web: ส่งรายละเอียดทั้งหมด
+    Web-->>Customer: แสดงหน้ารายละเอียดหนังสือพร้อมปุ่ม "ใส่ตะกร้า"
+  end
+
+  opt ลูกค้าต้องการดูรายการในตะกร้า
+    Customer->>Web: คลิกไอคอนตะกร้าสินค้า
+    Web->>Guard: ขอดูตะกร้า (พร้อมบัตรผ่านล็อกอิน)
+    Guard->>Guard: ตรวจสอบบัตรผ่าน
+    alt บัตรผ่านไม่ถูกต้อง
+      Guard-->>Web: ปฏิเสธการเข้าถึง
+      Web-->>Customer: กรุณาเข้าสู่ระบบก่อนดูตะกร้า
+    else บัตรผ่านถูกต้อง
+      Guard->>App: อนุญาต พร้อมระบุรหัสลูกค้า
+      App->>DB: ดึงรายการหนังสือในตะกร้าของลูกค้า (ชื่อหนังสือ, ราคา, จำนวน)
+      DB-->>App: ส่งรายการในตะกร้ากลับมา
+      App-->>Web: ส่งรายการสินค้าในตะกร้า
+      Web-->>Customer: แสดงรายการหนังสือและยอดรวมในตะกร้า
     end
+  end
 
-    opt ลูกค้าต้องการดูรายการในตะกร้า
-        Customer->>Web: คลิกไอคอนตะกร้าสินค้า
-        Web->>Guard: ขอดูตะกร้า (พร้อมบัตรผ่านล็อกอิน)
-        Guard->>Guard: ตรวจสอบบัตรผ่าน
-        alt บัตรผ่านไม่ถูกต้อง
-            Guard-->>Web: ปฏิเสธการเข้าถึง
-            Web-->>Customer: กรุณาเข้าสู่ระบบก่อนดูตะกร้า
-        else บัตรผ่านถูกต้อง
-            Guard->>App: อนุญาต พร้อมระบุรหัสลูกค้า
-            App->>DB: ดึงรายการหนังสือในตะกร้าของลูกค้า (ชื่อหนังสือ, ราคา, จำนวน)
-            DB-->>App: ส่งรายการในตะกร้ากลับมา
-            App-->>Web: ส่งรายการสินค้าในตะกร้า
-            Web-->>Customer: แสดงรายการหนังสือและยอดรวมในตะกร้า
-        end
+  opt ลูกค้าต้องการเพิ่มหนังสือลงตะกร้า
+    Customer->>Web: คลิกปุ่ม "ใส่ตะกร้า"
+    Web->>Guard: ส่งคำขอเพิ่มสินค้า (พร้อมบัตรผ่าน)
+    Guard->>App: อนุญาต พร้อมระบุรหัสลูกค้า
+    App->>DB: ตรวจสอบจำนวนหนังสือคงเหลือในคลัง
+    DB-->>App: แจ้งจำนวนคงเหลือ
+    alt หนังสือในคลังไม่พอ
+      App-->>Web: แจ้งว่าสินค้าคงเหลือไม่เพียงพอ
+      Web-->>Customer: หนังสือในคลังเหลือไม่พอ กรุณาลดจำนวน
+    else หนังสือในคลังเพียงพอ
+      App->>DB: บันทึกรายการหนังสือลงในตะกร้าของลูกค้า
+      DB-->>App: ยืนยันการบันทึกสำเร็จ
+      App-->>Web: แจ้งว่าเพิ่มสินค้าสำเร็จ
+      Web-->>Customer: ตะกร้าของท่านอัปเดตแล้ว
     end
+  end
 
-    opt ลูกค้าต้องการเพิ่มหนังสือลงตะกร้า
-        Customer->>Web: คลิกปุ่ม "ใส่ตะกร้า"
-        Web->>Guard: ส่งคำขอเพิ่มสินค้า (พร้อมบัตรผ่าน)
-        Guard->>App: อนุญาต พร้อมระบุรหัสลูกค้า
-        App->>DB: ตรวจสอบจำนวนหนังสือคงเหลือในคลัง
-        DB-->>App: แจ้งจำนวนคงเหลือ
-        alt หนังสือในคลังไม่พอ
-            App-->>Web: แจ้งว่าสินค้าคงเหลือไม่เพียงพอ
-            Web-->>Customer: หนังสือในคลังเหลือไม่พอ กรุณาลดจำนวน
-        else หนังสือในคลังเพียงพอ
-            App->>DB: บันทึกรายการหนังสือลงในตะกร้าของลูกค้า
-            DB-->>App: ยืนยันการบันทึกสำเร็จ
-            App-->>Web: แจ้งว่าเพิ่มสินค้าสำเร็จ
-            Web-->>Customer: ตะกร้าของท่านอัปเดตแล้ว
-        end
-    end
-
-    opt ลูกค้าต้องการลบหรือปรับจำนวนสินค้าในตะกร้า
-        Customer->>Web: แก้ไขจำนวนหรือกดลบสินค้าออกจากตะกร้า
-        Web->>Guard: ส่งคำขอแก้ไข (พร้อมบัตรผ่าน)
-        Guard->>App: ส่งต่อให้ระบบดำเนินการ
-        App->>DB: อัปเดตหรือลบรายการในตะกร้า
-        DB-->>App: ยืนยันการดำเนินการสำเร็จ
-        App-->>Web: ส่งตะกร้าที่อัปเดตแล้วกลับมา
-        Web-->>Customer: ตะกร้าและยอดรวมอัปเดตเรียบร้อย
-    end
+  opt ลูกค้าต้องการลบหรือปรับจำนวนสินค้าในตะกร้า
+    Customer->>Web: แก้ไขจำนวนหรือกดลบสินค้าออกจากตะกร้า
+    Web->>Guard: ส่งคำขอแก้ไข (พร้อมบัตรผ่าน)
+    Guard->>App: ส่งต่อให้ระบบดำเนินการ
+    App->>DB: อัปเดตหรือลบรายการในตะกร้า
+    DB-->>App: ยืนยันการดำเนินการสำเร็จ
+    App-->>Web: ส่งตะกร้าที่อัปเดตแล้วกลับมา
+    Web-->>Customer: ตะกร้าและยอดรวมอัปเดตเรียบร้อย
+  end
 ```
 
 ### 3.4 UC6: การยืนยันสั่งซื้อหนังสือ
@@ -406,45 +422,45 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Customer as ลูกค้า
-    participant Web as หน้าเว็บ
-    participant Guard as ระบบตรวจสอบสิทธิ์
-    participant App as ระบบหลังบ้าน
-    participant DB as ฐานข้อมูล
+  autonumber
+  actor Customer as ลูกค้า
+  participant Web as หน้าเว็บ
+  participant Guard as ระบบตรวจสอบสิทธิ์
+  participant App as ระบบหลังบ้าน
+  participant DB as ฐานข้อมูล
 
-    Customer->>Web: กดปุ่ม "ยืนยันสั่งซื้อ" บนหน้าตะกร้า
-    Web->>Guard: ส่งคำสั่งสร้างออเดอร์ (พร้อมบัตรผ่าน)
-    Guard->>Guard: ตรวจสอบบัตรผ่าน
-    alt บัตรผ่านไม่ถูกต้องหรือหมดอายุ
-        Guard-->>Web: ปฏิเสธการเข้าถึง
-        Web-->>Customer: กรุณาเข้าสู่ระบบใหม่
-    else บัตรผ่านถูกต้อง
-        Guard->>App: ส่งคำสั่งสร้างออเดอร์ พร้อมข้อมูลลูกค้า
-        Note over App, DB: ระบบเปิดรายการธุรกรรมและล็อกสต็อกชั่วคราว เพื่อป้องกันลูกค้ารายอื่นแย่งซื้อพร้อมกัน
-        App->>DB: เปิดรายการธุรกรรมและตรวจสอบจำนวนหนังสือคงเหลือ (ล็อกชั่วคราว)
-        DB-->>App: แจ้งจำนวนคงเหลือล่าสุด
-        alt สินค้าในคลังไม่เพียงพอ
-            App->>DB: ยกเลิกธุรกรรม คืนสถานะเดิม
-            DB-->>App: ยืนยันการยกเลิก
-            App-->>Web: แจ้งว่าสินค้าในคลังไม่พอ
-            Web-->>Customer: ขออภัย สินค้าไม่เพียงพอสำหรับจำนวนที่เลือก
-        else สินค้าในคลังเพียงพอ
-            Note over App, DB: ดำเนินการบันทึกรายการ และยืนยันการชำระเงิน
-            App->>DB: หักจำนวนสินค้าออกจากคลัง
-            DB-->>App: ยืนยันการหักสต็อกสำเร็จ
-            App->>DB: สร้างรายการออเดอร์ใหม่ (สถานะ: รอชำระเงิน)
-            DB-->>App: ส่งรหัสออเดอร์ใหม่กลับมา
-            App->>DB: บันทึกรายละเอียดหนังสือแต่ละเล่มในออเดอร์
-            DB-->>App: ยืนยันการบันทึกรายการสินค้า
-            App->>DB: ล้างรายการในตะกร้าสินค้าของลูกค้า
-            DB-->>App: ยืนยันการล้างตะกร้า
-            App->>DB: ยืนยันธุรกรรมทั้งหมด (บันทึกถาวร)
-            DB-->>App: ยืนยันการบันทึกถาวรสำเร็จ
-            App-->>Web: แจ้งว่าสร้างออเดอร์สำเร็จ
-            Web-->>Customer: สั่งซื้อสำเร็จ! กรุณาแนบสลิปโอนเงิน
-        end
+  Customer->>Web: กดปุ่ม "ยืนยันสั่งซื้อ" บนหน้าตะกร้า
+  Web->>Guard: ส่งคำสั่งสร้างออเดอร์ (พร้อมบัตรผ่าน)
+  Guard->>Guard: ตรวจสอบบัตรผ่าน
+  alt บัตรผ่านไม่ถูกต้องหรือหมดอายุ
+    Guard-->>Web: ปฏิเสธการเข้าถึง
+    Web-->>Customer: กรุณาเข้าสู่ระบบใหม่
+  else บัตรผ่านถูกต้อง
+    Guard->>App: ส่งคำสั่งสร้างออเดอร์ พร้อมข้อมูลลูกค้า
+    Note over App, DB: ระบบเปิดรายการธุรกรรมและล็อกสต็อกชั่วคราว เพื่อป้องกันลูกค้ารายอื่นแย่งซื้อพร้อมกัน
+    App->>DB: เปิดรายการธุรกรรมและตรวจสอบจำนวนหนังสือคงเหลือ (ล็อกชั่วคราว)
+    DB-->>App: แจ้งจำนวนคงเหลือล่าสุด
+    alt สินค้าในคลังไม่เพียงพอ
+      App->>DB: ยกเลิกธุรกรรม คืนสถานะเดิม
+      DB-->>App: ยืนยันการยกเลิก
+      App-->>Web: แจ้งว่าสินค้าในคลังไม่พอ
+      Web-->>Customer: ขออภัย สินค้าไม่เพียงพอสำหรับจำนวนที่เลือก
+    else สินค้าในคลังเพียงพอ
+      Note over App, DB: ดำเนินการบันทึกรายการ และยืนยันการชำระเงิน
+      App->>DB: หักจำนวนสินค้าออกจากคลัง
+      DB-->>App: ยืนยันการหักสต็อกสำเร็จ
+      App->>DB: สร้างรายการออเดอร์ใหม่ (สถานะ: รอชำระเงิน)
+      DB-->>App: ส่งรหัสออเดอร์ใหม่กลับมา
+      App->>DB: บันทึกรายละเอียดหนังสือแต่ละเล่มในออเดอร์
+      DB-->>App: ยืนยันการบันทึกรายการสินค้า
+      App->>DB: ล้างรายการในตะกร้าสินค้าของลูกค้า
+      DB-->>App: ยืนยันการล้างตะกร้า
+      App->>DB: ยืนยันธุรกรรมทั้งหมด (บันทึกถาวร)
+      DB-->>App: ยืนยันการบันทึกถาวรสำเร็จ
+      App-->>Web: แจ้งว่าสร้างออเดอร์สำเร็จ
+      Web-->>Customer: สั่งซื้อสำเร็จ! กรุณาแนบสลิปโอนเงิน
     end
+  end
 ```
 
 ### 3.5 UC7: การแนบหลักฐานการชำระเงิน
@@ -453,36 +469,36 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Customer as ลูกค้า
-    participant Web as หน้าเว็บ
-    participant Guard as ระบบตรวจสอบสิทธิ์
-    participant App as ระบบหลังบ้าน
-    participant Storage as ระบบจัดเก็บไฟล์
-    participant DB as ฐานข้อมูล
+  autonumber
+  actor Customer as ลูกค้า
+  participant Web as หน้าเว็บ
+  participant Guard as ระบบตรวจสอบสิทธิ์
+  participant App as ระบบหลังบ้าน
+  participant Storage as ระบบจัดเก็บไฟล์
+  participant DB as ฐานข้อมูล
 
-    Customer->>Web: เปิดหน้าประวัติการสั่งซื้อ แล้วเลือกอัปโหลดสลิปของออเดอร์ที่ต้องการ
-    Web->>Guard: ส่งไฟล์รูปสลิป (พร้อมบัตรผ่าน)
-    Guard->>Guard: ตรวจสอบบัตรผ่านและสิทธิ์ความเป็นเจ้าของออเดอร์
-    alt บัตรผ่านไม่ถูกต้อง หรือไม่ใช่เจ้าของออเดอร์
-        Guard-->>Web: ปฏิเสธการเข้าถึง
-        Web-->>Customer: ไม่มีสิทธิ์อัปโหลดสลิปของออเดอร์นี้
-    else บัตรผ่านถูกต้องและเป็นเจ้าของออเดอร์
-        Guard->>App: ส่งต่อไฟล์สลิปให้ระบบดำเนินการ
-        App->>DB: ตรวจสอบสถานะออเดอร์ว่ายังรอชำระเงินอยู่หรือไม่
-        DB-->>App: แจ้งสถานะออเดอร์ปัจจุบัน
-        alt ออเดอร์นี้ไม่ได้อยู่ในสถานะรอชำระเงิน
-            App-->>Web: แจ้งว่าไม่สามารถแนบสลิปได้
-            Web-->>Customer: ออเดอร์นี้ได้รับการดำเนินการไปแล้ว ไม่สามารถแนบสลิปเพิ่มได้
-        else ออเดอร์ยังรอชำระเงิน
-            App->>Storage: อัปโหลดรูปภาพสลิปไปเก็บในระบบไฟล์กลาง
-            Storage-->>App: ส่งลิงก์ที่อยู่ของรูปสลิปกลับมา
-            App->>DB: บันทึกลิงก์สลิปเชื่อมกับออเดอร์ในระบบ
-            DB-->>App: ยืนยันการบันทึกสำเร็จ
-            App-->>Web: แจ้งว่าอัปโหลดสลิปสำเร็จ
-            Web-->>Customer: อัปโหลดสลิปเรียบร้อย — สถานะเปลี่ยนเป็น "รอพนักงานตรวจสอบ"
-        end
+  Customer->>Web: เปิดหน้าประวัติการสั่งซื้อ แล้วเลือกอัปโหลดสลิปของออเดอร์ที่ต้องการ
+  Web->>Guard: ส่งไฟล์รูปสลิป (พร้อมบัตรผ่าน)
+  Guard->>Guard: ตรวจสอบบัตรผ่านและสิทธิ์ความเป็นเจ้าของออเดอร์
+  alt บัตรผ่านไม่ถูกต้อง หรือไม่ใช่เจ้าของออเดอร์
+    Guard-->>Web: ปฏิเสธการเข้าถึง
+    Web-->>Customer: ไม่มีสิทธิ์อัปโหลดสลิปของออเดอร์นี้
+  else บัตรผ่านถูกต้องและเป็นเจ้าของออเดอร์
+    Guard->>App: ส่งต่อไฟล์สลิปให้ระบบดำเนินการ
+    App->>DB: ตรวจสอบสถานะออเดอร์ว่ายังรอชำระเงินอยู่หรือไม่
+    DB-->>App: แจ้งสถานะออเดอร์ปัจจุบัน
+    alt ออเดอร์นี้ไม่ได้อยู่ในสถานะรอชำระเงิน
+      App-->>Web: แจ้งว่าไม่สามารถแนบสลิปได้
+      Web-->>Customer: ออเดอร์นี้ได้รับการดำเนินการไปแล้ว ไม่สามารถแนบสลิปเพิ่มได้
+    else ออเดอร์ยังรอชำระเงิน
+      App->>Storage: อัปโหลดรูปภาพสลิปไปเก็บในระบบไฟล์กลาง
+      Storage-->>App: ส่งลิงก์ที่อยู่ของรูปสลิปกลับมา
+      App->>DB: บันทึกลิงก์สลิปเชื่อมกับออเดอร์ในระบบ
+      DB-->>App: ยืนยันการบันทึกสำเร็จ
+      App-->>Web: แจ้งว่าอัปโหลดสลิปสำเร็จ
+      Web-->>Customer: อัปโหลดสลิปเรียบร้อย — สถานะเปลี่ยนเป็น "รอพนักงานตรวจสอบ"
     end
+  end
 ```
 
 ### 3.6 UC8: ติดตามพัสดุและประวัติออเดอร์
@@ -491,36 +507,36 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Customer as ลูกค้า
-    participant Web as หน้าเว็บ
-    participant Guard as ระบบตรวจสอบสิทธิ์
-    participant App as ระบบหลังบ้าน
-    participant DB as ฐานข้อมูล
+  autonumber
+  actor Customer as ลูกค้า
+  participant Web as หน้าเว็บ
+  participant Guard as ระบบตรวจสอบสิทธิ์
+  participant App as ระบบหลังบ้าน
+  participant DB as ฐานข้อมูล
 
-    Customer->>Web: คลิกเมนู "ประวัติการสั่งซื้อของฉัน"
-    Web->>Guard: ขอดูประวัติออเดอร์ (พร้อมบัตรผ่าน)
-    Guard->>Guard: ตรวจสอบบัตรผ่าน
-    alt บัตรผ่านไม่ถูกต้อง
-        Guard-->>Web: ปฏิเสธการเข้าถึง
-        Web-->>Customer: กรุณาเข้าสู่ระบบก่อน
-    else บัตรผ่านถูกต้อง
-        Guard->>App: อนุญาต พร้อมระบุรหัสลูกค้า
-        App->>DB: ดึงรายการออเดอร์ทั้งหมดของลูกค้า (เรียงจากใหม่ไปเก่า)
-        DB-->>App: ส่งรายการออเดอร์พร้อมสถานะและเลขพัสดุ
-        App-->>Web: ส่งรายการออเดอร์ทั้งหมด
-        Web-->>Customer: แสดงประวัติการสั่งซื้อทั้งหมด พร้อมสถานะแต่ละรายการ
-    end
+  Customer->>Web: คลิกเมนู "ประวัติการสั่งซื้อของฉัน"
+  Web->>Guard: ขอดูประวัติออเดอร์ (พร้อมบัตรผ่าน)
+  Guard->>Guard: ตรวจสอบบัตรผ่าน
+  alt บัตรผ่านไม่ถูกต้อง
+    Guard-->>Web: ปฏิเสธการเข้าถึง
+    Web-->>Customer: กรุณาเข้าสู่ระบบก่อน
+  else บัตรผ่านถูกต้อง
+    Guard->>App: อนุญาต พร้อมระบุรหัสลูกค้า
+    App->>DB: ดึงรายการออเดอร์ทั้งหมดของลูกค้า (เรียงจากใหม่ไปเก่า)
+    DB-->>App: ส่งรายการออเดอร์พร้อมสถานะและเลขพัสดุ
+    App-->>Web: ส่งรายการออเดอร์ทั้งหมด
+    Web-->>Customer: แสดงประวัติการสั่งซื้อทั้งหมด พร้อมสถานะแต่ละรายการ
+  end
 
-    opt ลูกค้าต้องการดูรายละเอียดออเดอร์
-        Customer->>Web: คลิกที่ออเดอร์เพื่อดูรายละเอียด
-        Web->>Guard: ขอข้อมูลออเดอร์ (พร้อมบัตรผ่าน)
-        Guard->>App: อนุญาต ส่งต่อคำขอ
-        App->>DB: ดึงรายละเอียดออเดอร์ (รายชื่อหนังสือ, ราคา, จำนวน, เลขพัสดุ)
-        DB-->>App: ส่งข้อมูลทั้งหมดกลับมา
-        App-->>Web: ส่งรายละเอียดออเดอร์
-        Web-->>Customer: แสดงรายละเอียดออเดอร์และเลขติดตามพัสดุ
-    end
+  opt ลูกค้าต้องการดูรายละเอียดออเดอร์
+    Customer->>Web: คลิกที่ออเดอร์เพื่อดูรายละเอียด
+    Web->>Guard: ขอข้อมูลออเดอร์ (พร้อมบัตรผ่าน)
+    Guard->>App: อนุญาต ส่งต่อคำขอ
+    App->>DB: ดึงรายละเอียดออเดอร์ (รายชื่อหนังสือ, ราคา, จำนวน, เลขพัสดุ)
+    DB-->>App: ส่งข้อมูลทั้งหมดกลับมา
+    App-->>Web: ส่งรายละเอียดออเดอร์
+    Web-->>Customer: แสดงรายละเอียดออเดอร์และเลขติดตามพัสดุ
+  end
 ```
 
 ### 3.7 UC9 & UC10: การตรวจสอบสลิปและการบันทึกจัดส่ง
@@ -529,58 +545,58 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Staff as พนักงาน
-    participant Web as หน้าเว็บ
-    participant Guard as ระบบตรวจสอบสิทธิ์
-    participant App as ระบบหลังบ้าน
-    participant DB as ฐานข้อมูล
+  autonumber
+  actor Staff as พนักงาน
+  participant Web as หน้าเว็บ
+  participant Guard as ระบบตรวจสอบสิทธิ์
+  participant App as ระบบหลังบ้าน
+  participant DB as ฐานข้อมูล
 
-    Staff->>Web: เปิดหน้ารายการออเดอร์ที่รอตรวจสอบสลิป
-    Web->>Guard: ขอดึงรายการออเดอร์ (พร้อมบัตรผ่านพนักงาน)
-    Guard->>Guard: ตรวจสอบบัตรผ่านและยืนยันว่าเป็นพนักงานหรือแอดมิน
-    alt บัตรผ่านไม่ถูกต้องหรือไม่มีสิทธิ์
-        Guard-->>Web: ปฏิเสธการเข้าถึง
-        Web-->>Staff: ไม่มีสิทธิ์เข้าถึงหน้านี้
-    else มีสิทธิ์
-        Guard->>App: อนุญาต ส่งต่อคำขอ
-        App->>DB: ดึงรายการออเดอร์ที่รอตรวจสลิป (พร้อมชื่อลูกค้าและรูปสลิป)
-        DB-->>App: ส่งรายการออเดอร์กลับมา
-        App-->>Web: ส่งรายการออเดอร์และรูปสลิปโอนเงิน
-        Web-->>Staff: แสดงรูปสลิปเปรียบเทียบกับยอดเงินออเดอร์
-    end
+  Staff->>Web: เปิดหน้ารายการออเดอร์ที่รอตรวจสอบสลิป
+  Web->>Guard: ขอดึงรายการออเดอร์ (พร้อมบัตรผ่านพนักงาน)
+  Guard->>Guard: ตรวจสอบบัตรผ่านและยืนยันว่าเป็นพนักงานหรือแอดมิน
+  alt บัตรผ่านไม่ถูกต้องหรือไม่มีสิทธิ์
+    Guard-->>Web: ปฏิเสธการเข้าถึง
+    Web-->>Staff: ไม่มีสิทธิ์เข้าถึงหน้านี้
+  else มีสิทธิ์
+    Guard->>App: อนุญาต ส่งต่อคำขอ
+    App->>DB: ดึงรายการออเดอร์ที่รอตรวจสลิป (พร้อมชื่อลูกค้าและรูปสลิป)
+    DB-->>App: ส่งรายการออเดอร์กลับมา
+    App-->>Web: ส่งรายการออเดอร์และรูปสลิปโอนเงิน
+    Web-->>Staff: แสดงรูปสลิปเปรียบเทียบกับยอดเงินออเดอร์
+  end
 
-    alt สลิปถูกต้อง ยอดเงินตรงกัน
-        Staff->>Web: คลิกปุ่ม "อนุมัติ — ยืนยันการชำระเงิน"
-        Web->>Guard: ส่งคำสั่งอนุมัติ (พร้อมบัตรผ่าน)
-        Guard->>App: อนุญาต พร้อมระบุรหัสพนักงาน
-        App->>DB: เปลี่ยนสถานะออเดอร์เป็น "ชำระเงินแล้ว" และบันทึกชื่อพนักงานที่อนุมัติ
-        DB-->>App: ยืนยันการอัปเดตสำเร็จ
-        App-->>Web: แจ้งว่าอนุมัติสำเร็จ
-        Web-->>Staff: สถานะออเดอร์อัปเดตเป็น "ชำระเงินแล้ว" เรียบร้อย
-    else สลิปไม่ถูกต้องหรือยอดเงินไม่ตรง
-        Staff->>Web: คลิกปุ่ม "ปฏิเสธ" พร้อมระบุเหตุผล
-        Web->>Guard: ส่งคำสั่งปฏิเสธ (พร้อมบัตรผ่าน)
-        Guard->>App: อนุญาต ส่งต่อคำขอ
-        App->>DB: ดึงรายการหนังสือในออเดอร์เพื่อคืนสต็อก
-        DB-->>App: ส่งรายการหนังสือกลับมา
-        App->>DB: คืนจำนวนหนังสือกลับเข้าคลัง
-        DB-->>App: ยืนยันการคืนสต็อกสำเร็จ
-        App->>DB: เปลี่ยนสถานะออเดอร์เป็น "ยกเลิก"
-        DB-->>App: ยืนยันการยกเลิกออเดอร์สำเร็จ
-        App-->>Web: แจ้งว่าปฏิเสธสำเร็จ
-        Web-->>Staff: ออเดอร์ถูกยกเลิก — สต็อกหนังสือคืนเข้าคลังแล้ว
-    end
+  alt สลิปถูกต้อง ยอดเงินตรงกัน
+    Staff->>Web: คลิกปุ่ม "อนุมัติ — ยืนยันการชำระเงิน"
+    Web->>Guard: ส่งคำสั่งอนุมัติ (พร้อมบัตรผ่าน)
+    Guard->>App: อนุญาต พร้อมระบุรหัสพนักงาน
+    App->>DB: เปลี่ยนสถานะออเดอร์เป็น "ชำระเงินแล้ว" และบันทึกชื่อพนักงานที่อนุมัติ
+    DB-->>App: ยืนยันการอัปเดตสำเร็จ
+    App-->>Web: แจ้งว่าอนุมัติสำเร็จ
+    Web-->>Staff: สถานะออเดอร์อัปเดตเป็น "ชำระเงินแล้ว" เรียบร้อย
+  else สลิปไม่ถูกต้องหรือยอดเงินไม่ตรง
+    Staff->>Web: คลิกปุ่ม "ปฏิเสธ" พร้อมระบุเหตุผล
+    Web->>Guard: ส่งคำสั่งปฏิเสธ (พร้อมบัตรผ่าน)
+    Guard->>App: อนุญาต ส่งต่อคำขอ
+    App->>DB: ดึงรายการหนังสือในออเดอร์เพื่อคืนสต็อก
+    DB-->>App: ส่งรายการหนังสือกลับมา
+    App->>DB: คืนจำนวนหนังสือกลับเข้าคลัง
+    DB-->>App: ยืนยันการคืนสต็อกสำเร็จ
+    App->>DB: เปลี่ยนสถานะออเดอร์เป็น "ยกเลิก"
+    DB-->>App: ยืนยันการยกเลิกออเดอร์สำเร็จ
+    App-->>Web: แจ้งว่าปฏิเสธสำเร็จ
+    Web-->>Staff: ออเดอร์ถูกยกเลิก — สต็อกหนังสือคืนเข้าคลังแล้ว
+  end
 
-    opt พนักงานบันทึกเลขพัสดุ (UC10)
-        Staff->>Web: กรอกเลขพัสดุสำหรับออเดอร์ที่ชำระเงินแล้ว แล้วกด "ยืนยันจัดส่ง"
-        Web->>Guard: ส่งเลขพัสดุ (พร้อมบัตรผ่าน)
-        Guard->>App: ส่งต่อให้ระบบบันทึก
-        App->>DB: บันทึกเลขพัสดุ, วันที่จัดส่ง และเปลี่ยนสถานะเป็น "จัดส่งแล้ว"
-        DB-->>App: ยืนยันการบันทึกสำเร็จ
-        App-->>Web: แจ้งว่าบันทึกการจัดส่งสำเร็จ
-        Web-->>Staff: บันทึกเลขพัสดุเรียบร้อย — สถานะเปลี่ยนเป็น "จัดส่งแล้ว"
-    end
+  opt พนักงานบันทึกเลขพัสดุ (UC10)
+    Staff->>Web: กรอกเลขพัสดุสำหรับออเดอร์ที่ชำระเงินแล้ว แล้วกด "ยืนยันจัดส่ง"
+    Web->>Guard: ส่งเลขพัสดุ (พร้อมบัตรผ่าน)
+    Guard->>App: ส่งต่อให้ระบบบันทึก
+    App->>DB: บันทึกเลขพัสดุ, วันที่จัดส่ง และเปลี่ยนสถานะเป็น "จัดส่งแล้ว"
+    DB-->>App: ยืนยันการบันทึกสำเร็จ
+    App-->>Web: แจ้งว่าบันทึกการจัดส่งสำเร็จ
+    Web-->>Staff: บันทึกเลขพัสดุเรียบร้อย — สถานะเปลี่ยนเป็น "จัดส่งแล้ว"
+  end
 ```
 
 ### 3.8 UC11 & UC12: การบริหารคลังสินค้าและแจ้งเตือนสต็อกต่ำ
@@ -589,62 +605,62 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Staff as พนักงาน / แอดมิน
-    participant Web as หน้าเว็บ
-    participant Guard as ระบบตรวจสอบสิทธิ์
-    participant App as ระบบหลังบ้าน
-    participant DB as ฐานข้อมูล
-    actor Notify as ระบบแจ้งเตือน
+  autonumber
+  actor Staff as พนักงาน / แอดมิน
+  participant Web as หน้าเว็บ
+  participant Guard as ระบบตรวจสอบสิทธิ์
+  participant App as ระบบหลังบ้าน
+  participant DB as ฐานข้อมูล
+  actor Notify as ระบบแจ้งเตือน
 
-    opt เพิ่มหนังสือใหม่เข้าคลัง
-        Staff->>Web: กรอกข้อมูลหนังสือใหม่ (ชื่อ, ผู้แต่ง, รหัส ISBN, ราคา, จำนวน) แล้วกดบันทึก
-        Web->>Guard: ส่งข้อมูลหนังสือ (พร้อมบัตรผ่าน)
-        Guard->>Guard: ตรวจสอบบัตรผ่านและยืนยันสิทธิ์พนักงาน/แอดมิน
-        alt ไม่มีสิทธิ์
-            Guard-->>Web: ปฏิเสธการเข้าถึง
-            Web-->>Staff: ไม่มีสิทธิ์จัดการคลังสินค้า
-        else มีสิทธิ์
-            Guard->>App: ส่งต่อข้อมูลหนังสือ
-            App->>DB: ตรวจสอบว่ารหัส ISBN นี้มีในระบบแล้วหรือไม่
-            DB-->>App: แจ้งผลการตรวจสอบ
-            alt รหัส ISBN ซ้ำกับหนังสือที่มีอยู่แล้ว
-                App-->>Web: แจ้งว่ารหัส ISBN ซ้ำ
-                Web-->>Staff: หนังสือเล่มนี้มีในระบบแล้ว กรุณาตรวจสอบรหัส ISBN
-            else รหัส ISBN ไม่ซ้ำ
-                App->>DB: บันทึกข้อมูลหนังสือใหม่ลงในคลัง
-                DB-->>App: ยืนยันการบันทึกและส่งรหัสหนังสือใหม่
-                App-->>Web: แจ้งว่าเพิ่มหนังสือสำเร็จ
-                Web-->>Staff: หนังสือใหม่ปรากฏในรายการคลังสินค้าแล้ว
-            end
-        end
+  opt เพิ่มหนังสือใหม่เข้าคลัง
+    Staff->>Web: กรอกข้อมูลหนังสือใหม่ (ชื่อ, ผู้แต่ง, รหัส ISBN, ราคา, จำนวน) แล้วกดบันทึก
+    Web->>Guard: ส่งข้อมูลหนังสือ (พร้อมบัตรผ่าน)
+    Guard->>Guard: ตรวจสอบบัตรผ่านและยืนยันสิทธิ์พนักงาน/แอดมิน
+    alt ไม่มีสิทธิ์
+      Guard-->>Web: ปฏิเสธการเข้าถึง
+      Web-->>Staff: ไม่มีสิทธิ์จัดการคลังสินค้า
+    else มีสิทธิ์
+      Guard->>App: ส่งต่อข้อมูลหนังสือ
+      App->>DB: ตรวจสอบว่ารหัส ISBN นี้มีในระบบแล้วหรือไม่
+      DB-->>App: แจ้งผลการตรวจสอบ
+      alt รหัส ISBN ซ้ำกับหนังสือที่มีอยู่แล้ว
+        App-->>Web: แจ้งว่ารหัส ISBN ซ้ำ
+        Web-->>Staff: หนังสือเล่มนี้มีในระบบแล้ว กรุณาตรวจสอบรหัส ISBN
+      else รหัส ISBN ไม่ซ้ำ
+        App->>DB: บันทึกข้อมูลหนังสือใหม่ลงในคลัง
+        DB-->>App: ยืนยันการบันทึกและส่งรหัสหนังสือใหม่
+        App-->>Web: แจ้งว่าเพิ่มหนังสือสำเร็จ
+        Web-->>Staff: หนังสือใหม่ปรากฏในรายการคลังสินค้าแล้ว
+      end
     end
+  end
 
-    opt แก้ไขรายละเอียดหรือจำนวนสต็อกหนังสือ
-        Staff->>Web: แก้ไขรายละเอียดหรือเพิ่มจำนวนหนังสือ แล้วกดบันทึก
-        Web->>Guard: ส่งข้อมูลที่แก้ไข (พร้อมบัตรผ่าน)
-        Guard->>App: อนุญาต ส่งต่อข้อมูล
-        App->>DB: อัปเดตข้อมูลหนังสือ (ชื่อ, ราคา, จำนวน)
-        DB-->>App: ยืนยันการอัปเดตสำเร็จ
-        App->>DB: ตรวจสอบจำนวนคงเหลือล่าสุด
-        DB-->>App: แจ้งจำนวนคงเหลือ
-        alt สต็อกเหลือน้อยกว่าหรือเท่ากับ 5 เล่ม
-            App->>Notify: ส่งการแจ้งเตือน "สินค้าในคลังใกล้หมด!"
-            Notify-->>Staff: แจ้งเตือน: หนังสือ [ชื่อ] เหลือเพียง [จำนวน] เล่ม — กรุณาสั่งเพิ่ม
-        end
-        App-->>Web: แจ้งว่าอัปเดตสำเร็จ
-        Web-->>Staff: ข้อมูลคลังสินค้าอัปเดตเรียบร้อยแล้ว
+  opt แก้ไขรายละเอียดหรือจำนวนสต็อกหนังสือ
+    Staff->>Web: แก้ไขรายละเอียดหรือเพิ่มจำนวนหนังสือ แล้วกดบันทึก
+    Web->>Guard: ส่งข้อมูลที่แก้ไข (พร้อมบัตรผ่าน)
+    Guard->>App: อนุญาต ส่งต่อข้อมูล
+    App->>DB: อัปเดตข้อมูลหนังสือ (ชื่อ, ราคา, จำนวน)
+    DB-->>App: ยืนยันการอัปเดตสำเร็จ
+    App->>DB: ตรวจสอบจำนวนคงเหลือล่าสุด
+    DB-->>App: แจ้งจำนวนคงเหลือ
+    alt สต็อกเหลือน้อยกว่าหรือเท่ากับ 5 เล่ม
+      App->>Notify: ส่งการแจ้งเตือน "สินค้าในคลังใกล้หมด!"
+      Notify-->>Staff: แจ้งเตือน: หนังสือ [ชื่อ] เหลือเพียง [จำนวน] เล่ม — กรุณาสั่งเพิ่ม
     end
+    App-->>Web: แจ้งว่าอัปเดตสำเร็จ
+    Web-->>Staff: ข้อมูลคลังสินค้าอัปเดตเรียบร้อยแล้ว
+  end
 
-    opt ลบหนังสือออกจากคลัง
-        Staff->>Web: คลิกปุ่มลบรายการหนังสือ
-        Web->>Guard: ส่งคำสั่งลบ (พร้อมบัตรผ่าน)
-        Guard->>App: อนุญาต ส่งต่อคำขอ
-        App->>DB: ลบข้อมูลหนังสือออกจากระบบ
-        DB-->>App: ยืนยันการลบสำเร็จ
-        App-->>Web: แจ้งว่าลบสำเร็จ
-        Web-->>Staff: ลบรายการหนังสือออกจากคลังสินค้าเรียบร้อยแล้ว
-    end
+  opt ลบหนังสือออกจากคลัง
+    Staff->>Web: คลิกปุ่มลบรายการหนังสือ
+    Web->>Guard: ส่งคำสั่งลบ (พร้อมบัตรผ่าน)
+    Guard->>App: อนุญาต ส่งต่อคำขอ
+    App->>DB: ลบข้อมูลหนังสือออกจากระบบ
+    DB-->>App: ยืนยันการลบสำเร็จ
+    App-->>Web: แจ้งว่าลบสำเร็จ
+    Web-->>Staff: ลบรายการหนังสือออกจากคลังสินค้าเรียบร้อยแล้ว
+  end
 ```
 
 ### 3.9 UC13 & UC14: รายงานสรุปยอดขายและจัดการผู้ใช้สำหรับผู้ดูแลระบบ
@@ -653,59 +669,59 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Admin as แอดมิน
-    participant Web as หน้าเว็บ
-    participant Guard as ระบบตรวจสอบสิทธิ์
-    participant App as ระบบหลังบ้าน
-    participant DB as ฐานข้อมูล
+  autonumber
+  actor Admin as แอดมิน
+  participant Web as หน้าเว็บ
+  participant Guard as ระบบตรวจสอบสิทธิ์
+  participant App as ระบบหลังบ้าน
+  participant DB as ฐานข้อมูล
 
-    Admin->>Web: คลิกเมนู "แดชบอร์ดสรุปรายงาน"
-    Web->>Guard: ขอดึงข้อมูลรายงาน (พร้อมบัตรผ่านแอดมิน)
-    Guard->>Guard: ตรวจสอบบัตรผ่านและยืนยันว่าเป็นแอดมินเท่านั้น
-    alt บัตรผ่านไม่ถูกต้องหรือไม่ใช่แอดมิน
-        Guard-->>Web: ปฏิเสธการเข้าถึง
-        Web-->>Admin: ไม่มีสิทธิ์เข้าถึงหน้านี้
-    else ยืนยันสิทธิ์แอดมินสำเร็จ
-        Guard->>App: อนุญาต ส่งคำขอข้อมูลรายงาน
-        App->>DB: คำนวณรายรับสะสมรวมและจำนวนออเดอร์ที่ชำระแล้ว
-        DB-->>App: ส่งตัวเลขรายรับและจำนวนออเดอร์
-        App->>DB: ค้นหา 5 หนังสือที่ขายดีที่สุด (เรียงตามจำนวนที่ขายได้)
-        DB-->>App: ส่งรายชื่อหนังสือยอดนิยม 5 อันดับ
-        App->>DB: ดึงข้อมูลยอดขายรายวันย้อนหลัง 7 วัน
-        DB-->>App: ส่งข้อมูลกราฟยอดขายรายวัน
-        App->>DB: นับจำนวนสมาชิกลูกค้าทั้งหมดในระบบ
-        DB-->>App: ส่งจำนวนสมาชิก
-        App-->>Web: ส่งข้อมูลทั้งหมดรวมกันในครั้งเดียว
-        Web->>Web: นำข้อมูลไปแสดงเป็นกราฟและตัวเลขสรุป
-        Web-->>Admin: แสดงแดชบอร์ดสรุปยอดขาย, หนังสือขายดี และจำนวนสมาชิก
-    end
+  Admin->>Web: คลิกเมนู "แดชบอร์ดสรุปรายงาน"
+  Web->>Guard: ขอดึงข้อมูลรายงาน (พร้อมบัตรผ่านแอดมิน)
+  Guard->>Guard: ตรวจสอบบัตรผ่านและยืนยันว่าเป็นแอดมินเท่านั้น
+  alt บัตรผ่านไม่ถูกต้องหรือไม่ใช่แอดมิน
+    Guard-->>Web: ปฏิเสธการเข้าถึง
+    Web-->>Admin: ไม่มีสิทธิ์เข้าถึงหน้านี้
+  else ยืนยันสิทธิ์แอดมินสำเร็จ
+    Guard->>App: อนุญาต ส่งคำขอข้อมูลรายงาน
+    App->>DB: คำนวณรายรับสะสมรวมและจำนวนออเดอร์ที่ชำระแล้ว
+    DB-->>App: ส่งตัวเลขรายรับและจำนวนออเดอร์
+    App->>DB: ค้นหา 5 หนังสือที่ขายดีที่สุด (เรียงตามจำนวนที่ขายได้)
+    DB-->>App: ส่งรายชื่อหนังสือยอดนิยม 5 อันดับ
+    App->>DB: ดึงข้อมูลยอดขายรายวันย้อนหลัง 7 วัน
+    DB-->>App: ส่งข้อมูลกราฟยอดขายรายวัน
+    App->>DB: นับจำนวนสมาชิกลูกค้าทั้งหมดในระบบ
+    DB-->>App: ส่งจำนวนสมาชิก
+    App-->>Web: ส่งข้อมูลทั้งหมดรวมกันในครั้งเดียว
+    Web->>Web: นำข้อมูลไปแสดงเป็นกราฟและตัวเลขสรุป
+    Web-->>Admin: แสดงแดชบอร์ดสรุปยอดขาย, หนังสือขายดี และจำนวนสมาชิก
+  end
 ```
 
 
 
 
-### 💡 4. Wireframe (Low-Fidelity)
+### 4. Wireframe (Low-Fidelity)
 
 **หน้าที่และความสำคัญ:** โครงร่างจัดวางองค์ประกอบหน้าต่างผู้ใช้ระดับต่ำ (Low-fidelity) เพื่อระบุตรรกะตำแหน่งการมองเห็นและโครงสร้างหน้าเว็บก่อนเริ่มเขียน HTML/CSS
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  WIREFRAME: หน้าแรกระบบร้านหนังสือออนไลน์                    │
+│ WIREFRAME: หน้าแรกระบบร้านหนังสือออนไลน์          │
 ├─────────────────────────────────────────────────────────────┤
-│  📚 BOOKSTORE    🔍 ค้นหาหนังสือ...    🛒 ตะกร้า (0) | Login │
+│  BOOKSTORE   ค้นหาหนังสือ...   ตะกร้า (0) | Login │
 ├─────────────────────────────────────────────────────────────┤
-│  ┌───────────┐  ┌───────────┐  ┌───────────┐               │
-│  │  [Cover]  │  │  [Cover]  │  │  [Cover]  │               │
-│  │           │  │           │  │           │               │
-│  │  หนังสือ A │  │  หนังสือ B │  │  หนังสือ C │               │
-│  │  250 บาท  │  │  320 บาท  │  │  190 บาท  │               │
-│  │[+ ใส่ตะกร้า]│  │[+ ใส่ตะกร้า]│  │[+ ใส่ตะกร้า]│               │
-│  └───────────┘  └───────────┘  └───────────┘               │
+│ ┌───────────┐ ┌───────────┐ ┌───────────┐        │
+│ │ [Cover] │ │ [Cover] │ │ [Cover] │        │
+│ │      │ │      │ │      │        │
+│ │ หนังสือ A │ │ หนังสือ B │ │ หนังสือ C │        │
+│ │ 250 บาท │ │ 320 บาท │ │ 190 บาท │        │
+│ │[+ ใส่ตะกร้า]│ │[+ ใส่ตะกร้า]│ │[+ ใส่ตะกร้า]│        │
+│ └───────────┘ └───────────┘ └───────────┘        │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 💡 5. Prototype (High-Fidelity)
+### 5. Prototype (High-Fidelity)
 
 **หน้าที่และความสำคัญ:** แบบจำลองหน้าต่างแอปพลิเคชันที่มีความเสมือนจริงสูง (High-fidelity) มีสีสัน กราฟิก และตอบสนองต่อการทดลองคลิกสลับหน้าจอ (Clickable Flow) เพื่อทำแบบทดสอบ UX Testing ก่อนสร้างชิ้นงานสมบูรณ์
 
@@ -723,19 +739,19 @@ sequenceDiagram
 
 > **กรณีสมมติ:** ในช่วงแคมเปญส่งเสริมการขายลดราคาพิเศษครั้งใหญ่ (Flash Sale) มีปริมาณลูกค้าหลั่งไหลเข้าสู่เว็บไซต์เป็นจำนวนมาก ส่งผลเกิดปัญหาคอขวดระบบล่าช้า (API Response Latency) และเกิดการปฏิเสธการให้บริการในที่สุด
 
-### 🛠️ 1. เครื่องมือตรวจสอบวิเคราะห์และหาสาเหตุของปัญหา
+### 1. เครื่องมือตรวจสอบวิเคราะห์และหาสาเหตุของปัญหา
 
 * **Chrome DevTools (Network Panel):** ใช้ตรวจสอบและจำแนกเวลาแฝงค่าน้ำหนักฝั่งไคลเอนต์ (Client-Side Latency) โดยจับตาดูเวลาการรอคอยข้อมูลตอบกลับตัวแรก (Time to First Byte - TTFB) เพื่อหา Endpoint ที่ช้าที่สุด
 * **Morgan หรือ Winston Middleware Library:** เครื่องมือตัวบันทึกข้อมูลฝั่งเซิร์ฟเวอร์ (Server Logging) เพื่อสแกนดูประวัติระยะเวลาการ Query ข้อมูลในเลเยอร์ฐานข้อมูล
 * **Postman (Load Testing Tools):** ใช้จัดทำสภาพแวดล้อมจำลองการส่งคำขอปริมาณมหาศาลพร้อมๆ กัน (Virtual Users Load) เพื่อตรวจสอบหาจุดวิกฤตที่รับไม่ไหว (System Break-point)
 
-### 🔄 2. ขั้นตอนการดำเนินงานแก้ไขปัญหา
+### 2. ขั้นตอนการดำเนินงานแก้ไขปัญหา
 
 1. **ระบุจุดคอขวด (Identify Bottleneck):** เปิด Network Tab จำแนกเส้นทางที่มีความล่าช้าสูง เช่น `POST /api/orders` สังเกตสเตตัสข้อผิดพลาดหากเกิดระบบทำงานเกินกำลังจนขึ้น 504 Gateway Timeout
 2. **วิเคราะห์บันทึกฝั่งฐานข้อมูล (Database Trace):** เช็กประวัติ Logs ดูว่ากระบวนการสั่งซื้อค้างอยู่ที่ขั้นตอนใด หากพบว่าช้าตรงส่วนการค้นหาหนังสือ แสดงว่าระบบฐานข้อมูลกำลังเจอปัญหาไร้ดัชนีนำทาง
 3. **จำลองสถานการณ์เพื่อตรวจสอบ (Replicate & Confirm):** ใช้เครื่องมือจำลองโหลดส่งยอดคำขอในอัตราที่เพิ่มขึ้น เพื่อประเมินจำนวน Thread หรือพอร์ตเชื่อมต่อที่ค้างคา (Database Connection Leak)
 
-### 💡 3. แนวทางการแก้ไขปัญหาทางวิศวกรรมเบื้องต้น
+### 3. แนวทางการแก้ไขปัญหาทางวิศวกรรมเบื้องต้น
 
 * **จัดทำ Database Indexing:** สร้างโครงสร้างดัชนี (Index) บนตารางข้อมูลร้านหนังสือ โดยเฉพาะคอลัมน์ที่ถูกเรียกค้นหาซ้ำๆ เช่น `book_id` หรือประเภทหมวดหมู่หนังสือ ช่วยให้ฐานข้อมูลสืบค้นได้เร็วขึ้นโดยไม่ต้องแสกนอ่านไฟล์ตารางทั้งหมด
 * **ประยุกต์ใช้ระบบแคชความเร็วสูง (In-Memory Caching):** นำข้อมูลหนังสือที่ไม่ค่อยเปลี่ยนแปลง (เช่น รายชื่อหนังสือแนะนำ หน้าแคตตาล็อก) ไปเก็บไว้บนระบบ Memory Cache ความเร็วสูง เพื่อให้หน้าบ้านสามารถดึงผลลัพธ์ได้ทันที ลดภาระที่ฐานข้อมูลหลัก
