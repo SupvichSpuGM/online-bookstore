@@ -6,6 +6,10 @@ import { ArrowLeft, Package, MapPin, Receipt, Edit3, Upload, CheckCircle2, XCirc
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { BookImg } from "@/components/ui/BookImg";
 
+function isDataUrl(value: string) {
+  return value.startsWith("data:image/");
+}
+
 interface OrderDetail {
   id: string;
   customer: string;
@@ -97,7 +101,7 @@ export function CustomerOrderDetailView({ initialOrder }: { initialOrder: OrderD
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          slip_image_url: slipPreview,
+          slip_image_url: isDataUrl(slipPreview) ? slipPreview : slipPreview,
           status: "payment_review",
         }),
       });

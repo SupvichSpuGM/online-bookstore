@@ -66,6 +66,7 @@ export function StaffOrdersView({ initialOrders }: { initialOrders: RawStaffOrde
     }))
   );
   const [filter, setFilter] = useState("all");
+  const [hideCancelled, setHideCancelled] = useState(false);
   const [selected, setSelected] = useState<OrderDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{ type: 'advance' | 'cancel', id: string, title: string, message: string } | null>(null);
@@ -80,7 +81,10 @@ export function StaffOrdersView({ initialOrders }: { initialOrders: RawStaffOrde
   });
   const [savingEdit, setSavingEdit] = useState(false);
 
-  const shown = filter === "all" ? orders : orders.filter((o) => o.status === filter);
+  const shown = orders.filter((o) => {
+    if (hideCancelled && o.status === "cancelled") return false;
+    return filter === "all" ? true : o.status === filter;
+  });
 
   // ── ดึง Order detail จาก API ───────────────────────────────
   const openDetail = async (o: ProcessedStaffOrder) => {
@@ -248,13 +252,24 @@ export function StaffOrdersView({ initialOrders }: { initialOrders: RawStaffOrde
         </div>
       </div>
 
-      <div className="flex gap-2 mb-5 flex-wrap">
-        {FILTERS.map(([v, l]) => (
-          <button key={v} onClick={() => setFilter(v)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${filter === v ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-muted text-muted-foreground"}`}>
-            {l}
-          </button>
-        ))}
+      <div className="flex gap-2 mb-5 flex-wrap items-center justify-between">
+        <div className="flex gap-2 flex-wrap">
+          {FILTERS.map(([v, l]) => (
+            <button key={v} onClick={() => setFilter(v)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${filter === v ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-muted text-muted-foreground"}`}>
+              {l}
+            </button>
+          ))}
+        </div>
+        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={hideCancelled}
+            onChange={(e) => setHideCancelled(e.target.checked)}
+            className="rounded border-border"
+          />
+          ซ่อนคำสั่งซื้อที่ยกเลิก
+        </label>
       </div>
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">

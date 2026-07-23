@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { getCurrentUser, unauthorizedResponse, forbiddenResponse } from "@/lib/auth";
+import { saveSlipImage } from "@/lib/slipStorage";
 
 // ─── POST /api/orders/[id]/slip — แนบ slip URL ────────────────
 export async function POST(
@@ -41,9 +42,11 @@ export async function POST(
     return NextResponse.json({ error: "กรุณาระบุ slip_image_url" }, { status: 400 });
   }
 
+  const storedSlipUrl = await saveSlipImage(slip_image_url);
+
   await query(
     "UPDATE orders SET slip_image_url = ?, status = 'payment_review' WHERE id = ?",
-    [slip_image_url, orderId]
+    [storedSlipUrl ?? slip_image_url, orderId]
   );
 
   return NextResponse.json({ success: true, status: "payment_review" });

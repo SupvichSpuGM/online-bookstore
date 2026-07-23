@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { getCurrentUser, unauthorizedResponse, forbiddenResponse } from "@/lib/auth";
+import { saveSlipImage } from "@/lib/slipStorage";
 
 interface OrderRow {
   id: number;
@@ -132,8 +133,9 @@ export async function PUT(
   }
 
   if (slip_image_url !== undefined) {
+    const storedSlipUrl = await saveSlipImage(slip_image_url);
     updates.push("slip_image_url = ?");
-    values.push(slip_image_url);
+    values.push(storedSlipUrl ?? slip_image_url);
     if (me.role === "customer" && existing.status === "pending") {
       updates.push("status = 'payment_review'");
     }

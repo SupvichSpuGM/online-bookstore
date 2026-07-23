@@ -80,8 +80,9 @@ export interface OrderItem {
 }
 
 // ─── Helper: แปลง Book (DB) → image URL ────────────────────────────────────
-export function getBookImageUrl(book: Book): string {
+export function getBookImageUrl(book: Partial<Book> & { cover_image_url?: string | null; imgId?: string }): string {
   if (book.cover_image_url) return book.cover_image_url;
+  if (book.imgId) return `https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=560&fit=crop`;
   // fallback placeholder
   return `https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=560&fit=crop`;
 }
