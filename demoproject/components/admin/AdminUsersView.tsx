@@ -190,7 +190,7 @@ export function AdminUsersView() {
             <Trash2 className="w-12 h-12 text-red-500 mb-4 p-3 bg-red-50 rounded-full" />
             <h3 className="font-['Playfair_Display'] text-xl font-bold mb-2">ยืนยันการลบผู้ใช้</h3>
             <p className="text-sm text-muted-foreground mb-6">
-              คุณต้องการลบผู้ใช้ "{confirmDelete.name}" ออกจากระบบใช่หรือไม่?<br/>
+              คุณต้องการลบผู้ใช้ &quot;{confirmDelete.name}&quot; ออกจากระบบใช่หรือไม่?<br/>
               <span className="text-xs text-red-500/80 block mt-2">ประวัติคำสั่งซื้อและข้อมูลของผู้นี้อาจสูญหาย</span>
             </p>
             <div className="flex gap-3 w-full">

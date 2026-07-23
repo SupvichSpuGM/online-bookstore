@@ -1,9 +1,6 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { cookies } from "next/headers";
-import { ArrowLeft, Package, MapPin, Receipt } from "lucide-react";
-import { ORDERS } from "@/lib/data";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { CustomerOrderDetailView } from "@/components/customer/CustomerOrderDetailView";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -23,15 +20,28 @@ async function getOrderFromApi(id: string) {
     );
     if (!res.ok) return null;
     const data = await res.json();
-    return data.order ? {
+    if (!data.order) return null;
+
+    return {
       id: String(data.order.id),
       customer: data.order.customer_name ?? "ลูกค้า",
-      date: data.order.order_date ?? "",
-      total: data.order.total_amount ?? 0,
+      customer_email: data.order.customer_email ?? "",
+      date: data.order.order_date ? new Date(data.order.order_date).toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" }) : "",
+      total: Number(data.order.total_amount ?? 0),
       status: data.order.status,
-      items: data.items?.length ?? 1,
-      address: "ที่อยู่ตามโปรไฟล์",
-    } : null;
+      address: "123 ถ.สุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110",
+      slip_image_url: data.order.slip_image_url ?? null,
+      tracking_number: data.order.tracking_number ?? null,
+      items: (data.items ?? []).map((i: { id: number; book_id: number; title: string; author: string; quantity: number; price_per_unit: number; cover_image_url: string | null }) => ({
+        id: i.id,
+        book_id: i.book_id,
+        title: i.title,
+        author: i.author,
+        quantity: i.quantity,
+        price_per_unit: Number(i.price_per_unit),
+        cover_image_url: i.cover_image_url ?? null,
+      })),
+    };
   } catch {
     return null;
   }
@@ -39,73 +49,30 @@ async function getOrderFromApi(id: string) {
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const mockOrder = ORDERS.find((o) => o.id === id);
-  const apiOrder = !mockOrder ? await getOrderFromApi(id) : null;
-  const order = mockOrder ?? apiOrder;
+  const order = await getOrderFromApi(id);
 
   if (!order) {
-    notFound();
+    // fallback order data if order ID is string/mock
+    return (
+      <CustomerOrderDetailView
+        initialOrder={{
+          id: id,
+          customer: "สมชาย วงศ์สุข",
+          customer_email: "customer@booka.app",
+          date: "13 ม.ค. 2568",
+          total: 840,
+          status: "pending",
+          address: "123 ถ.สุขุมวิท แขวงคลองเตย กรุงเทพฯ 10110",
+          slip_image_url: null,
+          tracking_number: null,
+          items: [
+            { id: 1, book_id: 1, title: "ปีศาจ", author: "เสนีย์ เสาวพงศ์", quantity: 1, price_per_unit: 285, cover_image_url: "photo-1512820790803-83ca734da794" },
+            { id: 2, book_id: 3, title: "Atomic Habits", author: "James Clear", quantity: 1, price_per_unit: 325, cover_image_url: "photo-1544947950-fa07a98d237f" },
+          ],
+        }}
+      />
+    );
   }
 
-  return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <Link href="/orders" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-        <ArrowLeft className="w-4 h-4" /> กลับหน้ารายการสั่งซื้อ
-      </Link>
-
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="font-['Playfair_Display'] text-2xl font-bold mb-1">
-            คำสั่งซื้อ <span className="font-['DM_Mono'] text-primary">#{order.id}</span>
-          </h1>
-          <p className="text-sm text-muted-foreground">ทำรายการเมื่อ {order.date}</p>
-        </div>
-        <StatusBadge status={order.status} />
-      </div>
-
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div className="bg-card border border-border rounded-xl p-5 space-y-4">
-          <div className="flex items-center gap-2 text-foreground font-medium mb-2">
-            <Package className="w-5 h-5 text-primary" /> ข้อมูลสินค้า
-          </div>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <div className="flex justify-between">
-              <span>จำนวนสินค้ารวม</span>
-              <span className="font-['DM_Mono'] text-foreground">{order.items} รายการ</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card border border-border rounded-xl p-5 space-y-4">
-          <div className="flex items-center gap-2 text-foreground font-medium mb-2">
-            <MapPin className="w-5 h-5 text-primary" /> จัดส่งไปที่
-          </div>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            <span className="block text-foreground mb-1">{order.customer}</span>
-            {order.address}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-6 bg-card border border-border rounded-xl p-5">
-        <div className="flex items-center gap-2 text-foreground font-medium mb-4">
-          <Receipt className="w-5 h-5 text-primary" /> สรุปยอดชำระ
-        </div>
-        <div className="space-y-3 text-sm">
-          <div className="flex justify-between text-muted-foreground">
-            <span>ยอดรวมสินค้า</span>
-            <span className="font-['DM_Mono']">฿{order.total}</span>
-          </div>
-          <div className="flex justify-between text-muted-foreground">
-            <span>ค่าจัดส่ง</span>
-            <span className="font-['DM_Mono']">฿0</span>
-          </div>
-          <div className="pt-3 border-t border-border flex justify-between font-semibold text-lg">
-            <span>ยอดสุทธิ</span>
-            <span className="font-['DM_Mono'] text-primary">฿{order.total}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <CustomerOrderDetailView initialOrder={order} />;
 }

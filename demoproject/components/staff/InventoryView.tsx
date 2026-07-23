@@ -3,15 +3,35 @@
 import { useState } from "react";
 import { AlertTriangle, Edit, Check, X } from "lucide-react";
 import { BookImg } from "@/components/ui/BookImg";
-import type { Book } from "@/lib/data";
 
-export function InventoryView({ books: initialBooks }: { books: any[] }) {
-  const [books, setBooks] = useState<any[]>(
+interface InventoryBook {
+  id: number;
+  title: string;
+  author?: string;
+  category?: string;
+  isbn?: string;
+  price?: number;
+  stock?: number;
+  stock_qty?: number;
+  originalPrice?: number;
+  original_price?: number;
+  imgId?: string;
+  cover_image_url?: string | null;
+  [key: string]: unknown;
+}
+
+export function InventoryView({ books: initialBooks }: { books: InventoryBook[] }) {
+  const [books, setBooks] = useState(
     initialBooks.map((b) => ({
       ...b,
+      title: String(b.title),
+      author: String(b.author ?? ""),
+      category: String(b.category ?? ""),
+      isbn: String(b.isbn ?? ""),
+      price: Number(b.price ?? 0),
       stock: b.stock ?? b.stock_qty ?? 0,
-      originalPrice: b.originalPrice ?? b.original_price ?? b.price,
-      imgId: b.imgId ?? "photo-1512820790803-83ca734da794",
+      originalPrice: b.originalPrice ?? b.original_price ?? b.price ?? 0,
+      imgId: String(b.imgId ?? "photo-1512820790803-83ca734da794"),
       cover_image_url: b.cover_image_url ?? null,
     }))
   );

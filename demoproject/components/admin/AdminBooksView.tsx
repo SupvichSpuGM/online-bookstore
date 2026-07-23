@@ -1,13 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, X, CheckCircle2 } from "lucide-react";
 import { BookImg } from "@/components/ui/BookImg";
 import { useAdminStore } from "@/lib/stores/adminStore";
 import type { Book } from "@/lib/data";
 
+function mapApiBook(b: any): Book {
+  return {
+    id: b.id,
+    title: b.title,
+    author: b.author,
+    price: Number(b.price),
+    originalPrice: Number(b.original_price ?? b.price),
+    category: b.category,
+    rating: Number(b.rating ?? 0),
+    reviews: Number(b.review_count ?? b.reviews ?? 0),
+    stock: Number(b.stock_qty ?? b.stock ?? 0),
+    imgId: b.imgId ?? "photo-1544947950-fa07a98d237f",
+    isbn: b.isbn ?? "",
+    description: b.description ?? "",
+  };
+}
+
 export function AdminBooksView() {
-  const { books, categories, addBook, deleteBook, updateBook, showToast } = useAdminStore();
+  const { books, categories, setBooks, addBook, deleteBook, updateBook, showToast } = useAdminStore();
   
   const [showAdd, setShowAdd] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
@@ -21,6 +38,17 @@ export function AdminBooksView() {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [category, setCategory] = useState("");
+
+  useEffect(() => {
+    fetch("/api/books?limit=100")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.books && Array.isArray(data.books) && data.books.length > 0) {
+          setBooks(data.books.map(mapApiBook));
+        }
+      })
+      .catch((err) => console.error("Error fetching books in Admin:", err));
+  }, [setBooks]);
 
   const openAdd = () => {
     setTitle(""); setAuthor(""); setIsbn(""); setPrice(""); setStock(""); setCategory(categories[0] || "");
@@ -51,14 +79,29 @@ export function AdminBooksView() {
     }
   };
 
-  const doConfirmSave = () => {
+  const doConfirmSave = async () => {
+    const st = Number(stock);
+    const cat = category || categories[0];
+    const numPrice = Number(price);
+
     if (editingBook) {
-      const st = Number(stock);
-      const cat = category || categories[0];
-      
+      // Send PUT request to API database
+      try {
+        await fetch(`/api/books/${editingBook.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title, author, isbn, category: cat,
+            price: numPrice, stock_qty: st
+          }),
+        });
+      } catch (err) {
+        console.error("API update error:", err);
+      }
+
       updateBook(editingBook.id, {
         title, author, isbn, category: cat,
-        price: Number(price), stock: st
+        price: numPrice, stock: st
       });
       
       if (confirmSave?.changes && confirmSave.changes.length > 0) {
@@ -67,9 +110,29 @@ export function AdminBooksView() {
         showToast(`บันทึกข้อมูลหนังสือสำเร็จ`, "success");
       }
     } else {
+      let createdId: number | undefined;
+      // Send POST request to API database
+      try {
+        const res = await fetch("/api/books", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title, author, isbn, category: cat,
+            price: numPrice, original_price: numPrice, stock_qty: st,
+            cover_image_url: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400",
+            description: ""
+          }),
+        });
+        const data = await res.json();
+        if (data.id) createdId = data.id;
+      } catch (err) {
+        console.error("API create error:", err);
+      }
+
       addBook({
-        title, author, isbn, category: category || categories[0],
-        price: Number(price), originalPrice: Number(price), stock: Number(stock),
+        id: createdId!,
+        title, author, isbn, category: cat,
+        price: numPrice, originalPrice: numPrice, stock: st,
         imgId: "photo-1544947950-fa07a98d237f", rating: 0, reviews: 0, description: ""
       });
       showToast(`เพิ่มหนังสือ "${title}" สำเร็จ`, "success");
@@ -82,8 +145,13 @@ export function AdminBooksView() {
     setConfirmDelete({ id, title });
   };
 
-  const doConfirmDelete = () => {
+  const doConfirmDelete = async () => {
     if (confirmDelete) {
+      try {
+        await fetch(`/api/books/${confirmDelete.id}`, { method: "DELETE" });
+      } catch (err) {
+        console.error("API delete error:", err);
+      }
       deleteBook(confirmDelete.id);
       showToast(`ลบหนังสือ "${confirmDelete.title}" สำเร็จ`, "success");
       setConfirmDelete(null);
@@ -191,7 +259,7 @@ export function AdminBooksView() {
             <Trash2 className="w-12 h-12 text-red-500 mb-4 p-3 bg-red-50 rounded-full" />
             <h3 className="font-['Playfair_Display'] text-xl font-bold mb-2">ยืนยันการลบหนังสือ</h3>
             <p className="text-sm text-muted-foreground mb-6">
-              คุณต้องการลบหนังสือ "{confirmDelete.title}" ออกจากระบบใช่หรือไม่?<br/>
+              คุณต้องการลบหนังสือ &quot;{confirmDelete.title}&quot; ออกจากระบบใช่หรือไม่?<br/>
               <span className="text-xs text-red-500/80 block mt-2">การดำเนินการนี้ไม่สามารถเรียกคืนได้</span>
             </p>
             <div className="flex gap-3 w-full">

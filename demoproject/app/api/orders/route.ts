@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
   try {
     const orderId = await withTransaction(async (conn: PoolConnection) => {
       // 1. ดึง cart items
-      const [cartRow] = await conn.execute<any[]>(
+      const [cartRow] = await conn.execute(
         "SELECT id FROM carts WHERE user_id = ? LIMIT 1",
         [userId]
       );
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       if (carts.length === 0) throw new Error("ตะกร้าสินค้าว่างเปล่า");
 
       const cartId = carts[0].id;
-      const [itemRows] = await conn.execute<any[]>(
+      const [itemRows] = await conn.execute(
         `SELECT ci.book_id, ci.quantity, b.price, b.stock_qty, b.title
          FROM cart_items ci
          JOIN books b ON b.id = ci.book_id
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
       // 4. สร้าง order
-      const [orderResult] = await conn.execute<any>(
+      const [orderResult] = await conn.execute(
         `INSERT INTO orders (user_id, address_id, total_amount, status)
          VALUES (?, ?, ?, 'pending')`,
         [userId, address_id ?? null, total]

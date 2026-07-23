@@ -35,7 +35,7 @@ export function CartView() {
           {items.map((item) => (
             <div key={item.book.id} className="bg-card rounded-xl border border-border p-4 flex gap-4 items-center">
               <div className="w-16 h-20 rounded-lg overflow-hidden shrink-0 bg-muted">
-                <BookImg imgId={item.book.imgId} alt={item.book.title} className="w-full h-full" />
+                <BookImg imgId={item.book.imgId} cover_image_url={(item.book as unknown as { cover_image_url?: string }).cover_image_url} alt={item.book.title} className="w-full h-full" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm leading-snug">{item.book.title}</p>

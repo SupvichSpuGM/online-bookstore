@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ShoppingCart, Check, Plus, Minus } from "lucide-react";
-import { BookImg } from "@/components/ui/BookImg";
 import { Stars } from "@/components/ui/Stars";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";

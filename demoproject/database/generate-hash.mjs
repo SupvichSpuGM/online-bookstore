@@ -1,7 +1,6 @@
 // Script สร้าง bcrypt hash สำหรับ seed.sql
 // รันด้วย: node database/generate-hash.mjs
 
-import { createHash } from "crypto";
 import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle, Upload, RefreshCw } from "lucide-react";
 import { useCartStore } from "@/lib/stores/cartStore";
-import { useAuthStore } from "@/lib/stores/authStore";
 
 type Step = 1 | 2 | 3;
 
@@ -18,6 +17,7 @@ interface AddressForm {
 export function CheckoutView() {
   const [step, setStep] = useState<Step>(1);
   const [fileName, setFileName] = useState("");
+  const [slipDataUrl, setSlipDataUrl] = useState("");
   const [orderId, setOrderId] = useState<string | number>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,15 +27,28 @@ export function CheckoutView() {
   });
 
   const { items, clearCart } = useCartStore();
-  const { user } = useAuthStore();
   const router = useRouter();
 
   const subtotal = items.reduce((s, i) => s + i.book.price * i.qty, 0);
   const shipping = subtotal >= 300 ? 0 : 50;
   const total = subtotal + shipping;
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFileName(file.name);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === "string") {
+        setSlipDataUrl(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleConfirm = async () => {
-    if (!fileName) return;
+    if (!fileName && !slipDataUrl) return;
     setLoading(true);
     setError("");
 
@@ -57,11 +70,11 @@ export function CheckoutView() {
 
       const newOrderId = orderData.order_id;
 
-      // 2. แนบ slip (ใช้ filename เป็น placeholder URL)
+      // 2. แนบ slip (ส่ง Base64 Data URL จริงเข้า DB)
       await fetch(`/api/orders/${newOrderId}/slip`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slip_image_url: `/uploads/slips/${fileName}` }),
+        body: JSON.stringify({ slip_image_url: slipDataUrl || `/uploads/slips/${fileName}` }),
       });
 
       // 3. ล้างตะกร้า Zustand local
@@ -146,11 +159,21 @@ export function CheckoutView() {
             </div>
             <label className="block">
               <p className="text-sm font-medium mb-2">แนบหลักฐานการโอนเงิน</p>
-              <div className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-accent hover:bg-accent/5 transition-all">
-                <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">{fileName || "คลิกหรือลากไฟล์มาวางที่นี่"}</p>
-                <p className="text-xs text-muted-foreground mt-1">รองรับ JPG, PNG, PDF (ขนาดไม่เกิน 5MB)</p>
-                <input type="file" className="hidden" onChange={(e) => setFileName(e.target.files?.[0]?.name || "")} />
+              <div className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-accent hover:bg-accent/5 transition-all">
+                {slipDataUrl ? (
+                  <div className="space-y-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={slipDataUrl} alt="Slip preview" className="max-h-48 mx-auto rounded-lg border border-border object-contain" />
+                    <p className="text-xs text-green-600 font-medium">✓ {fileName} (คลิกเพื่อเปลี่ยนรูป)</p>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">{fileName || "คลิกหรือลากไฟล์มาวางที่นี่"}</p>
+                    <p className="text-xs text-muted-foreground mt-1">รองรับ JPG, PNG (เลือกรูปสลิปของคุณ)</p>
+                  </>
+                )}
+                <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
               </div>
             </label>
             {error && (

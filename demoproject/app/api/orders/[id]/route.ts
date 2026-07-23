@@ -71,3 +71,101 @@ export async function GET(
 
   return NextResponse.json({ order, items });
 }
+
+// ─── PUT /api/orders/[id] — แก้ไขรายละเอียด order ─────────────────
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const me = await getCurrentUser();
+  if (!me) return unauthorizedResponse();
+
+  const { id } = await params;
+  const orderId = Number(id);
+
+  const existingOrders = await query<Array<{ id: number; user_id: number; address_id: number | null; status: string }>>(
+    "SELECT id, user_id, address_id, status FROM orders WHERE id = ? LIMIT 1",
+    [orderId]
+  );
+
+  if (existingOrders.length === 0) {
+    return NextResponse.json({ error: "ไม่พบ order" }, { status: 404 });
+  }
+
+  const existing = existingOrders[0];
+
+  // ถ้าเป็น customer ต้องเป็นเจ้าของออเดอร์เท่านั้น
+  if (me.role === "customer") {
+    if (existing.user_id !== Number(me.sub)) {
+      return forbiddenResponse("ไม่มีสิทธิ์แก้ไขคำสั่งซื้อนี้");
+    }
+    if (["shipping", "delivered", "cancelled"].includes(existing.status)) {
+      return NextResponse.json(
+        { error: "ไม่สามารถแก้ไขคำสั่งซื้อที่อยู่ระหว่างจัดส่ง จัดส่งสำเร็จ หรือยกเลิกแล้วได้" },
+        { status: 400 }
+      );
+    }
+  }
+
+  const body = await request.json();
+  const { status, tracking_number, total_amount, address, slip_image_url } = body as {
+    status?: string;
+    tracking_number?: string | null;
+    total_amount?: number;
+    address?: string;
+    slip_image_url?: string;
+  };
+
+  const updates: string[] = [];
+  const values: unknown[] = [];
+
+  if (status !== undefined) {
+    if (me.role === "customer") {
+      if (status === "cancelled" || (status === "payment_review" && slip_image_url)) {
+        updates.push("status = ?");
+        values.push(status);
+      }
+    } else {
+      updates.push("status = ?");
+      values.push(status);
+    }
+  }
+
+  if (slip_image_url !== undefined) {
+    updates.push("slip_image_url = ?");
+    values.push(slip_image_url);
+    if (me.role === "customer" && existing.status === "pending") {
+      updates.push("status = 'payment_review'");
+    }
+  }
+
+  if (tracking_number !== undefined && me.role !== "customer") {
+    updates.push("tracking_number = ?");
+    values.push(tracking_number);
+    if (tracking_number && status === "shipping") {
+      updates.push("shipped_at = NOW()");
+    }
+  }
+
+  if (total_amount !== undefined && !isNaN(Number(total_amount)) && me.role !== "customer") {
+    updates.push("total_amount = ?");
+    values.push(Number(total_amount));
+  }
+
+  if (updates.length > 0) {
+    values.push(orderId);
+    await query(`UPDATE orders SET ${updates.join(", ")} WHERE id = ?`, values);
+  }
+
+  // อัปเดตที่อยู่จัดส่งในตาราง addresses ถ้ามี address_id
+  if (address && existing.address_id) {
+    await query(
+      "UPDATE addresses SET address_line = ? WHERE id = ?",
+      [address, existing.address_id]
+    );
+  }
+
+  return NextResponse.json({ success: true, message: "อัปเดตข้อมูลคำสั่งซื้อเรียบร้อยแล้ว" });
+}
+
+
