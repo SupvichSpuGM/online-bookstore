@@ -87,3 +87,37 @@ export async function PUT(
     return NextResponse.json({ error: "เกิดข้อผิดพลาดภายในระบบ" }, { status: 500 });
   }
 }
+
+// ─── DELETE /api/users/[id] — ลบผู้ใช้ (admin only) ─────────
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const me = await getCurrentUser();
+  if (!me) return unauthorizedResponse();
+  if (me.role !== "admin") return forbiddenResponse();
+
+  const { id } = await params;
+  const userId = Number(id);
+
+  // ป้องกันการลบตัวเอง
+  if (Number(me.sub) === userId) {
+    return NextResponse.json({ error: "ไม่สามารถลบบัญชีของตัวเองได้" }, { status: 400 });
+  }
+
+  try {
+    await query("DELETE FROM users WHERE id = ?", [userId]);
+    return NextResponse.json({ success: true });
+  } catch (error: unknown) {
+    console.error("[DELETE /api/users/[id]]", error);
+    const msg = (error as Error)?.message ?? "";
+    // Foreign key constraint (มี order อยู่)
+    if (msg.includes("foreign key") || msg.includes("1451")) {
+      return NextResponse.json(
+        { error: "ไม่สามารถลบผู้ใช้ที่มีคำสั่งซื้อในระบบได้" },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json({ error: "เกิดข้อผิดพลาดภายในระบบ" }, { status: 500 });
+  }
+}

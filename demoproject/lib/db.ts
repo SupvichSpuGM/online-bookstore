@@ -15,6 +15,12 @@ const pool = mysql.createPool({
   timezone: "+07:00",
 });
 
+// ─── Force UTF-8 charset on every new connection ────────────────────────────
+// แก้ปัญหา character_set_client=latin1 ทำให้ภาษาไทยเสียหาย
+pool.on("connection", (conn) => {
+  conn.query("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+});
+
 // ─── Mock Fallback Generator (เมื่อ MySQL ปิดอยู่) ──────────────────────────
 function getMockFallback(sql: string): unknown {
   const cleanSql = sql.toLowerCase();
@@ -53,10 +59,15 @@ function getMockFallback(sql: string): unknown {
   if (cleanSql.includes("from users")) {
     if (cleanSql.includes("count(*)")) return [{ count: 6 }];
     return [
-      { id: 1, name: "สมชาย วงศ์สุข", email: "customer@booka.app", role: "customer", phone: "081-234-5678" },
-      { id: 5, name: "กิตติวัฒน์ กุดั่น", email: "staff@booka.app", role: "staff", phone: "082-345-6789" },
-      { id: 6, name: "ศิระเดช ศรีอ่ำ", email: "admin@booka.app", role: "admin", phone: "083-456-7890" },
+      { id: 1, name: "สมชาย วงศ์สุข", email: "customer@booka.app", role: "customer", phone: "081-234-5678", created_at: "2024-02-10T00:00:00Z", order_count: 12, total_spent: 4850 },
+      { id: 5, name: "กิตติวัฒน์ กุดั่น", email: "staff@booka.app", role: "staff", phone: "082-345-6789", created_at: "2024-01-01T00:00:00Z", order_count: 0, total_spent: 0 },
+      { id: 6, name: "ศิระเดช ศรีอ่ำ", email: "admin@booka.app", role: "admin", phone: "083-456-7890", created_at: "2024-01-01T00:00:00Z", order_count: 0, total_spent: 0 },
     ];
+  }
+
+  // INSERT INTO users (mock fallback — คืน insertId จำลอง)
+  if (cleanSql.startsWith("insert into users")) {
+    return { insertId: Math.floor(Math.random() * 9000) + 1000, affectedRows: 1 };
   }
 
   // Orders query
@@ -77,14 +88,22 @@ function getMockFallback(sql: string): unknown {
     }));
   }
 
-  // Dashboard summary query
-  if (cleanSql.includes("total_revenue")) {
+  // Dashboard summary query (SELECT ... AS total_revenue)
+  if (cleanSql.includes("total_revenue") || (cleanSql.includes("select") && cleanSql.includes("total_orders"))) {
+    const totalRevenue = ORDERS.filter(o => o.status !== "cancelled").reduce((s, o) => s + o.total, 0);
+    const totalOrders  = ORDERS.filter(o => o.status !== "cancelled").length;
     return [{
-      total_revenue: 53400,
-      total_orders: ORDERS.length,
-      total_customers: 6,
+      total_revenue: totalRevenue,
+      total_orders: totalOrders,
+      total_customers: 3,
       total_books: BOOKS.length,
     }];
+  }
+
+  // Monthly sales data (GROUP BY DATE_FORMAT)
+  if (cleanSql.includes("date_format") && cleanSql.includes("from orders")) {
+    const { SALES_DATA } = require("./data");
+    return SALES_DATA ?? [];
   }
 
   // Default empty array
