@@ -1018,3 +1018,5 @@ flowchart TD
 | 6. User Acceptance Testing (UAT Manual) | ✅ 100% | นายกิตติวัฒน์ กุดั่น (QA) |
 
 📂 **GitHub Repository:** [https://github.com/SupvichSpuGM/online-bookstore](https://github.com/SupvichSpuGM/online-bookstore)
+
+📂 **Figma WireFrames:** [https://www.figma.com/make/9mt7DCRWyH1amQ0eQ7zWDO/E-Commerce-Bookstore-Wireframe--Copy-?t=UdLdaIbyvdSyNsVG-1](https://www.figma.com/make/9mt7DCRWyH1amQ0eQ7zWDO/E-Commerce-Bookstore-Wireframe--Copy-?t=UdLdaIbyvdSyNsVG-1)
