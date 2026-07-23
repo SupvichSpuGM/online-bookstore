@@ -16,7 +16,8 @@ interface AdminState {
   users: AdminUser[];
   categories: string[];
   
-  addBook: (book: Omit<Book, 'id'>) => void;
+  setBooks: (books: Book[]) => void;
+  addBook: (book: Book) => void;
   updateBook: (id: number, book: Partial<Book>) => void;
   deleteBook: (id: number) => void;
 
@@ -38,8 +39,9 @@ export const useAdminStore = create<AdminState>((set) => ({
   users: [...USERS],
   categories: [...CATEGORIES.filter(c => c !== "ทั้งหมด")], // Filter out default dynamic 'all' if present
   
+  setBooks: (books) => set({ books }),
   addBook: (newBook) => set((state) => ({
-    books: [...state.books, { ...newBook, id: Math.max(...state.books.map(b => b.id), 0) + 1 }]
+    books: [...state.books, { ...newBook, id: newBook.id ?? Math.max(...state.books.map(b => b.id), 0) + 1 }]
   })),
   
   updateBook: (id, updatedFields) => set((state) => ({

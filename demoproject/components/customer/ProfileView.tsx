@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Edit, Check, CheckCircle, ClipboardList, ShoppingBag, User, LogOut } from "lucide-react";
+import { ArrowLeft, Edit, Check, CheckCircle, ClipboardList, LogOut } from "lucide-react";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { ORDERS } from "@/lib/data";
 import { StatusBadge } from "@/components/ui/StatusBadge";

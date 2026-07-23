@@ -130,7 +130,7 @@ export function AdminCategoriesView() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">เปลี่ยนชื่อจาก "{editOld}" เป็น:</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">เปลี่ยนชื่อจาก &quot;{editOld}&quot; เป็น:</label>
                 <input value={editCat} onChange={e => setEditCat(e.target.value)} type="text" className="w-full px-3 py-2.5 rounded-lg bg-secondary border border-transparent focus:border-accent focus:outline-none text-sm" autoFocus />
               </div>
             </div>
@@ -149,7 +149,7 @@ export function AdminCategoriesView() {
             <Trash2 className="w-12 h-12 text-red-500 mb-4 p-3 bg-red-50 rounded-full" />
             <h3 className="font-['Playfair_Display'] text-xl font-bold mb-2">ยืนยันการลบหมวดหมู่</h3>
             <p className="text-sm text-muted-foreground mb-6">
-              คุณต้องการลบหมวดหมู่ "{confirmDelete}" ใช่หรือไม่?<br/>
+              คุณต้องการลบหมวดหมู่ &quot;{confirmDelete}&quot; ใช่หรือไม่?<br/>
               <span className="text-xs text-red-500/80 block mt-2">(หนังสือที่อยู่ในหมวดหมู่นี้จะกลายเป็น Uncategorized โดยอัตโนมัติ)</span>
             </p>
             <div className="flex gap-3 w-full">

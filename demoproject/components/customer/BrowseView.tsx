@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Search, ChevronRight } from "lucide-react";
@@ -11,21 +11,39 @@ const PRICE_RANGES = ["ต่ำกว่า ฿200", "฿200–350", "฿350–
 
 export function BrowseView({ books, categories }: { books: Book[]; categories: string[] }) {
   const searchParams = useSearchParams();
-  const [cat, setCat] = useState(searchParams.get("cat") ?? "ทั้งหมด");
+  const searchCat = searchParams.get("cat");
+  const [selectedCat, setSelectedCat] = useState<string | null>(null);
+  const [selectedPrices, setSelectedPrices] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("popular");
 
-  useEffect(() => {
-    const c = searchParams.get("cat");
-    if (c) setCat(c);
-  }, [searchParams]);
+  const cat = selectedCat ?? searchCat ?? "ทั้งหมด";
+  const setCat = (c: string) => setSelectedCat(c);
+
+  const togglePriceRange = (range: string) => {
+    setSelectedPrices((prev) =>
+      prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range]
+    );
+  };
+
+  const matchesPrice = (price: number) => {
+    if (selectedPrices.length === 0) return true;
+    return selectedPrices.some((r) => {
+      if (r === "ต่ำกว่า ฿200") return price < 200;
+      if (r === "฿200–350") return price >= 200 && price <= 350;
+      if (r === "฿350–500") return price >= 350 && price <= 500;
+      if (r === "มากกว่า ฿500") return price > 500;
+      return false;
+    });
+  };
 
   const filtered = books
     .filter(
       (b) =>
         (cat === "ทั้งหมด" || b.category === cat) &&
         (b.title.toLowerCase().includes(query.toLowerCase()) ||
-          b.author.toLowerCase().includes(query.toLowerCase()))
+          b.author.toLowerCase().includes(query.toLowerCase())) &&
+        matchesPrice(b.price)
     )
     .sort((a, b) =>
       sort === "price_asc" ? a.price - b.price
@@ -61,8 +79,16 @@ export function BrowseView({ books, categories }: { books: Book[]; categories: s
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3 font-['DM_Mono']">ราคา</p>
           <div className="space-y-2">
             {PRICE_RANGES.map((r) => (
-              <label key={r} className="flex items-center gap-2 text-sm cursor-pointer">
-                <input type="checkbox" className="rounded accent-accent" /> {r}
+              <label key={r} className="flex items-center gap-2 text-sm cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={selectedPrices.includes(r)}
+                  onChange={() => togglePriceRange(r)}
+                  className="rounded accent-accent cursor-pointer"
+                />
+                <span className={selectedPrices.includes(r) ? "font-medium text-foreground" : "text-muted-foreground"}>
+                  {r}
+                </span>
               </label>
             ))}
           </div>

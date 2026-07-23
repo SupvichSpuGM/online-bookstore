@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Plus } from "lucide-react";
-import { BookImg } from "@/components/ui/BookImg";
 import { Stars } from "@/components/ui/Stars";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
@@ -54,7 +53,7 @@ export function BookCard({ book }: { book: Book }) {
           rating: book.rating,
           reviews: book.review_count,
           stock: book.stock_qty,
-          imgId: "",
+          imgId: book.cover_image_url || "",
           isbn: book.isbn ?? "",
           description: book.description ?? "",
         } as Parameters<typeof addItem>[0]);
@@ -68,7 +67,7 @@ export function BookCard({ book }: { book: Book }) {
         price: book.price, originalPrice: book.original_price,
         category: book.category, rating: book.rating,
         reviews: book.review_count, stock: book.stock_qty,
-        imgId: "", isbn: book.isbn ?? "", description: book.description ?? "",
+        imgId: book.cover_image_url || "", isbn: book.isbn ?? "", description: book.description ?? "",
       } as Parameters<typeof addItem>[0]);
       setAdded(true);
       setTimeout(() => setAdded(false), 1500);

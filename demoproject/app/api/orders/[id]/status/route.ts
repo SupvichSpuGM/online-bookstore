@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { query } from "@/lib/db";
+import { query, withTransaction } from "@/lib/db";
 import { getCurrentUser, unauthorizedResponse, forbiddenResponse } from "@/lib/auth";
+import type { PoolConnection } from "mysql2/promise";
 
 // สถานะที่อนุญาตให้เปลี่ยนได้ (state machine)
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+  pending:        ["payment_review", "cancelled"],
   payment_review: ["confirmed", "cancelled"],
   confirmed:      ["shipping", "cancelled"],
   shipping:       ["delivered"],
@@ -49,10 +51,41 @@ export async function PUT(
     );
   }
 
+  // ─── กรณียกเลิก: คืนสต็อกทุกรายการใน Transaction ─────────────
+  if (status === "cancelled") {
+    await withTransaction(async (conn: PoolConnection) => {
+      // ดึง order items เพื่อคืน stock
+      const [itemRows] = await conn.execute(
+        "SELECT book_id, quantity FROM order_items WHERE order_id = ?",
+        [orderId]
+      );
+      const items = itemRows as Array<{ book_id: number; quantity: number }>;
+
+      // คืนสต็อกทีละรายการ (เฉพาะถ้าเคยตัดสต็อกไปแล้ว — status ไม่ใช่ pending)
+      if (currentStatus !== "pending") {
+        for (const item of items) {
+          await conn.execute(
+            "UPDATE books SET stock_qty = stock_qty + ? WHERE id = ?",
+            [item.quantity, item.book_id]
+          );
+        }
+      }
+
+      // อัปเดตสถานะ order
+      await conn.execute(
+        "UPDATE orders SET status = 'cancelled', verified_by = ? WHERE id = ?",
+        [Number(me.sub), orderId]
+      );
+    });
+
+    return NextResponse.json({ success: true, status: "cancelled" });
+  }
+
+  // ─── กรณีอื่น ๆ (advance status) ─────────────────────────────
   const updates: string[] = ["status = ?"];
   const values: unknown[] = [status];
 
-  if (status === "confirmed" || status === "cancelled") {
+  if (status === "confirmed") {
     updates.push("verified_by = ?");
     values.push(Number(me.sub));
   }
