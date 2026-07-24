@@ -27,18 +27,14 @@ export async function GET() {
 
   const userId = Number(me.sub);
 
-  // หา cart ของ user (สร้างถ้ายังไม่มี)
-  let carts = await query<Array<{ id: number }>>(
+  // หา cart ของ user แต่ไม่สร้างขึ้นล่วงหน้า
+  const carts = await query<Array<{ id: number }>>(
     "SELECT id FROM carts WHERE user_id = ? LIMIT 1",
     [userId]
   );
 
   if (carts.length === 0) {
-    const result = await query<{ insertId: number }>(
-      "INSERT INTO carts (user_id) VALUES (?)",
-      [userId]
-    );
-    carts = [{ id: result.insertId }];
+    return NextResponse.json({ cartId: null, items: [] });
   }
 
   const cartId = carts[0].id;
@@ -88,7 +84,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // หา/สร้าง cart
+  // หา/สร้าง cart เฉพาะเมื่อมีการเพิ่มสินค้าเข้าไปจริง ๆ
   let carts = await query<Array<{ id: number }>>(
     "SELECT id FROM carts WHERE user_id = ? LIMIT 1",
     [userId]
@@ -127,7 +123,7 @@ export async function DELETE(request: NextRequest) {
     [userId]
   );
   if (carts.length === 0) {
-    return NextResponse.json({ success: true }); // cart ว่างอยู่แล้ว
+    return NextResponse.json({ success: true }); // ไม่มี cart อยู่แล้วก็ถือว่าพร้อม
   }
 
   const cartId = carts[0].id;

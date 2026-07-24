@@ -28,6 +28,9 @@ export const useAuthStore = create<AuthStore>()(
         set({ user: null, isGuest: false });
         if (typeof document !== "undefined") {
           document.cookie = "booka-role=; path=/; max-age=0";
+          if (localStorage.getItem("booka-auth")) {
+            localStorage.removeItem("booka-auth");
+          }
         }
       },
 

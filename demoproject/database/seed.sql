@@ -8,17 +8,20 @@ SET NAMES utf8mb4;
 
 -- ─── Users (password = "password123" bcrypt hash) ──────────
 -- Hash สร้างจาก bcrypt rounds=10
-INSERT INTO users (id, name, email, password_hash, role, phone) VALUES
+INSERT IGNORE INTO users (id, name, email, password_hash, role, phone) VALUES
 (1, 'สมชาย วงศ์สุข',   'customer@booka.app', '$2b$10$/unmei3MrGslKSK9ObYa5.m42Ciyp/JW8GzG5AkovQBlZH4RR5kq6', 'customer', '081-234-5678'),
 (2, 'นภา รัตนโชติ',     'napa@email.com',     '$2b$10$/unmei3MrGslKSK9ObYa5.m42Ciyp/JW8GzG5AkovQBlZH4RR5kq6', 'customer', '082-111-2222'),
 (3, 'ธนา พรมมา',       'thana@email.com',    '$2b$10$/unmei3MrGslKSK9ObYa5.m42Ciyp/JW8GzG5AkovQBlZH4RR5kq6', 'customer', '083-333-4444'),
 (4, 'มาลี สุริยา',      'malee@email.com',    '$2b$10$/unmei3MrGslKSK9ObYa5.m42Ciyp/JW8GzG5AkovQBlZH4RR5kq6', 'customer', '084-555-6666'),
 (5, 'กิตติวัฒน์ กุดั่น', 'staff@booka.app',   '$2b$10$/unmei3MrGslKSK9ObYa5.m42Ciyp/JW8GzG5AkovQBlZH4RR5kq6', 'staff',    '082-345-6789'),
-(6, 'ศิระเดช ศรีอ่ำ',   'admin@booka.app',   '$2b$10$/unmei3MrGslKSK9ObYa5.m42Ciyp/JW8GzG5AkovQBlZH4RR5kq6', 'admin',    '083-456-7890');
+(6, 'ศิระเดช ศรีอ่ำ',   'admin@booka.app',   '$2b$10$/unmei3MrGslKSK9ObYa5.m42Ciyp/JW8GzG5AkovQBlZH4RR5kq6', 'admin',    '083-456-7890'),
+(7, 'ทดสอบ ลูกค้า',    'customer@test.com', '$2b$10$7LEUFU/mAlFClAJq1OkqvOh/ex5/8eu5y4v3dr1dGilTFo3YzE6nW', 'customer', '081-000-0001'),
+(8, 'ทดสอบ พนักงาน',  'staff@bookstore.com', '$2b$10$wdr6g1/PatXEBwM4QSxXCuQjJH.N2wHuAMXfAEmjDGZTpMNtygEOK', 'staff', '081-000-0002'),
+(9, 'ทดสอบ ผู้ดูแลระบบ', 'admin@bookstore.com', '$2b$10$eIyEcJETAr4TQHakeXilguTNfw7eC.1dVhpoH1ZHbaxlk2aL3z2Zm', 'admin', '081-000-0003');
 
 -- ─── Addresses ─────────────────────────────────────────────
-INSERT INTO addresses (id, user_id, recipient_name, phone, address_line, province, postal_code, is_default) VALUES
-(1, 1, 'สมชาย วงศ์สุข', '081-234-5678', '123 ถ.สุขุมวิท แขวงคลองเตย', 'กรุงเทพมหานคร', '10110', 1),
+INSERT IGNORE INTO addresses (id, user_id, recipient_name, phone, address_line, province, postal_code, is_default) VALUES
+(1, 1, 'สมชาย วงศ์สุข', '081-234-5678', '123 ถ.สุขุมวิทこんにちは', 'กรุงเทพมหานคร', '10110', 1),
 (2, 2, 'นภา รัตนโชติ',   '082-111-2222', '456 ถ.เพชรบุรี แขวงมักกะสัน', 'กรุงเทพมหานคร', '10400', 1),
 (3, 3, 'ธนา พรมมา',     '083-333-4444', '654 ถ.พระราม 9 แขวงห้วยขวาง', 'กรุงเทพมหานคร', '10310', 1),
 (4, 4, 'มาลี สุริยา',    '084-555-6666', '321 ถ.รัชดา แขวงดินแดง',     'กรุงเทพมหานคร', '10400', 1);
@@ -64,11 +67,13 @@ INSERT INTO order_items (order_id, book_id, quantity, price_per_unit) VALUES
 (7, 6, 1, 265.00);
 
 -- ─── Carts (empty carts สำหรับ customers) ─────────────────
-INSERT INTO carts (id, user_id) VALUES
+INSERT IGNORE INTO carts (id, user_id) VALUES
 (1, 1),
 (2, 2),
 (3, 3),
 (4, 4);
 
--- NOTE: รหัสผ่านสำหรับทุก account คือ "password123"
--- customer@booka.app / staff@booka.app / admin@booka.app
+-- NOTE: ข้อมูลต่อไปนี้เป็นข้อมูลตัวอย่างของระบบ (seed data)
+-- สำหรับบัญชีทดสอบที่สร้างใหม่ ระบบจะไม่สร้าง address/cart/ord ers ให้โดยอัตโนมัติ
+-- customer@test.com / staff@bookstore.com / admin@bookstore.com
+-- รหัสผ่าน: Customer@2026 / Staff@2026 / Admin@2026

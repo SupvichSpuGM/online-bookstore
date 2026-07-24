@@ -17,7 +17,7 @@ export function StaffNav() {
 
   const handleLogout = () => {
     logout();
-    router.push("/login");
+    window.setTimeout(() => router.replace("/login"), 0);
   };
 
   return (

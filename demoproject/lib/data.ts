@@ -2,12 +2,13 @@
 export type Role = "customer" | "staff" | "admin";
 
 export interface UserAccount {
+  id?: number;
   name: string;
   email: string;
   role: Role;
-  phone: string;
-  address: string;
-  joined: string;
+  phone: string | null;
+  address?: string | null;
+  joined?: string;
   avatar: string;
 }
 
